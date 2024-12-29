@@ -1,15 +1,22 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { format } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 
 interface CalendarProps {
   date: Date;
   setDate: (date: Date) => void;
+  onDateSelect?: () => void;  // Added this optional prop
 }
 
-const Calendar: React.FC<CalendarProps> = ({ date, setDate }) => {
+const Calendar: React.FC<CalendarProps> = ({ date, setDate, onDateSelect }) => {
+  const handleSelect = (newDate: Date | undefined) => {
+    if (newDate) {
+      setDate(newDate);
+      onDateSelect?.();  // Call onDateSelect if it exists
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -24,7 +31,7 @@ const Calendar: React.FC<CalendarProps> = ({ date, setDate }) => {
       <CalendarComponent
         mode="single"
         selected={date}
-        onSelect={(newDate) => newDate && setDate(newDate)}
+        onSelect={handleSelect}
         className="rounded-md border shadow"
       />
     </motion.div>
