@@ -1,5 +1,6 @@
 import React from "react";
-import { User, Settings } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { User, Settings, LogOut } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,10 +10,16 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { useTheme } from "@/hooks/useTheme";
+import { useAuth } from "@/context/AuthContext";
 
 const Navbar = () => {
-  const { setTheme } = useTheme();
+  const navigate = useNavigate();
+  const { logout } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
 
   return (
     <nav className="flex justify-between items-center mb-8">
@@ -25,16 +32,8 @@ const Navbar = () => {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Theme</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => setTheme("light")}>
-              Light
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setTheme("dark")}>
-              Dark
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setTheme("system")}>
-              System
+            <DropdownMenuItem onClick={() => navigate("/preferences")}>
+              Preferences
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -46,10 +45,17 @@ const Navbar = () => {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>My Account</DropdownMenuLabel>
-            <DropdownMenuItem>Profile</DropdownMenuItem>
-            <DropdownMenuItem>Best Days</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => navigate("/profile")}>
+              Profile
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => navigate("/best-days")}>
+              Best Days
+            </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>Log out</DropdownMenuItem>
+            <DropdownMenuItem onClick={handleLogout}>
+              <LogOut className="h-4 w-4 mr-2" />
+              Log out
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
