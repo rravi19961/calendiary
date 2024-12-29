@@ -28,7 +28,7 @@ const Navbar = () => {
           <BookOpen className="h-6 w-6" />
           <span className="text-2xl font-bold">CalenDiary</span>
         </Link>
-        <Link to="/" className="ttext-xl hover:text-primary/80">
+        <Link to="/" className="text-xl hover:text-primary/80">
           Home
         </Link>
       </div>
