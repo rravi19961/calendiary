@@ -5,6 +5,7 @@ import { X, Lock, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import { Slider } from "@/components/ui/slider";
 
 interface Entry {
   id: string;
@@ -23,13 +24,14 @@ const QUOTES = [
   "Write it on your heart that every day is the best day in the year.",
   "Today is the first day of the rest of your life.",
   "Make each day your masterpiece.",
-  // Add more quotes as needed
 ];
+
+const EMOJIS = ["😢", "😕", "😐", "🙂", "😊"];
 
 const EntryModal: React.FC<EntryModalProps> = ({ isOpen, onClose, date }) => {
   const { toast } = useToast();
   const [entries, setEntries] = React.useState<Entry[]>([
-    { id: "1", content: "", rating: 0, createdAt: new Date() },
+    { id: "1", content: "", rating: 3, createdAt: new Date() },
   ]);
   const isPastDate = date < new Date(new Date().setHours(0, 0, 0, 0));
   const randomQuote = React.useMemo(
@@ -51,10 +53,20 @@ const EntryModal: React.FC<EntryModalProps> = ({ isOpen, onClose, date }) => {
       {
         id: String(entries.length + 1),
         content: "",
-        rating: 0,
+        rating: 3,
         createdAt: new Date(),
       },
     ]);
+  };
+
+  const handleContentChange = (id: string, value: string) => {
+    if (value.length <= 500) {
+      setEntries(
+        entries.map((entry) =>
+          entry.id === id ? { ...entry, content: value } : entry
+        )
+      );
+    }
   };
 
   if (!isOpen) return null;
@@ -71,7 +83,7 @@ const EntryModal: React.FC<EntryModalProps> = ({ isOpen, onClose, date }) => {
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.9, opacity: 0 }}
-          className="bg-background rounded-lg shadow-lg w-full max-w-2xl"
+          className="bg-card rounded-lg shadow-lg w-full max-w-2xl"
         >
           <div className="p-6">
             <div className="flex justify-between items-center mb-6">
@@ -103,46 +115,34 @@ const EntryModal: React.FC<EntryModalProps> = ({ isOpen, onClose, date }) => {
                   )}
                   <div>
                     <label className="block text-sm font-medium mb-2">
-                      How was your day? (1-5)
+                      How was your day? {EMOJIS[Math.floor(entry.rating) - 1]}
                     </label>
-                    <div className="flex space-x-2">
-                      {[1, 2, 3, 4, 5].map((value) => (
-                        <Button
-                          key={value}
-                          variant={entry.rating === value ? "default" : "outline"}
-                          onClick={() =>
-                            setEntries(
-                              entries.map((e) =>
-                                e.id === entry.id
-                                  ? { ...e, rating: value }
-                                  : e
-                              )
-                            )
-                          }
-                          disabled={isPastDate}
-                          className="w-10 h-10 rounded-full"
-                        >
-                          {value}
-                        </Button>
-                      ))}
-                    </div>
+                    <Slider
+                      value={[entry.rating]}
+                      min={1}
+                      max={5}
+                      step={1}
+                      disabled={isPastDate}
+                      onValueChange={(value) =>
+                        setEntries(
+                          entries.map((e) =>
+                            e.id === entry.id ? { ...e, rating: value[0] } : e
+                          )
+                        )
+                      }
+                    />
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium mb-2">
                       Write about your day
+                      <span className="text-xs text-muted-foreground ml-2">
+                        ({500 - entry.content.length} characters remaining)
+                      </span>
                     </label>
                     <Textarea
                       value={entry.content}
-                      onChange={(e) =>
-                        setEntries(
-                          entries.map((ent) =>
-                            ent.id === entry.id
-                              ? { ...ent, content: e.target.value }
-                              : ent
-                          )
-                        )
-                      }
+                      onChange={(e) => handleContentChange(entry.id, e.target.value)}
                       disabled={isPastDate}
                       placeholder="What happened today?"
                       className="min-h-[150px]"
