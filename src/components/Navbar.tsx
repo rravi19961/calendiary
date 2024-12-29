@@ -24,12 +24,12 @@ const Navbar = () => {
   return (
     <nav className="flex justify-between items-center mb-8 py-4 px-6 bg-gray-100 dark:bg-gray-800">
       <div className="flex items-center space-x-6">
-        <Link to="/" className="text-primary hover:text-primary/80">
-          Home
-        </Link>
         <Link to="/" className="flex items-center space-x-2 hover:opacity-80">
           <BookOpen className="h-6 w-6" />
           <span className="text-2xl font-bold">CalenDiary</span>
+        </Link>
+        <Link to="/" className="ttext-xl hover:text-primary/80">
+          Home
         </Link>
       </div>
       <div className="flex items-center space-x-4">
