@@ -2,18 +2,20 @@ import React from "react";
 import { motion } from "framer-motion";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { isFuture } from "date-fns";
 
 interface CalendarProps {
   date: Date;
   setDate: (date: Date) => void;
-  onDateSelect?: () => void;  // Added this optional prop
+  onDateSelect?: () => void;
 }
 
 const Calendar: React.FC<CalendarProps> = ({ date, setDate, onDateSelect }) => {
   const handleSelect = (newDate: Date | undefined) => {
-    if (newDate) {
+    if (newDate && !isFuture(newDate)) {
       setDate(newDate);
-      onDateSelect?.();  // Call onDateSelect if it exists
+      // Always call onDateSelect when a valid date is selected
+      onDateSelect?.();
     }
   };
 
@@ -32,6 +34,7 @@ const Calendar: React.FC<CalendarProps> = ({ date, setDate, onDateSelect }) => {
         mode="single"
         selected={date}
         onSelect={handleSelect}
+        disabled={(date) => isFuture(date)}
         className="rounded-md border shadow"
       />
     </motion.div>

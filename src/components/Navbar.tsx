@@ -1,6 +1,6 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
-import { User, Settings, LogOut } from "lucide-react";
+import { useNavigate, Link } from "react-router-dom";
+import { User, Settings, LogOut, BookOpen } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,8 +22,16 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="flex justify-between items-center mb-8">
-      <div className="text-2xl font-bold">CalenDiary</div>
+    <nav className="flex justify-between items-center mb-8 py-4 px-6 bg-gray-100 dark:bg-gray-800">
+      <div className="flex items-center space-x-6">
+        <Link to="/" className="text-primary hover:text-primary/80">
+          Home
+        </Link>
+        <Link to="/" className="flex items-center space-x-2 hover:opacity-80">
+          <BookOpen className="h-6 w-6" />
+          <span className="text-2xl font-bold">CalenDiary</span>
+        </Link>
+      </div>
       <div className="flex items-center space-x-4">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
