@@ -13,8 +13,9 @@ interface CalendarProps {
 const Calendar: React.FC<CalendarProps> = ({ date, setDate, onDateSelect }) => {
   const handleSelect = (newDate: Date | undefined) => {
     if (newDate && !isFuture(newDate)) {
+      // Even if it's the same date, we want to trigger the modal
       setDate(newDate);
-      // Always call onDateSelect when a valid date is selected
+      // Always call onDateSelect for valid dates, even if it's the same date
       onDateSelect?.();
     }
   };
