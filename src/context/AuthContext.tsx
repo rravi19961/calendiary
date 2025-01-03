@@ -1,18 +1,12 @@
-import React, { createContext, useContext, useState, useCallback } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
+import { User } from "@supabase/supabase-js";
+import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  avatar?: string;
-}
 
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
   updateUser: (data: Partial<User>) => void;
 }
 
@@ -30,46 +24,53 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const { toast } = useToast();
 
-  const login = useCallback(async (email: string, password: string) => {
+  useEffect(() => {
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+    });
+
+    // Listen for auth changes
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+      if (session?.user) {
+        toast({
+          title: "Welcome back!",
+          description: "You have successfully logged in.",
+        });
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [toast]);
+
+  const logout = async () => {
     try {
-      // TODO: Implement actual authentication logic
-      setUser({
-        id: "1",
-        name: "Test User",
-        email: email,
-      });
+      await supabase.auth.signOut();
       toast({
-        title: "Welcome back!",
-        description: "You have successfully logged in.",
+        title: "Logged out",
+        description: "You have been successfully logged out.",
       });
     } catch (error) {
       toast({
         title: "Error",
-        description: "Invalid credentials",
+        description: "Failed to log out",
         variant: "destructive",
       });
-      throw error;
     }
-  }, [toast]);
+  };
 
-  const logout = useCallback(() => {
-    setUser(null);
-    toast({
-      title: "Logged out",
-      description: "You have been successfully logged out.",
-    });
-  }, [toast]);
-
-  const updateUser = useCallback((data: Partial<User>) => {
-    setUser((prev) => prev ? { ...prev, ...data } : null);
-  }, []);
+  const updateUser = (data: Partial<User>) => {
+    setUser((prev) => (prev ? { ...prev, ...data } : null));
+  };
 
   return (
     <AuthContext.Provider
       value={{
         user,
         isAuthenticated: !!user,
-        login,
         logout,
         updateUser,
       }}
