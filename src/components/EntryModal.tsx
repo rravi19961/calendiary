@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Slider } from "@/components/ui/slider";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/context/AuthContext";
 
 interface Entry {
   id: string;
@@ -30,21 +32,56 @@ const EMOJIS = ["😢", "😕", "😐", "🙂", "😊"];
 
 const EntryModal: React.FC<EntryModalProps> = ({ isOpen, onClose, date }) => {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [entries, setEntries] = React.useState<Entry[]>([
     { id: "1", content: "", rating: 3, createdAt: new Date() },
   ]);
+  const [isSaving, setIsSaving] = React.useState(false);
   const isPastDate = date < new Date(new Date().setHours(0, 0, 0, 0));
   const randomQuote = React.useMemo(
     () => QUOTES[Math.floor(Math.random() * QUOTES.length)],
     [date]
   );
 
-  const handleSave = () => {
-    toast({
-      title: "Entries saved",
-      description: "Your diary entries have been saved successfully.",
-    });
-    onClose();
+  const handleSave = async () => {
+    if (!user) {
+      toast({
+        title: "Error",
+        description: "You must be logged in to save entries",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      // Save each entry to the database
+      for (const entry of entries) {
+        const { error } = await supabase.from("diary_entries").upsert({
+          user_id: user.id,
+          date: format(date, "yyyy-MM-dd"),
+          content: entry.content,
+          rating: entry.rating,
+        });
+
+        if (error) throw error;
+      }
+
+      toast({
+        title: "Entries saved",
+        description: "Your diary entries have been saved successfully.",
+      });
+      onClose();
+    } catch (error) {
+      console.error("Error saving entries:", error);
+      toast({
+        title: "Error",
+        description: "Failed to save your entries. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const addNewEntry = () => {
@@ -142,7 +179,9 @@ const EntryModal: React.FC<EntryModalProps> = ({ isOpen, onClose, date }) => {
                     </label>
                     <Textarea
                       value={entry.content}
-                      onChange={(e) => handleContentChange(entry.id, e.target.value)}
+                      onChange={(e) =>
+                        handleContentChange(entry.id, e.target.value)
+                      }
                       disabled={isPastDate}
                       placeholder="What happened today?"
                       className="min-h-[150px]"
@@ -166,8 +205,11 @@ const EntryModal: React.FC<EntryModalProps> = ({ isOpen, onClose, date }) => {
                 <Button variant="outline" onClick={onClose}>
                   Cancel
                 </Button>
-                <Button onClick={handleSave} disabled={isPastDate}>
-                  Save Entries
+                <Button
+                  onClick={handleSave}
+                  disabled={isPastDate || isSaving}
+                >
+                  {isSaving ? "Saving..." : "Save Entries"}
                 </Button>
               </div>
             </div>
