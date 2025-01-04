@@ -13,8 +13,12 @@ interface CalendarProps {
 const Calendar: React.FC<CalendarProps> = ({ date, setDate, onDateSelect }) => {
   const handleSelect = (newDate: Date | undefined) => {
     if (newDate && !isFuture(newDate)) {
-      setDate(startOfDay(newDate));
-      onDateSelect?.();
+      const selectedDate = startOfDay(newDate);
+      // Only trigger the callback if it's a new date or if it's the same date (allowing re-clicks)
+      if (onDateSelect) {
+        setDate(selectedDate);
+        onDateSelect();
+      }
     }
   };
 

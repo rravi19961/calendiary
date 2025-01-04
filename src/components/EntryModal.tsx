@@ -33,6 +33,12 @@ const EntryModal: React.FC<EntryModalProps> = ({ isOpen, onClose, date }) => {
     setCurrentIndex(0);
   }, [date]);
 
+  const handleClose = () => {
+    setCurrentIndex(0);
+    setIsSaving(false);
+    onClose();
+  };
+
   const handleSave = async () => {
     if (!user) {
       toast({
@@ -60,7 +66,7 @@ const EntryModal: React.FC<EntryModalProps> = ({ isOpen, onClose, date }) => {
         title: "Entries saved",
         description: "Your diary entries have been saved successfully.",
       });
-      onClose();
+      handleClose();
     } catch (error) {
       console.error("Error saving entries:", error);
       toast({
@@ -95,84 +101,84 @@ const EntryModal: React.FC<EntryModalProps> = ({ isOpen, onClose, date }) => {
     );
   };
 
-  if (!isOpen) return null;
-
   return (
     <AnimatePresence>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50"
-      >
+      {isOpen && (
         <motion.div
-          initial={{ scale: 0.9, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          exit={{ scale: 0.9, opacity: 0 }}
-          className="bg-card rounded-lg shadow-lg w-full max-w-2xl"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50"
         >
-          <div className="p-6">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-semibold">
-                {format(date, "MMMM d, yyyy")}
-              </h2>
-              <div className="flex items-center space-x-2">
-                {isPastDate && <Lock className="h-4 w-4 text-muted-foreground" />}
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={onClose}
-                  className="hover:bg-secondary"
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-
-            <div className="bg-primary/10 p-4 rounded-lg mb-6">
-              <p className="text-lg italic text-center">{randomQuote}</p>
-            </div>
-
-            {isLoading ? (
-              <div className="flex justify-center py-8">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-              </div>
-            ) : (
-              <div className="space-y-6">
-                {entries.length > 0 && (
-                  <EntrySlider
-                    entries={entries}
-                    currentIndex={currentIndex}
-                    setCurrentIndex={setCurrentIndex}
-                    disabled={isPastDate}
-                    onChange={handleEntryChange}
-                  />
-                )}
-
-                {!isPastDate && (
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.9, opacity: 0 }}
+            className="bg-card rounded-lg shadow-lg w-full max-w-2xl"
+          >
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-semibold">
+                  {format(date, "MMMM d, yyyy")}
+                </h2>
+                <div className="flex items-center space-x-2">
+                  {isPastDate && <Lock className="h-4 w-4 text-muted-foreground" />}
                   <Button
-                    variant="outline"
-                    onClick={addNewEntry}
-                    className="w-full"
+                    variant="ghost"
+                    size="icon"
+                    onClick={handleClose}
+                    className="hover:bg-secondary"
                   >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add Another Entry
-                  </Button>
-                )}
-
-                <div className="flex justify-end space-x-2">
-                  <Button variant="outline" onClick={onClose}>
-                    Cancel
-                  </Button>
-                  <Button onClick={handleSave} disabled={isPastDate || isSaving}>
-                    {isSaving ? "Saving..." : "Save Entries"}
+                    <X className="h-4 w-4" />
                   </Button>
                 </div>
               </div>
-            )}
-          </div>
+
+              <div className="bg-primary/10 p-4 rounded-lg mb-6">
+                <p className="text-lg italic text-center">{randomQuote}</p>
+              </div>
+
+              {isLoading ? (
+                <div className="flex justify-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {entries.length > 0 && (
+                    <EntrySlider
+                      entries={entries}
+                      currentIndex={currentIndex}
+                      setCurrentIndex={setCurrentIndex}
+                      disabled={isPastDate}
+                      onChange={handleEntryChange}
+                    />
+                  )}
+
+                  {!isPastDate && (
+                    <Button
+                      variant="outline"
+                      onClick={addNewEntry}
+                      className="w-full"
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Another Entry
+                    </Button>
+                  )}
+
+                  <div className="flex justify-end space-x-2">
+                    <Button variant="outline" onClick={handleClose}>
+                      Cancel
+                    </Button>
+                    <Button onClick={handleSave} disabled={isPastDate || isSaving}>
+                      {isSaving ? "Saving..." : "Save Entries"}
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </motion.div>
         </motion.div>
-      </motion.div>
+      )}
     </AnimatePresence>
   );
 };
