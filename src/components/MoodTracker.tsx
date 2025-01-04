@@ -18,7 +18,18 @@ const mockData: MoodData[] = [
   { date: "Sun", rating: 4 },
 ];
 
+const MOOD_EMOJIS = ["😢", "☹️", "😐", "🙂", "😄"];
+
 const MoodTracker: React.FC = () => {
+  const CustomYAxisTick = ({ x, y, payload }: any) => {
+    const emojiIndex = payload.value - 1;
+    return (
+      <text x={x} y={y} dy={5} textAnchor="end" fontSize={16}>
+        {MOOD_EMOJIS[emojiIndex]}
+      </text>
+    );
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -34,8 +45,17 @@ const MoodTracker: React.FC = () => {
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={mockData}>
             <XAxis dataKey="date" />
-            <YAxis domain={[0, 5]} />
-            <Tooltip />
+            <YAxis
+              domain={[1, 5]}
+              ticks={[1, 2, 3, 4, 5]}
+              tick={<CustomYAxisTick />}
+            />
+            <Tooltip
+              formatter={(value: number) => [
+                `Mood: ${MOOD_EMOJIS[value - 1]}`,
+                "",
+              ]}
+            />
             <Line
               type="monotone"
               dataKey="rating"

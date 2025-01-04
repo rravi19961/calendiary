@@ -6,9 +6,9 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/context/AuthContext";
-import { EntryForm } from "./diary/EntryForm";
 import { QUOTES } from "./diary/constants";
-import { useEntries, Entry } from "./diary/useEntries";
+import { useEntries } from "./diary/useEntries";
+import { EntrySlider } from "./diary/EntrySlider";
 
 interface EntryModalProps {
   isOpen: boolean;
@@ -20,6 +20,7 @@ const EntryModal: React.FC<EntryModalProps> = ({ isOpen, onClose, date }) => {
   const { toast } = useToast();
   const { user } = useAuth();
   const [isSaving, setIsSaving] = React.useState(false);
+  const [currentIndex, setCurrentIndex] = React.useState(0);
   const isPastDate = date < new Date(new Date().setHours(0, 0, 0, 0));
   const { entries, setEntries, isLoading } = useEntries(date);
   
@@ -27,6 +28,10 @@ const EntryModal: React.FC<EntryModalProps> = ({ isOpen, onClose, date }) => {
     () => QUOTES[Math.floor(Math.random() * QUOTES.length)],
     [date]
   );
+
+  React.useEffect(() => {
+    setCurrentIndex(0);
+  }, [date]);
 
   const handleSave = async () => {
     if (!user) {
@@ -78,6 +83,16 @@ const EntryModal: React.FC<EntryModalProps> = ({ isOpen, onClose, date }) => {
         createdAt: new Date(),
       },
     ]);
+    setCurrentIndex(entries.length);
+  };
+
+  const handleEntryChange = (
+    changes: { content?: string; rating?: number },
+    entryId: string
+  ) => {
+    setEntries(
+      entries.map((e) => (e.id === entryId ? { ...e, ...changes } : e))
+    );
   };
 
   if (!isOpen) return null;
@@ -124,25 +139,15 @@ const EntryModal: React.FC<EntryModalProps> = ({ isOpen, onClose, date }) => {
               </div>
             ) : (
               <div className="space-y-6">
-                {entries.map((entry, index) => (
-                  <div key={entry.id} className="space-y-4">
-                    {index > 0 && (
-                      <div className="border-t border-border pt-4"></div>
-                    )}
-                    <EntryForm
-                      content={entry.content}
-                      rating={entry.rating}
-                      disabled={isPastDate}
-                      onChange={(changes) =>
-                        setEntries(
-                          entries.map((e) =>
-                            e.id === entry.id ? { ...e, ...changes } : e
-                          )
-                        )
-                      }
-                    />
-                  </div>
-                ))}
+                {entries.length > 0 && (
+                  <EntrySlider
+                    entries={entries}
+                    currentIndex={currentIndex}
+                    setCurrentIndex={setCurrentIndex}
+                    disabled={isPastDate}
+                    onChange={handleEntryChange}
+                  />
+                )}
 
                 {!isPastDate && (
                   <Button
@@ -159,10 +164,7 @@ const EntryModal: React.FC<EntryModalProps> = ({ isOpen, onClose, date }) => {
                   <Button variant="outline" onClick={onClose}>
                     Cancel
                   </Button>
-                  <Button
-                    onClick={handleSave}
-                    disabled={isPastDate || isSaving}
-                  >
+                  <Button onClick={handleSave} disabled={isPastDate || isSaving}>
                     {isSaving ? "Saving..." : "Save Entries"}
                   </Button>
                 </div>
