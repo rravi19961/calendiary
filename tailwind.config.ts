@@ -79,6 +79,11 @@ export default {
           "0%, 100%": { transform: "translateY(0)" },
           "50%": { transform: "translateY(-5px)" },
         },
+        wave: {
+          "0%": { transform: "translateX(0)" },
+          "50%": { transform: "translateX(-25%)" },
+          "100%": { transform: "translateX(0)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -86,6 +91,11 @@ export default {
         fadeIn: "fadeIn 0.5s ease-out",
         slideIn: "slideIn 0.3s ease-out",
         float: "float 3s ease-in-out infinite",
+        wave: "wave 10s ease-in-out infinite",
+      },
+      backgroundImage: {
+        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+        'gradient-waves': 'linear-gradient(60deg, #abecd6 0%, #fbed96 100%)',
       },
     },
   },

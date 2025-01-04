@@ -2,7 +2,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
-import { isFuture } from "date-fns";
+import { isFuture, startOfDay } from "date-fns";
 
 interface CalendarProps {
   date: Date;
@@ -13,9 +13,7 @@ interface CalendarProps {
 const Calendar: React.FC<CalendarProps> = ({ date, setDate, onDateSelect }) => {
   const handleSelect = (newDate: Date | undefined) => {
     if (newDate && !isFuture(newDate)) {
-      // Even if it's the same date, we want to trigger the modal
-      setDate(newDate);
-      // Always call onDateSelect for valid dates, even if it's the same date
+      setDate(startOfDay(newDate));
       onDateSelect?.();
     }
   };
@@ -25,7 +23,7 @@ const Calendar: React.FC<CalendarProps> = ({ date, setDate, onDateSelect }) => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="neo-card p-6 w-full max-w-sm mx-auto"
+      className="neo-card p-6 w-full max-w-sm mx-auto bg-gradient-to-br from-blue-50 to-white dark:from-blue-900/20 dark:to-gray-900"
     >
       <div className="flex items-center space-x-2 mb-4">
         <CalendarIcon className="h-5 w-5 text-primary" />
@@ -36,7 +34,7 @@ const Calendar: React.FC<CalendarProps> = ({ date, setDate, onDateSelect }) => {
         selected={date}
         onSelect={handleSelect}
         disabled={(date) => isFuture(date)}
-        className="rounded-md border shadow"
+        className="rounded-md border shadow bg-card"
       />
     </motion.div>
   );
