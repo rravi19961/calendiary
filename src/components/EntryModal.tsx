@@ -29,15 +29,17 @@ const EntryModal: React.FC<EntryModalProps> = ({ isOpen, onClose, date }) => {
     [date]
   );
 
-  React.useEffect(() => {
-    setCurrentIndex(0);
-  }, [date]);
-
+  // Reset state when modal closes
   const handleClose = () => {
     setCurrentIndex(0);
     setIsSaving(false);
     onClose();
   };
+
+  // Reset current index when date changes
+  React.useEffect(() => {
+    setCurrentIndex(0);
+  }, [date]);
 
   const handleSave = async () => {
     if (!user) {
@@ -51,8 +53,10 @@ const EntryModal: React.FC<EntryModalProps> = ({ isOpen, onClose, date }) => {
 
     setIsSaving(true);
     try {
+      // Save each entry individually
       for (const entry of entries) {
         const { error } = await supabase.from("diary_entries").upsert({
+          id: entry.id, // Include ID for updating existing entries
           user_id: user.id,
           date: format(date, "yyyy-MM-dd"),
           content: entry.content,
@@ -63,7 +67,7 @@ const EntryModal: React.FC<EntryModalProps> = ({ isOpen, onClose, date }) => {
       }
 
       toast({
-        title: "Entries saved",
+        title: "Success",
         description: "Your diary entries have been saved successfully.",
       });
       handleClose();
@@ -80,16 +84,14 @@ const EntryModal: React.FC<EntryModalProps> = ({ isOpen, onClose, date }) => {
   };
 
   const addNewEntry = () => {
-    setEntries([
-      ...entries,
-      {
-        id: String(entries.length + 1),
-        content: "",
-        rating: 3,
-        createdAt: new Date(),
-      },
-    ]);
-    setCurrentIndex(entries.length);
+    const newEntry = {
+      id: crypto.randomUUID(), // Generate a unique ID for new entries
+      content: "",
+      rating: 3,
+      createdAt: new Date(),
+    };
+    setEntries([...entries, newEntry]);
+    setCurrentIndex(entries.length); // Move to the new entry
   };
 
   const handleEntryChange = (
