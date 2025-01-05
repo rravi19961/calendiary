@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { isFuture, startOfDay } from "date-fns";
+import { Button } from "@/components/ui/button";
 
 interface CalendarProps {
   date: Date;
@@ -16,33 +17,40 @@ const Calendar: React.FC<CalendarProps> = ({ date, setDate, onDateSelect }) => {
       const selectedDate = startOfDay(newDate);
       setDate(selectedDate);
       
-      // Always trigger the callback, but only for valid dates
       if (onDateSelect && !isFuture(selectedDate)) {
-        console.log(`Date selected: ${selectedDate}`); // Debug log
-        onDateSelect(); // Open modal
+        console.log(`Date selected: ${selectedDate}`);
+        onDateSelect();
       }
     }
   };
 
+  const goToToday = () => {
+    const today = startOfDay(new Date());
+    setDate(today);
+    if (onDateSelect) {
+      onDateSelect();
+    }
+  };
+
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className="neo-card p-6 w-full max-w-sm mx-auto bg-gradient-to-br from-blue-50 to-white dark:from-blue-900/20 dark:to-gray-900"
-    >
-      <div className="flex items-center space-x-2 mb-4">
-        <CalendarIcon className="h-5 w-5 text-primary" />
-        <h2 className="text-lg font-semibold">Select Date</h2>
-      </div>
+    <div className="space-y-4">
+      <Button 
+        variant="outline" 
+        onClick={goToToday}
+        className="w-full"
+      >
+        <CalendarIcon className="h-4 w-4 mr-2" />
+        Today
+      </Button>
+      
       <CalendarComponent
         mode="single"
         selected={date}
         onSelect={handleSelect}
         disabled={(date) => isFuture(date)}
-        className="rounded-md border shadow bg-card"
+        className="rounded-md border"
       />
-    </motion.div>
+    </div>
   );
 };
 

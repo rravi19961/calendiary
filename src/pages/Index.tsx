@@ -1,10 +1,13 @@
 import React from "react";
 import { motion } from "framer-motion";
+import { Plus, Mic, MessageSquare } from "lucide-react";
 import Calendar from "@/components/Calendar";
 import MoodTracker from "@/components/MoodTracker";
 import EntryModal from "@/components/EntryModal";
 import { ChatInterface } from "@/components/ChatInterface";
 import { useTheme } from "@/hooks/useTheme";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const Index = () => {
   const [selectedDate, setSelectedDate] = React.useState<Date>(new Date());
@@ -25,44 +28,86 @@ const Index = () => {
   };
 
   return (
-    <div className={`min-h-screen bg-background p-6 ${theme}`}>
+    <div className={`min-h-screen bg-background ${theme}`}>
+      {/* Floating Action Button for New Entry */}
+      <Button
+        onClick={() => setIsModalOpen(true)}
+        className="fixed bottom-6 right-6 rounded-full shadow-lg z-50"
+        size="lg"
+      >
+        <Plus className="h-5 w-5 mr-2" />
+        New Entry
+      </Button>
+
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="max-w-6xl mx-auto space-y-8"
+        className="max-w-7xl mx-auto p-6 space-y-6"
       >
-        <header className="text-center mb-12">
-          <motion.h1
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="text-4xl font-bold mb-2"
-          >
-            CalenDiary
-          </motion.h1>
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-            className="text-muted-foreground"
-          >
-            Your personal space for daily reflections
-          </motion.p>
-        </header>
+        {/* Main Grid Layout */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* Left Column */}
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg font-semibold">Calendar</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Calendar 
+                  date={selectedDate} 
+                  setDate={(date) => {
+                    setSelectedDate(date);
+                    handleDateSelect();
+                  }}
+                />
+              </CardContent>
+            </Card>
+          </div>
 
-        <div className="grid md:grid-cols-2 gap-6">
-          <Calendar 
-            date={selectedDate} 
-            setDate={(date) => {
-              setSelectedDate(date);
-              handleDateSelect();
-            }}
-          />
-          <MoodTracker />
+          {/* Center Column */}
+          <div className="space-y-6">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle className="text-lg font-semibold">Today's Entry</CardTitle>
+                <div className="flex gap-2">
+                  <Button variant="ghost" size="icon" title="Record Audio">
+                    <Mic className="h-5 w-5" />
+                  </Button>
+                  <Button variant="ghost" size="icon" title="Open Chat">
+                    <MessageSquare className="h-5 w-5" />
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground">
+                  Click "New Entry" to start writing about your day...
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg font-semibold">Mood Trends</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <MoodTracker />
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Right Column */}
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg font-semibold">Chat Assistant</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ChatInterface />
+              </CardContent>
+            </Card>
+          </div>
         </div>
-
-        <ChatInterface />
 
         <EntryModal
           key={modalKey}

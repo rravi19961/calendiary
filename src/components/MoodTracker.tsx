@@ -1,5 +1,4 @@
 import React from "react";
-import { motion } from "framer-motion";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { Star } from "lucide-react";
 
@@ -31,42 +30,31 @@ const MoodTracker: React.FC = () => {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: 0.2 }}
-      className="neo-card p-6 w-full max-w-sm mx-auto mt-6"
-    >
-      <div className="flex items-center space-x-2 mb-4">
-        <Star className="h-5 w-5 text-primary" />
-        <h2 className="text-lg font-semibold">Mood Trends</h2>
-      </div>
-      <div className="h-48">
-        <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={mockData}>
-            <XAxis dataKey="date" />
-            <YAxis
-              domain={[1, 5]}
-              ticks={[1, 2, 3, 4, 5]}
-              tick={<CustomYAxisTick />}
-            />
-            <Tooltip
-              formatter={(value: number) => [
-                `Mood: ${MOOD_EMOJIS[value - 1]}`,
-                "",
-              ]}
-            />
-            <Line
-              type="monotone"
-              dataKey="rating"
-              stroke="hsl(var(--primary))"
-              strokeWidth={2}
-              dot={{ fill: "hsl(var(--primary))" }}
-            />
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
-    </motion.div>
+    <div className="h-48">
+      <ResponsiveContainer width="100%" height="100%">
+        <LineChart data={mockData}>
+          <XAxis dataKey="date" />
+          <YAxis
+            domain={[1, 5]}
+            ticks={[1, 2, 3, 4, 5]}
+            tick={<CustomYAxisTick />}
+          />
+          <Tooltip
+            formatter={(value: number) => [
+              `Mood: ${MOOD_EMOJIS[value - 1]}`,
+              "",
+            ]}
+          />
+          <Line
+            type="monotone"
+            dataKey="rating"
+            stroke="hsl(var(--primary))"
+            strokeWidth={2}
+            dot={{ fill: "hsl(var(--primary))" }}
+          />
+        </LineChart>
+      </ResponsiveContainer>
+    </div>
   );
 };
 
