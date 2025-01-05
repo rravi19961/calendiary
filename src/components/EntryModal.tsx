@@ -1,16 +1,14 @@
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { format } from "date-fns";
-import { X, Lock, Plus, AlertCircle } from "lucide-react";
+import { X, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/context/AuthContext";
 import { QUOTES } from "./diary/constants";
 import { useEntries } from "./diary/useEntries";
-import { EntrySlider } from "./diary/EntrySlider";
-import { EntryTitle } from "./diary/EntryTitle";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { EntryModalContent } from "./diary/EntryModalContent";
 
 interface EntryModalProps {
   isOpen: boolean;
@@ -90,18 +88,6 @@ const EntryModal: React.FC<EntryModalProps> = ({ isOpen, onClose, date }) => {
     }
   };
 
-  const addNewEntry = () => {
-    const newEntry = {
-      id: crypto.randomUUID(),
-      title: "",
-      content: "",
-      rating: 3,
-      createdAt: new Date(),
-    };
-    setEntries([...entries, newEntry]);
-    setCurrentIndex(entries.length);
-  };
-
   return (
     <AnimatePresence>
       {isOpen && (
@@ -142,60 +128,17 @@ const EntryModal: React.FC<EntryModalProps> = ({ isOpen, onClose, date }) => {
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
                 </div>
               ) : (
-                <div className="space-y-6">
-                  {entries.length > 0 ? (
-                    <>
-                      {isPastDate && entries[currentIndex]?.id && (
-                        <Alert>
-                          <AlertCircle className="h-4 w-4" />
-                          <AlertDescription>
-                            This entry is read-only as it was created in the past.
-                          </AlertDescription>
-                        </Alert>
-                      )}
-                      <EntryTitle
-                        title={entries[currentIndex]?.title || ""}
-                        disabled={isPastDate && entries[currentIndex]?.id}
-                        onChange={(title) =>
-                          handleEntryChange({ title }, entries[currentIndex].id)
-                        }
-                        quote={randomQuote}
-                      />
-                      <EntrySlider
-                        entries={entries}
-                        currentIndex={currentIndex}
-                        setCurrentIndex={setCurrentIndex}
-                        disabled={isPastDate && entries[currentIndex]?.id}
-                        onChange={handleEntryChange}
-                      />
-                    </>
-                  ) : (
-                    <div className="text-center py-8 text-muted-foreground">
-                      No entries yet. Click the button below to add one.
-                    </div>
-                  )}
-
-                  <Button
-                    variant="outline"
-                    onClick={addNewEntry}
-                    className="w-full"
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add New Entry
-                  </Button>
-
-                  <div className="flex justify-end space-x-2">
-                    <Button variant="outline" onClick={handleClose}>
-                      Cancel
-                    </Button>
-                    <Button 
-                      onClick={handleSave} 
-                      disabled={isPastDate && entries[currentIndex]?.id || isSaving}
-                    >
-                      {isSaving ? "Saving..." : "Save Entry"}
-                    </Button>
-                  </div>
-                </div>
+                <EntryModalContent
+                  entries={entries}
+                  setEntries={setEntries}
+                  currentIndex={currentIndex}
+                  setCurrentIndex={setCurrentIndex}
+                  isPastDate={isPastDate}
+                  quote={randomQuote}
+                  onSave={handleSave}
+                  onClose={handleClose}
+                  isSaving={isSaving}
+                />
               )}
             </div>
           </motion.div>
