@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { Plus, Mic, MessageSquare, ChevronLeft, ChevronRight } from "lucide-react";
+import { Plus, ChevronLeft, ChevronRight } from "lucide-react";
 import Calendar from "@/components/Calendar";
 import MoodTracker from "@/components/MoodTracker";
 import EntryModal from "@/components/EntryModal";
@@ -15,6 +15,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { QUOTES } from "@/components/diary/constants";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
+import { useAuth } from "@/context/AuthContext";
 
 interface Entry {
   id: string;
@@ -34,6 +35,7 @@ const Index = () => {
   const { toast } = useToast();
   const [entries, setEntries] = React.useState<Entry[]>([]);
   const [currentEntry, setCurrentEntry] = React.useState("");
+  const { user } = useAuth();
 
   React.useEffect(() => {
     const interval = setInterval(() => {
@@ -76,9 +78,19 @@ const Index = () => {
   });
 
   const fetchEntries = async () => {
+    if (!user) {
+      toast({
+        title: "Error",
+        description: "You must be logged in to view entries",
+        variant: "destructive",
+      });
+      return;
+    }
+
     const { data, error } = await supabase
       .from("diary_entries")
       .select("*")
+      .eq("user_id", user.id)
       .eq("date", format(selectedDate, "yyyy-MM-dd"))
       .order("created_at", { ascending: true });
 
@@ -94,14 +106,24 @@ const Index = () => {
 
   React.useEffect(() => {
     fetchEntries();
-  }, [selectedDate]);
+  }, [selectedDate, user]);
 
   const handleSaveEntry = async () => {
+    if (!user) {
+      toast({
+        title: "Error",
+        description: "You must be logged in to save entries",
+        variant: "destructive",
+      });
+      return;
+    }
+
     const entry = entries[currentEntryIndex];
     const { error } = await supabase
       .from("diary_entries")
       .upsert({
         id: entry?.id,
+        user_id: user.id,
         date: format(selectedDate, "yyyy-MM-dd"),
         content: currentEntry,
         title: entry?.title || "Untitled Entry",
