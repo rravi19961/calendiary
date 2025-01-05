@@ -13,13 +13,13 @@ interface CalendarProps {
 const Calendar: React.FC<CalendarProps> = ({ date, setDate, onDateSelect }) => {
   const handleSelect = (newDate: Date | undefined) => {
     if (newDate) {
-      // Always set the date and trigger callback, even if it's the same date
       const selectedDate = startOfDay(newDate);
       setDate(selectedDate);
       
-      // If there's a callback, always trigger it regardless of whether the date changed
-      if (onDateSelect) {
-        onDateSelect();
+      // Always trigger the callback, but only for valid dates
+      if (onDateSelect && !isFuture(selectedDate)) {
+        console.log(`Date selected: ${selectedDate}`); // Debug log
+        onDateSelect(); // Open modal
       }
     }
   };

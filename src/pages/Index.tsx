@@ -12,12 +12,16 @@ const Index = () => {
   const { theme } = useTheme();
 
   const handleDateSelect = () => {
-    setModalKey(Date.now()); // Force modal re-render
-    setIsModalOpen(true);
+    // Temporarily close modal, then reopen with a new key
+    setIsModalOpen(false);
+    setTimeout(() => {
+      setModalKey(Date.now()); // Update key for re-render
+      setIsModalOpen(true);    // Reopen modal
+    }, 0);
   };
 
   const handleModalClose = () => {
-    setIsModalOpen(false);
+    setIsModalOpen(false); // Ensure modal is fully closed
   };
 
   return (
@@ -50,17 +54,19 @@ const Index = () => {
         <div className="grid md:grid-cols-2 gap-6">
           <Calendar 
             date={selectedDate} 
-            setDate={setSelectedDate} 
-            onDateSelect={handleDateSelect}
+            setDate={(date) => {
+              setSelectedDate(date); // Update selected date
+              handleDateSelect();    // Open modal
+            }}
           />
           <MoodTracker />
         </div>
 
         <EntryModal
-          key={modalKey}
-          isOpen={isModalOpen}
+          key={modalKey}          // Force re-render with a new key
+          isOpen={isModalOpen}    // Modal visibility
           onClose={handleModalClose}
-          date={selectedDate}
+          date={selectedDate}     // Pass the selected date
         />
       </motion.div>
     </div>
