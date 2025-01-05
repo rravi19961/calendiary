@@ -52,6 +52,11 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        calendiary: {
+          primary: "#3486CF",
+          background: "#E6F2FA",
+          card: "#F8F8F8",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
