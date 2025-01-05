@@ -9,6 +9,7 @@ import { useAuth } from "@/context/AuthContext";
 import { QUOTES } from "./diary/constants";
 import { useEntries } from "./diary/useEntries";
 import { EntrySlider } from "./diary/EntrySlider";
+import { EntryTitle } from "./diary/EntryTitle";
 
 interface EntryModalProps {
   isOpen: boolean;
@@ -51,14 +52,26 @@ const EntryModal: React.FC<EntryModalProps> = ({ isOpen, onClose, date }) => {
       return;
     }
 
+    // Validate all required fields
+    const currentEntry = entries[currentIndex];
+    if (!currentEntry?.title?.trim() || !currentEntry?.content?.trim() || !currentEntry?.rating) {
+      toast({
+        title: "Validation Error",
+        description: "Please fill in all required fields (Title, Mood, and Description)",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsSaving(true);
     try {
       // Save each entry individually
       for (const entry of entries) {
         const { error } = await supabase.from("diary_entries").upsert({
-          id: entry.id, // Include ID for updating existing entries
+          id: entry.id,
           user_id: user.id,
           date: format(date, "yyyy-MM-dd"),
+          title: entry.title,
           content: entry.content,
           rating: entry.rating,
         });
@@ -85,17 +98,18 @@ const EntryModal: React.FC<EntryModalProps> = ({ isOpen, onClose, date }) => {
 
   const addNewEntry = () => {
     const newEntry = {
-      id: crypto.randomUUID(), // Generate a unique ID for new entries
+      id: crypto.randomUUID(),
+      title: "",
       content: "",
       rating: 3,
       createdAt: new Date(),
     };
     setEntries([...entries, newEntry]);
-    setCurrentIndex(entries.length); // Move to the new entry
+    setCurrentIndex(entries.length);
   };
 
   const handleEntryChange = (
-    changes: { content?: string; rating?: number },
+    changes: { title?: string; content?: string; rating?: number },
     entryId: string
   ) => {
     setEntries(
@@ -136,10 +150,6 @@ const EntryModal: React.FC<EntryModalProps> = ({ isOpen, onClose, date }) => {
                 </div>
               </div>
 
-              <div className="bg-primary/10 p-4 rounded-lg mb-6">
-                <p className="text-lg italic text-center">{randomQuote}</p>
-              </div>
-
               {isLoading ? (
                 <div className="flex justify-center py-8">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -147,13 +157,23 @@ const EntryModal: React.FC<EntryModalProps> = ({ isOpen, onClose, date }) => {
               ) : (
                 <div className="space-y-6">
                   {entries.length > 0 && (
-                    <EntrySlider
-                      entries={entries}
-                      currentIndex={currentIndex}
-                      setCurrentIndex={setCurrentIndex}
-                      disabled={isPastDate}
-                      onChange={handleEntryChange}
-                    />
+                    <>
+                      <EntryTitle
+                        title={entries[currentIndex]?.title || ""}
+                        disabled={isPastDate}
+                        onChange={(title) =>
+                          handleEntryChange({ title }, entries[currentIndex].id)
+                        }
+                        quote={randomQuote}
+                      />
+                      <EntrySlider
+                        entries={entries}
+                        currentIndex={currentIndex}
+                        setCurrentIndex={setCurrentIndex}
+                        disabled={isPastDate}
+                        onChange={handleEntryChange}
+                      />
+                    </>
                   )}
 
                   {!isPastDate && (

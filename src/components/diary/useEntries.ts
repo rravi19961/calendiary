@@ -6,6 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 
 export interface Entry {
   id: string;
+  title: string;
   content: string;
   rating: number;
   createdAt: Date;
@@ -33,6 +34,7 @@ export const useEntries = (date: Date) => {
         setEntries(
           data.map((entry) => ({
             id: entry.id,
+            title: entry.title || "",
             content: entry.content || "",
             rating: entry.rating || 3,
             createdAt: new Date(entry.created_at),
