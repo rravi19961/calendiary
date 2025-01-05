@@ -21,7 +21,6 @@ const EntryModal: React.FC<EntryModalProps> = ({ isOpen, onClose, date }) => {
   const { user } = useAuth();
   const [isSaving, setIsSaving] = React.useState(false);
   const [currentIndex, setCurrentIndex] = React.useState(0);
-  const isPastDate = date < new Date(new Date().setHours(0, 0, 0, 0));
   const { entries, setEntries, isLoading } = useEntries(date);
   
   const randomQuote = React.useMemo(
@@ -109,7 +108,7 @@ const EntryModal: React.FC<EntryModalProps> = ({ isOpen, onClose, date }) => {
                   {format(date, "MMMM d, yyyy")}
                 </h2>
                 <div className="flex items-center space-x-2">
-                  {entries.length > 0 && isPastDate && (
+                  {entries.length > 0 && entries[currentIndex]?.id && (
                     <Lock className="h-4 w-4 text-muted-foreground" />
                   )}
                   <Button
@@ -133,7 +132,7 @@ const EntryModal: React.FC<EntryModalProps> = ({ isOpen, onClose, date }) => {
                   setEntries={setEntries}
                   currentIndex={currentIndex}
                   setCurrentIndex={setCurrentIndex}
-                  isPastDate={isPastDate}
+                  isReadOnly={Boolean(entries[currentIndex]?.id)}
                   quote={randomQuote}
                   onSave={handleSave}
                   onClose={handleClose}

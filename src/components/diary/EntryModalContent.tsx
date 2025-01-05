@@ -12,7 +12,7 @@ interface EntryModalContentProps {
   setEntries: (entries: Entry[]) => void;
   currentIndex: number;
   setCurrentIndex: (index: number) => void;
-  isPastDate: boolean;
+  isReadOnly: boolean;
   quote: string;
   onSave: () => void;
   onClose: () => void;
@@ -24,7 +24,7 @@ export const EntryModalContent: React.FC<EntryModalContentProps> = ({
   setEntries,
   currentIndex,
   setCurrentIndex,
-  isPastDate,
+  isReadOnly,
   quote,
   onSave,
   onClose,
@@ -34,7 +34,7 @@ export const EntryModalContent: React.FC<EntryModalContentProps> = ({
 
   const addNewEntry = () => {
     const newEntry = {
-      id: crypto.randomUUID(),
+      id: "",
       title: "",
       content: "",
       rating: 3,
@@ -48,17 +48,17 @@ export const EntryModalContent: React.FC<EntryModalContentProps> = ({
     <div className="space-y-6">
       {entries.length > 0 ? (
         <>
-          {isPastDate && entries[currentIndex]?.id && (
+          {isReadOnly && (
             <Alert>
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>
-                This entry is read-only as it was created in the past.
+                This entry is read-only as it has already been saved.
               </AlertDescription>
             </Alert>
           )}
           <EntryTitle
             title={entries[currentIndex]?.title || ""}
-            disabled={Boolean(isPastDate && entries[currentIndex]?.id)}
+            disabled={isReadOnly}
             onChange={(title) =>
               handleEntryChange({ title }, entries[currentIndex].id)
             }
@@ -68,7 +68,7 @@ export const EntryModalContent: React.FC<EntryModalContentProps> = ({
             entries={entries}
             currentIndex={currentIndex}
             setCurrentIndex={setCurrentIndex}
-            disabled={Boolean(isPastDate && entries[currentIndex]?.id)}
+            disabled={isReadOnly}
             onChange={handleEntryChange}
           />
         </>
@@ -93,7 +93,7 @@ export const EntryModalContent: React.FC<EntryModalContentProps> = ({
         </Button>
         <Button 
           onClick={onSave} 
-          disabled={Boolean(isPastDate && entries[currentIndex]?.id) || isSaving}
+          disabled={isReadOnly || isSaving}
         >
           {isSaving ? "Saving..." : "Save Entry"}
         </Button>
