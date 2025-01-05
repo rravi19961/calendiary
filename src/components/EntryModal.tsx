@@ -1,7 +1,7 @@
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { format } from "date-fns";
-import { X, Lock, Plus } from "lucide-react";
+import { X, Lock, Plus, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -10,6 +10,7 @@ import { QUOTES } from "./diary/constants";
 import { useEntries } from "./diary/useEntries";
 import { EntrySlider } from "./diary/EntrySlider";
 import { EntryTitle } from "./diary/EntryTitle";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface EntryModalProps {
   isOpen: boolean;
@@ -30,14 +31,12 @@ const EntryModal: React.FC<EntryModalProps> = ({ isOpen, onClose, date }) => {
     [date]
   );
 
-  // Reset state when modal closes
   const handleClose = () => {
     setCurrentIndex(0);
     setIsSaving(false);
     onClose();
   };
 
-  // Reset current index when date changes
   React.useEffect(() => {
     setCurrentIndex(0);
   }, [date]);
@@ -52,7 +51,6 @@ const EntryModal: React.FC<EntryModalProps> = ({ isOpen, onClose, date }) => {
       return;
     }
 
-    // Validate all required fields
     const currentEntry = entries[currentIndex];
     if (!currentEntry?.title?.trim() || !currentEntry?.content?.trim() || !currentEntry?.rating) {
       toast({
@@ -65,30 +63,26 @@ const EntryModal: React.FC<EntryModalProps> = ({ isOpen, onClose, date }) => {
 
     setIsSaving(true);
     try {
-      // Save each entry individually
-      for (const entry of entries) {
-        const { error } = await supabase.from("diary_entries").upsert({
-          id: entry.id,
-          user_id: user.id,
-          date: format(date, "yyyy-MM-dd"),
-          title: entry.title,
-          content: entry.content,
-          rating: entry.rating,
-        });
+      const { error } = await supabase.from("diary_entries").insert({
+        user_id: user.id,
+        date: format(date, "yyyy-MM-dd"),
+        title: currentEntry.title,
+        content: currentEntry.content,
+        rating: currentEntry.rating,
+      });
 
-        if (error) throw error;
-      }
+      if (error) throw error;
 
       toast({
         title: "Success",
-        description: "Your diary entries have been saved successfully.",
+        description: "Your diary entry has been saved successfully.",
       });
       handleClose();
     } catch (error) {
-      console.error("Error saving entries:", error);
+      console.error("Error saving entry:", error);
       toast({
         title: "Error",
-        description: "Failed to save your entries. Please try again.",
+        description: "Failed to save your entry. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -106,15 +100,6 @@ const EntryModal: React.FC<EntryModalProps> = ({ isOpen, onClose, date }) => {
     };
     setEntries([...entries, newEntry]);
     setCurrentIndex(entries.length);
-  };
-
-  const handleEntryChange = (
-    changes: { title?: string; content?: string; rating?: number },
-    entryId: string
-  ) => {
-    setEntries(
-      entries.map((e) => (e.id === entryId ? { ...e, ...changes } : e))
-    );
   };
 
   return (
@@ -138,7 +123,9 @@ const EntryModal: React.FC<EntryModalProps> = ({ isOpen, onClose, date }) => {
                   {format(date, "MMMM d, yyyy")}
                 </h2>
                 <div className="flex items-center space-x-2">
-                  {isPastDate && <Lock className="h-4 w-4 text-muted-foreground" />}
+                  {entries.length > 0 && isPastDate && (
+                    <Lock className="h-4 w-4 text-muted-foreground" />
+                  )}
                   <Button
                     variant="ghost"
                     size="icon"
@@ -156,11 +143,19 @@ const EntryModal: React.FC<EntryModalProps> = ({ isOpen, onClose, date }) => {
                 </div>
               ) : (
                 <div className="space-y-6">
-                  {entries.length > 0 && (
+                  {entries.length > 0 ? (
                     <>
+                      {isPastDate && entries[currentIndex]?.id && (
+                        <Alert>
+                          <AlertCircle className="h-4 w-4" />
+                          <AlertDescription>
+                            This entry is read-only as it was created in the past.
+                          </AlertDescription>
+                        </Alert>
+                      )}
                       <EntryTitle
                         title={entries[currentIndex]?.title || ""}
-                        disabled={isPastDate}
+                        disabled={isPastDate && entries[currentIndex]?.id}
                         onChange={(title) =>
                           handleEntryChange({ title }, entries[currentIndex].id)
                         }
@@ -170,29 +165,34 @@ const EntryModal: React.FC<EntryModalProps> = ({ isOpen, onClose, date }) => {
                         entries={entries}
                         currentIndex={currentIndex}
                         setCurrentIndex={setCurrentIndex}
-                        disabled={isPastDate}
+                        disabled={isPastDate && entries[currentIndex]?.id}
                         onChange={handleEntryChange}
                       />
                     </>
+                  ) : (
+                    <div className="text-center py-8 text-muted-foreground">
+                      No entries yet. Click the button below to add one.
+                    </div>
                   )}
 
-                  {!isPastDate && (
-                    <Button
-                      variant="outline"
-                      onClick={addNewEntry}
-                      className="w-full"
-                    >
-                      <Plus className="h-4 w-4 mr-2" />
-                      Add Another Entry
-                    </Button>
-                  )}
+                  <Button
+                    variant="outline"
+                    onClick={addNewEntry}
+                    className="w-full"
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add New Entry
+                  </Button>
 
                   <div className="flex justify-end space-x-2">
                     <Button variant="outline" onClick={handleClose}>
                       Cancel
                     </Button>
-                    <Button onClick={handleSave} disabled={isPastDate || isSaving}>
-                      {isSaving ? "Saving..." : "Save Entries"}
+                    <Button 
+                      onClick={handleSave} 
+                      disabled={isPastDate && entries[currentIndex]?.id || isSaving}
+                    >
+                      {isSaving ? "Saving..." : "Save Entry"}
                     </Button>
                   </div>
                 </div>

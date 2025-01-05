@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import Calendar from "@/components/Calendar";
 import MoodTracker from "@/components/MoodTracker";
 import EntryModal from "@/components/EntryModal";
+import { ChatInterface } from "@/components/ChatInterface";
 import { useTheme } from "@/hooks/useTheme";
 
 const Index = () => {
@@ -12,16 +13,15 @@ const Index = () => {
   const { theme } = useTheme();
 
   const handleDateSelect = () => {
-    // Temporarily close modal, then reopen with a new key
     setIsModalOpen(false);
     setTimeout(() => {
-      setModalKey(Date.now()); // Update key for re-render
-      setIsModalOpen(true);    // Reopen modal
+      setModalKey(Date.now());
+      setIsModalOpen(true);
     }, 0);
   };
 
   const handleModalClose = () => {
-    setIsModalOpen(false); // Ensure modal is fully closed
+    setIsModalOpen(false);
   };
 
   return (
@@ -30,7 +30,7 @@ const Index = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="max-w-6xl mx-auto"
+        className="max-w-6xl mx-auto space-y-8"
       >
         <header className="text-center mb-12">
           <motion.h1
@@ -55,18 +55,20 @@ const Index = () => {
           <Calendar 
             date={selectedDate} 
             setDate={(date) => {
-              setSelectedDate(date); // Update selected date
-              handleDateSelect();    // Open modal
+              setSelectedDate(date);
+              handleDateSelect();
             }}
           />
           <MoodTracker />
         </div>
 
+        <ChatInterface />
+
         <EntryModal
-          key={modalKey}          // Force re-render with a new key
-          isOpen={isModalOpen}    // Modal visibility
+          key={modalKey}
+          isOpen={isModalOpen}
           onClose={handleModalClose}
-          date={selectedDate}     // Pass the selected date
+          date={selectedDate}
         />
       </motion.div>
     </div>
