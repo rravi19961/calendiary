@@ -119,18 +119,21 @@ const Index = () => {
     }
 
     const entry = entries[currentEntryIndex];
+    const upsertData = {
+      ...(entry?.id ? { id: entry.id } : {}), // Only include id if it exists
+      user_id: user.id,
+      date: format(selectedDate, "yyyy-MM-dd"),
+      content: currentEntry,
+      title: entry?.title || "Untitled Entry",
+      rating: entry?.rating || 3,
+    };
+
     const { error } = await supabase
       .from("diary_entries")
-      .upsert({
-        id: entry?.id,
-        user_id: user.id,
-        date: format(selectedDate, "yyyy-MM-dd"),
-        content: currentEntry,
-        title: entry?.title || "Untitled Entry",
-        rating: entry?.rating || 3,
-      });
+      .upsert(upsertData);
 
     if (error) {
+      console.error("Error saving entry:", error);
       toast({
         title: "Error",
         description: "Failed to save entry. Please try again.",
@@ -148,13 +151,14 @@ const Index = () => {
   };
 
   const handleNewEntry = () => {
-    setEntries([...entries, {
-      id: "",
+    const newEntry = {
+      id: "", // Remove this line since we don't want to send empty ID
       title: "Untitled Entry",
       content: "",
       rating: 3,
       created_at: new Date().toISOString(),
-    }]);
+    };
+    setEntries([...entries, newEntry]);
     setCurrentEntryIndex(entries.length);
     setCurrentEntry("");
   };
