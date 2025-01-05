@@ -8,7 +8,17 @@ import { useTheme } from "@/hooks/useTheme";
 const Index = () => {
   const [selectedDate, setSelectedDate] = React.useState<Date>(new Date());
   const [isModalOpen, setIsModalOpen] = React.useState(false);
+  const [modalKey, setModalKey] = React.useState(Date.now());
   const { theme } = useTheme();
+
+  const handleDateSelect = () => {
+    setModalKey(Date.now()); // Force modal re-render
+    setIsModalOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+  };
 
   return (
     <div className={`min-h-screen bg-background p-6 ${theme}`}>
@@ -38,13 +48,18 @@ const Index = () => {
         </header>
 
         <div className="grid md:grid-cols-2 gap-6">
-          <Calendar date={selectedDate} setDate={setSelectedDate} onDateSelect={() => setIsModalOpen(true)} />
+          <Calendar 
+            date={selectedDate} 
+            setDate={setSelectedDate} 
+            onDateSelect={handleDateSelect}
+          />
           <MoodTracker />
         </div>
 
         <EntryModal
+          key={modalKey}
           isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
+          onClose={handleModalClose}
           date={selectedDate}
         />
       </motion.div>
