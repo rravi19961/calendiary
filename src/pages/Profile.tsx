@@ -6,13 +6,19 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Upload } from "lucide-react";
+import { Upload, Calendar } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { format } from "date-fns";
+import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
 
 interface Profile {
   username: string | null;
   avatar_url: string | null;
+  full_name: string | null;
+  date_of_birth: string | null;
+  bio: string | null;
 }
 
 const Profile = () => {
@@ -21,8 +27,10 @@ const Profile = () => {
   const [profile, setProfile] = React.useState<Profile>({
     username: "",
     avatar_url: null,
+    full_name: null,
+    date_of_birth: null,
+    bio: null,
   });
-  const [bio, setBio] = React.useState("");
 
   useEffect(() => {
     if (user) {
@@ -34,7 +42,7 @@ const Profile = () => {
     try {
       const { data, error } = await supabase
         .from("profiles")
-        .select("username, avatar_url")
+        .select("username, avatar_url, full_name, date_of_birth, bio")
         .eq("id", user?.id)
         .single();
 
@@ -54,6 +62,9 @@ const Profile = () => {
         .from("profiles")
         .update({
           username: profile.username,
+          full_name: profile.full_name,
+          date_of_birth: profile.date_of_birth,
+          bio: profile.bio,
         })
         .eq("id", user?.id);
 
@@ -150,9 +161,21 @@ const Profile = () => {
               </div>
 
               <div className="space-y-2">
-                <label htmlFor="username" className="text-sm font-medium">
+                <Label htmlFor="full_name" className={cn("text-sm font-medium", !profile.full_name && "text-destructive")}>
+                  Full Name *
+                </Label>
+                <Input
+                  id="full_name"
+                  value={profile.full_name || ""}
+                  onChange={(e) => setProfile(prev => ({ ...prev, full_name: e.target.value }))}
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="username" className="text-sm font-medium">
                   Username
-                </label>
+                </Label>
                 <Input
                   id="username"
                   value={profile.username || ""}
@@ -161,13 +184,30 @@ const Profile = () => {
               </div>
 
               <div className="space-y-2">
-                <label htmlFor="bio" className="text-sm font-medium">
+                <Label htmlFor="date_of_birth" className={cn("text-sm font-medium", !profile.date_of_birth && "text-destructive")}>
+                  Date of Birth *
+                </Label>
+                <div className="relative">
+                  <Input
+                    id="date_of_birth"
+                    type="date"
+                    value={profile.date_of_birth || ""}
+                    onChange={(e) => setProfile(prev => ({ ...prev, date_of_birth: e.target.value }))}
+                    required
+                  />
+                  <Calendar className="absolute right-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="bio" className="text-sm font-medium">
                   Bio
-                </label>
+                </Label>
                 <Textarea
                   id="bio"
-                  value={bio}
-                  onChange={(e) => setBio(e.target.value)}
+                  value={profile.bio || ""}
+                  onChange={(e) => setProfile(prev => ({ ...prev, bio: e.target.value }))}
+                  placeholder="Tell us about yourself..."
                   rows={4}
                 />
               </div>
