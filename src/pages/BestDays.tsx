@@ -1,46 +1,37 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { format } from "date-fns";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-
-interface BestDay {
-  date: Date;
-  rating: number;
-  content: string;
-}
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { DiaryCard } from "@/components/diary/DiaryCard";
+import { useToast } from "@/hooks/use-toast";
 
 const BestDays = () => {
-  const [sortBy, setSortBy] = React.useState("date");
-  const [bestDays, setBestDays] = React.useState<BestDay[]>([
-    {
-      date: new Date(),
-      rating: 5,
-      content: "Example best day entry",
-    },
-  ]);
+  const { toast } = useToast();
 
-  const sortedDays = React.useMemo(() => {
-    return [...bestDays].sort((a, b) => {
-      if (sortBy === "date") {
-        return b.date.getTime() - a.date.getTime();
+  const { data: bestDays = [], isLoading } = useQuery({
+    queryKey: ["best-days"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("diary_entries")
+        .select("*")
+        .gte("rating", 4)
+        .order("date", { ascending: false });
+
+      if (error) {
+        toast({
+          title: "Error",
+          description: "Failed to load your best days. Please try again.",
+          variant: "destructive",
+        });
+        throw error;
       }
-      return b.rating - a.rating;
-    });
-  }, [bestDays, sortBy]);
+
+      return data.map(entry => ({
+        ...entry,
+        date: new Date(entry.date),
+      }));
+    },
+  });
 
   return (
     <div className="container py-8">
@@ -50,37 +41,27 @@ const BestDays = () => {
         transition={{ duration: 0.5 }}
         className="space-y-6"
       >
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center mb-8">
           <h1 className="text-2xl font-bold">Best Days</h1>
-          <Select value={sortBy} onValueChange={setSortBy}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Sort by" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="date">Sort by Date</SelectItem>
-              <SelectItem value="rating">Sort by Rating</SelectItem>
-            </SelectContent>
-          </Select>
         </div>
 
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Date</TableHead>
-              <TableHead>Rating</TableHead>
-              <TableHead className="w-[50%]">Entry</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {sortedDays.map((day, index) => (
-              <TableRow key={index}>
-                <TableCell>{format(day.date, "PPP")}</TableCell>
-                <TableCell>{day.rating}/5</TableCell>
-                <TableCell className="truncate">{day.content}</TableCell>
-              </TableRow>
+        {isLoading ? (
+          <div className="grid place-items-center h-64">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {bestDays.map((day) => (
+              <DiaryCard
+                key={day.id}
+                title={day.title || "Untitled Entry"}
+                content={day.content || ""}
+                date={day.date}
+                rating={day.rating || 0}
+              />
             ))}
-          </TableBody>
-        </Table>
+          </div>
+        )}
       </motion.div>
     </div>
   );
