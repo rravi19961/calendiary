@@ -16,6 +16,7 @@ export type Database = {
           date: string
           id: string
           rating: number | null
+          title: string | null
           updated_at: string
           user_id: string
         }
@@ -25,6 +26,7 @@ export type Database = {
           date: string
           id?: string
           rating?: number | null
+          title?: string | null
           updated_at?: string
           user_id: string
         }
@@ -34,6 +36,7 @@ export type Database = {
           date?: string
           id?: string
           rating?: number | null
+          title?: string | null
           updated_at?: string
           user_id?: string
         }
