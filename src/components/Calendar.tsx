@@ -1,5 +1,4 @@
 import React from "react";
-import { motion } from "framer-motion";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { isFuture, startOfDay } from "date-fns";
@@ -33,7 +32,7 @@ const Calendar: React.FC<CalendarProps> = ({ date, setDate, onDateSelect }) => {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="w-full max-w-sm mx-auto space-y-4">
       <Button 
         variant="outline" 
         onClick={goToToday}
@@ -43,13 +42,15 @@ const Calendar: React.FC<CalendarProps> = ({ date, setDate, onDateSelect }) => {
         Today
       </Button>
       
-      <CalendarComponent
-        mode="single"
-        selected={date}
-        onSelect={handleSelect}
-        disabled={(date) => isFuture(date)}
-        className="rounded-md border"
-      />
+      <div className="flex justify-center">
+        <CalendarComponent
+          mode="single"
+          selected={date}
+          onSelect={handleSelect}
+          disabled={(date) => isFuture(date)}
+          className="rounded-md border shadow-sm"
+        />
+      </div>
     </div>
   );
 };

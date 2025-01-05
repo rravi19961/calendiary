@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { Plus, Mic, MessageSquare, Calendar as CalendarIcon } from "lucide-react";
+import { Plus, Mic, MessageSquare } from "lucide-react";
 import Calendar from "@/components/Calendar";
 import MoodTracker from "@/components/MoodTracker";
 import EntryModal from "@/components/EntryModal";
@@ -11,12 +11,24 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { QUOTES } from "@/components/diary/constants";
 
 const Index = () => {
   const [selectedDate, setSelectedDate] = React.useState<Date>(new Date());
   const [isModalOpen, setIsModalOpen] = React.useState(false);
   const [modalKey, setModalKey] = React.useState(Date.now());
   const { theme } = useTheme();
+  const [currentQuoteIndex, setCurrentQuoteIndex] = React.useState(0);
+
+  React.useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentQuoteIndex((prevIndex) => 
+        prevIndex === QUOTES.length - 1 ? 0 : prevIndex + 1
+      );
+    }, 5000); // Change quote every 5 seconds
+
+    return () => clearInterval(interval);
+  }, []);
 
   const { data: chatStarters = [] } = useQuery({
     queryKey: ["chat-starters"],
@@ -53,9 +65,16 @@ const Index = () => {
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex flex-col space-y-2">
             <div className="flex justify-between items-center">
-              <h1 className="text-2xl font-bold text-[#3486CF] dark:text-blue-400">
-                CalenDiary
-              </h1>
+              <motion.p 
+                className="text-lg text-gray-600 dark:text-gray-300 italic"
+                key={currentQuoteIndex}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.5 }}
+              >
+                {QUOTES[currentQuoteIndex]}
+              </motion.p>
               <Button
                 onClick={() => setIsModalOpen(true)}
                 className="bg-[#3486CF] hover:bg-[#2a6ba6]"
@@ -75,12 +94,9 @@ const Index = () => {
           <div className="space-y-6">
             <Card className="glass">
               <CardHeader>
-                <CardTitle className="text-lg font-semibold flex items-center gap-2">
-                  <CalendarIcon className="h-5 w-5" />
-                  Calendar
-                </CardTitle>
+                <CardTitle className="text-lg font-semibold">Calendar</CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="flex justify-center">
                 <Calendar 
                   date={selectedDate} 
                   setDate={(date) => {
