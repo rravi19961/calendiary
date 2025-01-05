@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -13,10 +13,32 @@ interface Message {
   timestamp: Date;
 }
 
-export const ChatInterface = () => {
+interface ChatStarter {
+  id: string;
+  message: string;
+}
+
+interface ChatInterfaceProps {
+  chatStarters?: ChatStarter[];
+}
+
+export const ChatInterface: React.FC<ChatInterfaceProps> = ({ chatStarters = [] }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const scrollRef = React.useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (chatStarters.length > 0) {
+      const randomIndex = Math.floor(Math.random() * chatStarters.length);
+      const initialMessage: Message = {
+        id: crypto.randomUUID(),
+        content: chatStarters[randomIndex].message,
+        isUser: false,
+        timestamp: new Date(),
+      };
+      setMessages([initialMessage]);
+    }
+  }, [chatStarters]);
 
   const handleSend = (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,12 +76,8 @@ export const ChatInterface = () => {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="neo-card h-[400px] flex flex-col"
+      className="h-[400px] flex flex-col"
     >
-      <div className="p-4 border-b">
-        <h2 className="text-lg font-semibold">Chat</h2>
-      </div>
-
       <ScrollArea className="flex-1 p-4" ref={scrollRef}>
         <div className="space-y-4">
           {messages.map((message) => (

@@ -9,31 +9,27 @@ import { useTheme } from "@/hooks/useTheme";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-
-const QUOTES = [
-  "Make each day your masterpiece. - John Wooden",
-  "Journaling is a voyage to the interior.",
-  "Write what should not be forgotten. - Isabel Allende",
-  "Your future self will thank you for your present reflections.",
-  "The most beautiful things are those that madness prompts and reason writes. - André Gide",
-];
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 const Index = () => {
   const [selectedDate, setSelectedDate] = React.useState<Date>(new Date());
   const [isModalOpen, setIsModalOpen] = React.useState(false);
   const [modalKey, setModalKey] = React.useState(Date.now());
-  const [currentQuote, setCurrentQuote] = React.useState(QUOTES[0]);
   const { theme } = useTheme();
 
-  React.useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentQuote((prev) => {
-        const currentIndex = QUOTES.indexOf(prev);
-        return QUOTES[(currentIndex + 1) % QUOTES.length];
-      });
-    }, 5000);
-    return () => clearInterval(interval);
-  }, []);
+  const { data: chatStarters = [] } = useQuery({
+    queryKey: ["chat-starters"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("chat_starters")
+        .select("*")
+        .order("created_at");
+
+      if (error) throw error;
+      return data;
+    },
+  });
 
   const handleDateSelect = () => {
     setIsModalOpen(false);
@@ -68,15 +64,6 @@ const Index = () => {
                 New Entry
               </Button>
             </div>
-            <motion.div
-              key={currentQuote}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="text-center text-gray-600 dark:text-gray-300 italic"
-            >
-              {currentQuote}
-            </motion.div>
           </div>
         </div>
       </header>
@@ -86,7 +73,7 @@ const Index = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {/* Left Column */}
           <div className="space-y-6">
-            <Card className="bg-white/80 backdrop-blur-sm dark:bg-gray-800/80">
+            <Card className="glass">
               <CardHeader>
                 <CardTitle className="text-lg font-semibold flex items-center gap-2">
                   <CalendarIcon className="h-5 w-5" />
@@ -107,7 +94,7 @@ const Index = () => {
 
           {/* Center Column */}
           <div className="space-y-6">
-            <Card className="bg-white/80 backdrop-blur-sm dark:bg-gray-800/80">
+            <Card className="glass">
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle className="text-lg font-semibold">Today's Entry</CardTitle>
                 <div className="flex gap-2">
@@ -126,7 +113,7 @@ const Index = () => {
               </CardContent>
             </Card>
 
-            <Card className="bg-white/80 backdrop-blur-sm dark:bg-gray-800/80">
+            <Card className="glass">
               <CardHeader>
                 <CardTitle className="text-lg font-semibold">Mood Trends</CardTitle>
               </CardHeader>
@@ -138,12 +125,12 @@ const Index = () => {
 
           {/* Right Column */}
           <div className="space-y-6">
-            <Card className="bg-white/80 backdrop-blur-sm dark:bg-gray-800/80">
+            <Card className="glass">
               <CardHeader>
                 <CardTitle className="text-lg font-semibold">Chat Assistant</CardTitle>
               </CardHeader>
               <CardContent>
-                <ChatInterface />
+                <ChatInterface chatStarters={chatStarters} />
               </CardContent>
             </Card>
           </div>
