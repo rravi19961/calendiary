@@ -47,7 +47,7 @@ const Calendar: React.FC<CalendarProps> = ({ date, setDate, onDateSelect }) => {
         selected={date}
         onSelect={handleSelect}
         disabled={(date) => isFuture(date)}
-        className="rounded-md border shadow-sm w-full h-[350px] px-4"
+        className="rounded-md border shadow-sm w-full h-[350px] p-3"
       />
     </div>
   );
