@@ -8,12 +8,17 @@ import { QuestionFlow } from "./QuestionFlow";
 
 export const ChatInterface = ({ chatStarters }: { chatStarters: any[] }) => {
   const [showQuestions, setShowQuestions] = useState(false);
-  const [currentStarter, setCurrentStarter] = useState("");
+  const [currentStarterIndex, setCurrentStarterIndex] = useState(0);
 
   useEffect(() => {
     if (chatStarters?.length > 0) {
-      const randomIndex = Math.floor(Math.random() * chatStarters.length);
-      setCurrentStarter(chatStarters[randomIndex].message);
+      const interval = setInterval(() => {
+        setCurrentStarterIndex((prevIndex) => 
+          prevIndex === chatStarters.length - 1 ? 0 : prevIndex + 1
+        );
+      }, 5000);
+
+      return () => clearInterval(interval);
     }
   }, [chatStarters]);
 
@@ -24,7 +29,15 @@ export const ChatInterface = ({ chatStarters }: { chatStarters: any[] }) => {
   return (
     <div className="space-y-4">
       <Card className="p-4 bg-muted/50">
-        <p className="text-sm text-muted-foreground mb-4">{currentStarter}</p>
+        {chatStarters?.length > 0 ? (
+          <p className="text-sm text-muted-foreground mb-4">
+            {chatStarters[currentStarterIndex].message}
+          </p>
+        ) : (
+          <p className="text-sm text-muted-foreground mb-4">
+            Welcome! Let's start your journey.
+          </p>
+        )}
         <Button 
           onClick={() => setShowQuestions(true)}
           className="w-full"

@@ -41,6 +41,17 @@ export const EntryDisplay: React.FC<EntryDisplayProps> = ({
 }) => {
   const isCurrentDay = isToday(selectedDate);
   const currentDisplayEntry = entries[currentEntryIndex];
+  const hasEntries = entries.length > 0;
+
+  if (!hasEntries) {
+    return (
+      <Card className="glass">
+        <CardContent className="flex justify-center items-center py-8">
+          <p className="text-muted-foreground">No entries</p>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className="glass">
@@ -49,29 +60,29 @@ export const EntryDisplay: React.FC<EntryDisplayProps> = ({
           <h2 className="text-xl font-semibold">
             {isCurrentDay ? "Today's Entry" : format(selectedDate, "MMMM d, yyyy")}
           </h2>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setCurrentEntryIndex(Math.max(0, currentEntryIndex - 1))}
-              disabled={currentEntryIndex === 0}
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            {entries.length > 0 && (
+          {entries.length > 1 && (
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setCurrentEntryIndex(Math.max(0, currentEntryIndex - 1))}
+                disabled={currentEntryIndex === 0}
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
               <span className="text-sm text-muted-foreground">
                 {currentEntryIndex + 1} of {entries.length}
               </span>
-            )}
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setCurrentEntryIndex(Math.min(entries.length - 1, currentEntryIndex + 1))}
-              disabled={currentEntryIndex === entries.length - 1}
-            >
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-          </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setCurrentEntryIndex(Math.min(entries.length - 1, currentEntryIndex + 1))}
+                disabled={currentEntryIndex === entries.length - 1}
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
         </div>
         {currentDisplayEntry && (
           <div className="flex items-center justify-between">
@@ -88,45 +99,22 @@ export const EntryDisplay: React.FC<EntryDisplayProps> = ({
         )}
       </CardHeader>
       <CardContent>
-        {currentDisplayEntry ? (
-          <div className="space-y-4">
-            <Textarea
-              value={isCurrentDay ? currentEntry : currentDisplayEntry.content}
-              onChange={(e) => isCurrentDay && setCurrentEntry(e.target.value)}
-              placeholder="Write about your day..."
-              className="min-h-[200px]"
-              readOnly={!isCurrentDay}
-            />
-            {isCurrentDay && (
-              <div className="flex justify-end">
-                <Button onClick={onSave}>
-                  Save Entry
-                </Button>
-              </div>
-            )}
-          </div>
-        ) : (
-          <div className="flex justify-center items-center py-8">
-            <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setCurrentEntryIndex(Math.max(0, currentEntryIndex - 1))}
-                disabled={currentEntryIndex === 0}
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setCurrentEntryIndex(Math.min(entries.length - 1, currentEntryIndex + 1))}
-                disabled={currentEntryIndex === entries.length - 1}
-              >
-                <ChevronRight className="h-4 w-4" />
+        <div className="space-y-4">
+          <Textarea
+            value={isCurrentDay ? currentEntry : currentDisplayEntry.content}
+            onChange={(e) => isCurrentDay && setCurrentEntry(e.target.value)}
+            placeholder="Write about your day..."
+            className="min-h-[200px]"
+            readOnly={!isCurrentDay}
+          />
+          {isCurrentDay && (
+            <div className="flex justify-end">
+              <Button onClick={onSave}>
+                Save Entry
               </Button>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </CardContent>
     </Card>
   );
