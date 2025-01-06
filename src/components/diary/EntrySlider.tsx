@@ -20,6 +20,13 @@ export const EntrySlider = ({
   disabled,
   onChange 
 }: EntrySliderProps) => {
+  // Safety check: if entries is empty or currentIndex is invalid, don't render
+  if (!entries.length || currentIndex < 0 || currentIndex >= entries.length) {
+    return null;
+  }
+
+  const currentEntry = entries[currentIndex];
+
   const handlePrevious = () => {
     setCurrentIndex(Math.max(0, currentIndex - 1));
   };
@@ -52,10 +59,10 @@ export const EntrySlider = ({
               className="w-full"
             >
               <EntryForm
-                content={entries[currentIndex].content}
-                rating={entries[currentIndex].rating}
+                content={currentEntry.content || ""}
+                rating={currentEntry.rating || 3}
                 disabled={disabled}
-                onChange={(changes) => onChange(changes, entries[currentIndex].id)}
+                onChange={(changes) => onChange(changes, currentEntry.id)}
               />
             </motion.div>
           </AnimatePresence>
