@@ -1,5 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { format } from "date-fns";
 import Calendar from "@/components/Calendar";
 import MoodTracker from "@/components/MoodTracker";
 import { ChatInterface } from "@/components/ChatInterface";
@@ -73,16 +74,47 @@ const Index = () => {
     },
   });
 
-  const handleNewEntry = () => {
-    setModalKey(prev => prev + 1);
-    setIsModalOpen(true);
+  const handleSaveEntry = async () => {
+    if (!user) {
+      toast({
+        title: "Error",
+        description: "You must be logged in to save entries",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const { error } = await supabase.from("diary_entries").upsert({
+        user_id: user.id,
+        content: currentEntry,
+        date: format(selectedDate, "yyyy-MM-dd"),
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Your entry has been saved successfully.",
+      });
+    } catch (error) {
+      console.error("Error saving entry:", error);
+      toast({
+        title: "Error",
+        description: "Failed to save your entry. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
     <div className={`min-h-screen bg-gradient-to-b from-[#E6F2FA] to-white dark:from-gray-900 dark:to-gray-800 ${theme}`}>
       <HeaderSection 
         currentQuoteIndex={currentQuoteIndex}
-        onNewEntry={handleNewEntry}
+        onNewEntry={() => {
+          setModalKey(prev => prev + 1);
+          setIsModalOpen(true);
+        }}
       />
 
       <main className="max-w-7xl mx-auto px-4 py-6">
@@ -111,6 +143,7 @@ const Index = () => {
               currentEntry={currentEntry}
               setCurrentEntry={setCurrentEntry}
               selectedDate={selectedDate}
+              onSave={handleSaveEntry}
             />
           </div>
 
@@ -121,13 +154,12 @@ const Index = () => {
                 <CardTitle className="text-lg font-semibold">Chat Assistant</CardTitle>
               </CardHeader>
               <CardContent>
-                <ChatInterface chatStarters={chatStarters} />
+                <ChatInterface chatStarters={[]} />
               </CardContent>
             </Card>
           </div>
         </div>
 
-        {/* Bottom Row */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
           {/* Bottom Left */}
           <Card className="glass">

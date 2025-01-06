@@ -1,6 +1,6 @@
 import React from "react";
 import { format, isToday } from "date-fns";
-import { Smile, Meh, Frown } from "lucide-react";
+import { Smile, Meh, Frown, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
@@ -44,43 +44,52 @@ export const EntryDisplay: React.FC<EntryDisplayProps> = ({
 
   return (
     <Card className="glass">
-      <CardHeader className="flex flex-row items-center justify-between">
-        <div className="flex items-center space-x-2">
-          <h2 className="text-lg font-semibold">
-            {format(selectedDate, "MMMM d, yyyy")}
+      <CardHeader className="space-y-4">
+        <div className="flex justify-between items-center">
+          <h2 className="text-xl font-semibold">
+            {isCurrentDay ? "Today's Entry" : format(selectedDate, "MMMM d, yyyy")}
           </h2>
-          {currentDisplayEntry && getMoodIcon(currentDisplayEntry.rating)}
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setCurrentEntryIndex(Math.max(0, currentEntryIndex - 1))}
+              disabled={currentEntryIndex === 0}
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            {entries.length > 0 && (
+              <span className="text-sm text-muted-foreground">
+                {currentEntryIndex + 1} of {entries.length}
+              </span>
+            )}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setCurrentEntryIndex(Math.min(entries.length - 1, currentEntryIndex + 1))}
+              disabled={currentEntryIndex === entries.length - 1}
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <Button 
-            variant="ghost" 
-            size="icon"
-            onClick={() => setCurrentEntryIndex(Math.max(0, currentEntryIndex - 1))}
-            disabled={currentEntryIndex === 0}
-          >
-            ←
-          </Button>
-          <span className="text-sm text-muted-foreground">
-            {entries.length > 0 ? `${currentEntryIndex + 1} of ${entries.length}` : "No entries"}
-          </span>
-          <Button 
-            variant="ghost" 
-            size="icon"
-            onClick={() => setCurrentEntryIndex(Math.min(entries.length - 1, currentEntryIndex + 1))}
-            disabled={currentEntryIndex === entries.length - 1}
-          >
-            →
-          </Button>
-        </div>
+        {currentDisplayEntry && (
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              {getMoodIcon(currentDisplayEntry.rating)}
+              <Input
+                value={currentDisplayEntry.title}
+                readOnly={!isCurrentDay}
+                className="font-semibold max-w-[300px]"
+                placeholder="Entry Title"
+              />
+            </div>
+          </div>
+        )}
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent>
         {currentDisplayEntry ? (
-          <>
-            <Input
-              value={currentDisplayEntry.title}
-              readOnly={!isCurrentDay}
-              className="font-semibold"
-            />
+          <div className="space-y-4">
             <Textarea
               value={isCurrentDay ? currentEntry : currentDisplayEntry.content}
               onChange={(e) => isCurrentDay && setCurrentEntry(e.target.value)}
@@ -91,14 +100,31 @@ export const EntryDisplay: React.FC<EntryDisplayProps> = ({
             {isCurrentDay && (
               <div className="flex justify-end">
                 <Button onClick={onSave}>
-                  Save Changes
+                  Save Entry
                 </Button>
               </div>
             )}
-          </>
+          </div>
         ) : (
-          <div className="text-center text-muted-foreground py-8">
-            No entries for this date
+          <div className="flex justify-center items-center py-8">
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setCurrentEntryIndex(Math.max(0, currentEntryIndex - 1))}
+                disabled={currentEntryIndex === 0}
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setCurrentEntryIndex(Math.min(entries.length - 1, currentEntryIndex + 1))}
+                disabled={currentEntryIndex === entries.length - 1}
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
         )}
       </CardContent>
