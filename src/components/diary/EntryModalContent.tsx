@@ -66,22 +66,25 @@ export const EntryModalContent: React.FC<EntryModalContentProps> = ({
             </Alert>
           )}
           <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-1">
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={addNewEntry}
                 disabled={isReadOnly}
+                className="hover:bg-secondary"
               >
                 <Plus className="h-4 w-4" />
               </Button>
-              <EntryTitle
-                title={entries[currentIndex]?.title || ""}
-                disabled={isReadOnly}
-                onChange={(title) =>
-                  handleEntryChange({ title }, entries[currentIndex].id)
-                }
-              />
+              <div className="flex-1">
+                <EntryTitle
+                  title={entries[currentIndex]?.title || ""}
+                  disabled={isReadOnly}
+                  onChange={(title) =>
+                    handleEntryChange({ title }, entries[currentIndex].id)
+                  }
+                />
+              </div>
             </div>
             {!isReadOnly && (
               <VoiceRecorder onTranscriptionComplete={handleVoiceTranscription} />
@@ -98,18 +101,10 @@ export const EntryModalContent: React.FC<EntryModalContentProps> = ({
       ) : (
         <div className="text-center py-8 text-muted-foreground">
           <p className="mb-4">No entries yet. Click the button below to add one.</p>
-          <div className="flex justify-center gap-2">
-            <Button variant="outline" onClick={addNewEntry}>
-              <Plus className="h-4 w-4 mr-2" />
-              Add New Entry
-            </Button>
-            <VoiceRecorder
-              onTranscriptionComplete={(text) => {
-                addNewEntry();
-                setTimeout(() => handleVoiceTranscription(text), 0);
-              }}
-            />
-          </div>
+          <Button variant="outline" onClick={addNewEntry} className="flex items-center gap-2">
+            <Plus className="h-4 w-4" />
+            Add New Entry
+          </Button>
         </div>
       )}
 

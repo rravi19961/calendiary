@@ -12,6 +12,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
 }) => {
   const [isRecording, setIsRecording] = useState(false);
   const { toast } = useToast();
+  const [recognition, setRecognition] = useState<SpeechRecognition | null>(null);
 
   const toggleRecording = () => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -25,20 +26,21 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
       return;
     }
 
-    if (isRecording) {
-      window.speechRecognition?.stop();
+    if (isRecording && recognition) {
+      recognition.stop();
       setIsRecording(false);
+      setRecognition(null);
       return;
     }
 
-    const recognition = new SpeechRecognition();
-    window.speechRecognition = recognition;
+    const newRecognition = new SpeechRecognition();
+    setRecognition(newRecognition);
     
-    recognition.continuous = true;
-    recognition.interimResults = true;
-    recognition.lang = "en-US";
+    newRecognition.continuous = true;
+    newRecognition.interimResults = true;
+    newRecognition.lang = "en-US";
 
-    recognition.onresult = (event) => {
+    newRecognition.onresult = (event) => {
       const transcript = Array.from(event.results)
         .map(result => result[0].transcript)
         .join(" ");
@@ -48,7 +50,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
       }
     };
 
-    recognition.onerror = (event) => {
+    newRecognition.onerror = (event) => {
       console.error("Speech recognition error:", event.error);
       toast({
         title: "Error",
@@ -56,10 +58,11 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
         variant: "destructive",
       });
       setIsRecording(false);
+      setRecognition(null);
     };
 
     try {
-      recognition.start();
+      newRecognition.start();
       setIsRecording(true);
       toast({
         title: "Recording started",
@@ -72,6 +75,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
         description: "Failed to start recording. Please try again.",
         variant: "destructive",
       });
+      setRecognition(null);
     }
   };
 
