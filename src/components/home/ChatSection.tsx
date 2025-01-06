@@ -19,11 +19,11 @@ export const ChatSection = () => {
   });
 
   return (
-    <Card className="glass">
+    <Card className="h-full flex flex-col">
       <CardHeader>
         <CardTitle className="text-lg font-semibold">Chat Assistant</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="flex-grow">
         <ChatInterface chatStarters={chatStarters} />
       </CardContent>
     </Card>

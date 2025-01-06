@@ -12,11 +12,11 @@ export const CalendarSection: React.FC<CalendarSectionProps> = ({
   setSelectedDate,
 }) => {
   return (
-    <Card className="glass">
+    <Card className="h-full flex flex-col">
       <CardHeader>
         <CardTitle className="text-lg font-semibold">Calendar</CardTitle>
       </CardHeader>
-      <CardContent className="flex justify-center">
+      <CardContent className="flex-grow flex justify-center">
         <Calendar date={selectedDate} setDate={setSelectedDate} />
       </CardContent>
     </Card>
