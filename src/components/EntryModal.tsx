@@ -1,7 +1,7 @@
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { format } from "date-fns";
-import { X, Lock, Plus } from "lucide-react";
+import { X, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -99,20 +99,9 @@ const EntryModal: React.FC<EntryModalProps> = ({ isOpen, onClose, date }) => {
           >
             <div className="p-6">
               <div className="flex justify-between items-center mb-6">
-                <div className="flex items-center gap-4">
-                  <h2 className="text-xl font-semibold">
-                    {format(date, "MMMM d, yyyy")}
-                  </h2>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setCurrentIndex(entries.length)}
-                    className="flex items-center gap-2"
-                  >
-                    <Plus className="h-4 w-4" />
-                    Add New Entry
-                  </Button>
-                </div>
+                <h2 className="text-xl font-semibold">
+                  {format(date, "MMMM d, yyyy")}
+                </h2>
                 <div className="flex items-center space-x-2">
                   {entries.length > 0 && entries[currentIndex]?.id && (
                     <Lock className="h-4 w-4 text-muted-foreground" />

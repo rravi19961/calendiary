@@ -92,21 +92,22 @@ export const EntryModalContent: React.FC<EntryModalContentProps> = ({
         </div>
       )}
 
-      <div className="flex justify-between space-x-2">
-        <Button variant="outline" onClick={onClose}>
-          Cancel
-        </Button>
-        <div className="flex gap-2">
-          {!isReadOnly && (
-            <Button variant="outline" onClick={addNewEntry}>
-              <Plus className="h-4 w-4 mr-2" />
-              Add New Entry
-            </Button>
-          )}
+      <div className="flex flex-col gap-4">
+        <div className="flex justify-between space-x-2">
+          <Button variant="outline" onClick={onClose}>
+            Cancel
+          </Button>
           <Button onClick={onSave} disabled={isReadOnly || isSaving}>
             {isSaving ? "Saving..." : "Save Entry"}
           </Button>
         </div>
+        
+        {!isReadOnly && (
+          <Button variant="outline" onClick={addNewEntry} className="w-full">
+            <Plus className="h-4 w-4 mr-2" />
+            Add New Entry
+          </Button>
+        )}
       </div>
     </div>
   );
