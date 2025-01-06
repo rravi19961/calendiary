@@ -1,5 +1,5 @@
 import React from "react";
-import { format } from "date-fns";
+import { useNavigate } from "react-router-dom";
 import Calendar from "@/components/Calendar";
 import MoodTracker from "@/components/MoodTracker";
 import { ChatInterface } from "@/components/ChatInterface";
@@ -11,6 +11,8 @@ import { QUOTES } from "@/components/diary/constants";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/context/AuthContext";
 import { EntryDisplay } from "@/components/diary/EntryDisplay";
+import { HeaderSection } from "@/components/diary/HeaderSection";
+import EntryModal from "@/components/EntryModal";
 
 const Index = () => {
   const [selectedDate, setSelectedDate] = React.useState<Date>(new Date());
@@ -21,6 +23,15 @@ const Index = () => {
   const [entries, setEntries] = React.useState<any[]>([]);
   const [currentEntry, setCurrentEntry] = React.useState("");
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const [isModalOpen, setIsModalOpen] = React.useState(false);
+  const [modalKey, setModalKey] = React.useState(0);
+
+  React.useEffect(() => {
+    if (!user) {
+      navigate("/login");
+    }
+  }, [user, navigate]);
 
   React.useEffect(() => {
     const interval = setInterval(() => {
@@ -62,109 +73,18 @@ const Index = () => {
     },
   });
 
-  const fetchEntries = async () => {
-    if (!user) {
-      toast({
-        title: "Error",
-        description: "You must be logged in to view entries",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    const { data, error } = await supabase
-      .from("diary_entries")
-      .select("*")
-      .eq("user_id", user.id)
-      .eq("date", format(selectedDate, "yyyy-MM-dd"))
-      .order("created_at", { ascending: true });
-
-    if (error) {
-      console.error("Error fetching entries:", error);
-      return;
-    }
-
-    setEntries(data || []);
-    setCurrentEntryIndex(0);
-    setCurrentEntry(data?.[0]?.content || "");
-  };
-
-  React.useEffect(() => {
-    fetchEntries();
-  }, [selectedDate, user]);
-
-  const handleSaveEntry = async () => {
-    if (!user) {
-      toast({
-        title: "Error",
-        description: "You must be logged in to save entries",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    const entry = entries[currentEntryIndex];
-    const upsertData = {
-      ...(entry?.id ? { id: entry.id } : {}),
-      user_id: user.id,
-      date: format(selectedDate, "yyyy-MM-dd"),
-      content: currentEntry,
-      title: entry?.title || "Untitled Entry",
-      rating: entry?.rating || 3,
-    };
-
-    const { error } = await supabase
-      .from("diary_entries")
-      .upsert(upsertData);
-
-    if (error) {
-      console.error("Error saving entry:", error);
-      toast({
-        title: "Error",
-        description: "Failed to save entry. Please try again.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    toast({
-      title: "Success",
-      description: "Your entry has been saved.",
-    });
-
-    fetchEntries();
+  const handleNewEntry = () => {
+    setModalKey(prev => prev + 1);
+    setIsModalOpen(true);
   };
 
   return (
     <div className={`min-h-screen bg-gradient-to-b from-[#E6F2FA] to-white dark:from-gray-900 dark:to-gray-800 ${theme}`}>
-      {/* Header */}
-      <header className="bg-gradient-to-r from-[#E6F2FA] to-[#F8F8F8] dark:from-gray-900 dark:to-gray-800 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex flex-col space-y-2">
-            <div className="flex justify-between items-center">
-              <motion.p 
-                className="text-lg text-gray-600 dark:text-gray-300 italic"
-                key={currentQuoteIndex}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.5 }}
-              >
-                {QUOTES[currentQuoteIndex]}
-              </motion.p>
-              <Button
-                onClick={() => setIsModalOpen(true)}
-                className="bg-[#3486CF] hover:bg-[#2a6ba6]"
-              >
-                <Plus className="h-5 w-5 mr-2" />
-                New Entry
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
+      <HeaderSection 
+        currentQuoteIndex={currentQuoteIndex}
+        onNewEntry={handleNewEntry}
+      />
 
-      {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 py-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Left Column */}
@@ -191,7 +111,6 @@ const Index = () => {
               currentEntry={currentEntry}
               setCurrentEntry={setCurrentEntry}
               selectedDate={selectedDate}
-              onSave={handleSaveEntry}
             />
           </div>
 
