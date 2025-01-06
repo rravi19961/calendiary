@@ -36,21 +36,19 @@ const Calendar: React.FC<CalendarProps> = ({ date, setDate, onDateSelect }) => {
       <Button 
         variant="outline" 
         onClick={goToToday}
-        className="w-full"
+        className="w-full rounded-md"
       >
         <CalendarIcon className="h-4 w-4 mr-2" />
         Today
       </Button>
       
-      <div className="flex justify-center">
-        <CalendarComponent
-          mode="single"
-          selected={date}
-          onSelect={handleSelect}
-          disabled={(date) => isFuture(date)}
-          className="rounded-md border shadow-sm"
-        />
-      </div>
+      <CalendarComponent
+        mode="single"
+        selected={date}
+        onSelect={handleSelect}
+        disabled={(date) => isFuture(date)}
+        className="rounded-md border shadow-sm w-full"
+      />
     </div>
   );
 };
