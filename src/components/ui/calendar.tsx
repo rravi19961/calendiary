@@ -20,18 +20,18 @@ function Calendar({
       classNames={{
         months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
         month: "space-y-6",
-        caption: "flex justify-center relative items-center h-10 w-[240px] mx-auto pl-8",
+        caption: "flex justify-center relative items-center h-10 w-[240px] mx-auto",
         caption_label: "text-base font-medium",
         nav: "space-x-1 flex items-center",
         nav_button: cn(
           buttonVariants({ variant: "outline" }),
           "h-8 w-8 bg-transparent p-0 opacity-50 hover:opacity-100"
         ),
-        nav_button_previous: "absolute -left-4",
-        nav_button_next: "absolute -right-4",
+        nav_button_previous: "absolute left-0",
+        nav_button_next: "absolute right-0",
         table: "w-full border-collapse space-y-2",
         head_row: "flex justify-between w-full px-2",
-        head_cell: "text-muted-foreground rounded-md w-9 font-medium text-[0.9rem] text-center",
+        head_cell: "text-muted-foreground rounded-md w-10 font-medium text-[0.9rem] text-center mx-1",
         row: "flex w-full mt-3 justify-between px-2",
         cell: cn(
           "relative p-0 text-center text-sm focus-within:relative focus-within:z-20 [&:has([aria-selected])]:bg-accent",
