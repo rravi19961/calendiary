@@ -108,9 +108,6 @@ export const EntryDisplay: React.FC<EntryDisplayProps> = ({
               >
                 <ChevronLeft className="h-4 w-4" />
               </Button>
-              <span className="text-sm text-muted-foreground">
-                {currentEntryIndex + 1} of {entries.length}
-              </span>
               <Button
                 variant="ghost"
                 size="icon"
@@ -123,23 +120,13 @@ export const EntryDisplay: React.FC<EntryDisplayProps> = ({
           )}
         </div>
         <div className="space-y-4">
-          <div className="flex items-center gap-4">
-            <Input
-              value={isCurrentDay ? currentTitle : currentDisplayEntry.title}
-              onChange={(e) => isCurrentDay && setCurrentTitle(e.target.value)}
-              readOnly={!isCurrentDay}
-              className="font-semibold"
-              placeholder="Entry Title"
-            />
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-medium">Mood:</span>
-            <MoodSelector
-              rating={isCurrentDay ? currentRating : currentDisplayEntry.rating}
-              onChange={setCurrentRating}
-              disabled={!isCurrentDay}
-            />
-          </div>
+          <Input
+            value={isCurrentDay ? currentTitle : currentDisplayEntry.title}
+            onChange={(e) => isCurrentDay && setCurrentTitle(e.target.value)}
+            readOnly={!isCurrentDay}
+            className="font-semibold"
+            placeholder="Entry Title"
+          />
         </div>
       </CardHeader>
       <CardContent>
@@ -152,7 +139,12 @@ export const EntryDisplay: React.FC<EntryDisplayProps> = ({
             readOnly={!isCurrentDay}
           />
           {isCurrentDay && (
-            <div className="flex justify-end">
+            <div className="flex justify-between items-center">
+              <MoodSelector
+                rating={currentRating}
+                onChange={setCurrentRating}
+                disabled={!isCurrentDay}
+              />
               <Button onClick={onSave}>
                 Save Entry
               </Button>
