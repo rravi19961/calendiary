@@ -4,12 +4,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { RadioGroup } from "@/components/ui/radio-group";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { QuestionChoice } from "./questions/QuestionChoice";
+import { QuestionHeader } from "./questions/QuestionHeader";
 
 interface Question {
   id: string;
@@ -132,37 +132,26 @@ export const QuestionFlow = ({ onBack }: { onBack: () => void }) => {
   }
 
   return (
-    <Card className="p-6 min-h-[600px]">
+    <Card className="p-5 min-h-[600px]">
       <div className="space-y-6">
-        <div className="flex items-center justify-between mb-4">
-          <Button variant="ghost" size="sm" onClick={onBack}>
-            <ChevronLeft className="h-4 w-4 mr-2" />
-            Back
-          </Button>
-          <span className="text-sm text-muted-foreground">
-            Question {currentQuestionIndex + 1} of {questions.length}
-          </span>
-        </div>
+        <QuestionHeader 
+          currentIndex={currentQuestionIndex}
+          totalQuestions={questions.length}
+          onBack={onBack}
+        />
 
         <h3 className="text-lg font-medium mb-6">{currentQuestion.question_text}</h3>
 
         {currentQuestion.question_type === "multiple" ? (
           <div className="space-y-4">
             {currentQuestion.choices.map((choice) => (
-              <div key={choice.id} className="flex items-start space-x-3 p-2">
-                <Checkbox
-                  id={choice.id}
-                  checked={(responses[currentQuestion.id] || []).includes(choice.id)}
-                  onCheckedChange={(checked) => handleResponse(choice.id, choice.is_other)}
-                  className="mt-1"
-                />
-                <Label 
-                  htmlFor={choice.id} 
-                  className="text-base font-medium cursor-pointer hover:text-primary transition-colors"
-                >
-                  {choice.choice_text}
-                </Label>
-              </div>
+              <QuestionChoice
+                key={choice.id}
+                choice={choice}
+                type="multiple"
+                isSelected={(responses[currentQuestion.id] || []).includes(choice.id)}
+                onSelect={handleResponse}
+              />
             ))}
             {otherText[currentQuestion.id] !== undefined && (
               <Input
@@ -185,15 +174,13 @@ export const QuestionFlow = ({ onBack }: { onBack: () => void }) => {
             className="space-y-4"
           >
             {currentQuestion.choices.map((choice) => (
-              <div key={choice.id} className="flex items-center space-x-3 p-2">
-                <RadioGroupItem value={choice.id} id={choice.id} className="mt-1" />
-                <Label 
-                  htmlFor={choice.id} 
-                  className="text-base font-medium cursor-pointer hover:text-primary transition-colors"
-                >
-                  {choice.choice_text}
-                </Label>
-              </div>
+              <QuestionChoice
+                key={choice.id}
+                choice={choice}
+                type="single"
+                isSelected={responses[currentQuestion.id] === choice.id}
+                onSelect={handleResponse}
+              />
             ))}
           </RadioGroup>
         )}
