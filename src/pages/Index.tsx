@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { format } from "date-fns";
+import { format, isToday } from "date-fns";
 import { useTheme } from "@/hooks/useTheme";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/context/AuthContext";
@@ -22,6 +22,8 @@ const Index = () => {
   const { toast } = useToast();
   const [entries, setEntries] = useState<any[]>([]);
   const [currentEntry, setCurrentEntry] = useState("");
+  const [currentTitle, setCurrentTitle] = useState("");
+  const [currentRating, setCurrentRating] = useState(3);
   const { user } = useAuth();
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -50,9 +52,15 @@ const Index = () => {
         setEntries(data || []);
         setCurrentEntryIndex(0);
         
-        // If it's today, set the current entry to the latest entry's content or empty
-        if (isToday(selectedDate)) {
-          setCurrentEntry(data?.[data.length - 1]?.content || "");
+        if (data && data.length > 0) {
+          const latestEntry = data[data.length - 1];
+          setCurrentEntry(latestEntry.content || "");
+          setCurrentTitle(latestEntry.title || "");
+          setCurrentRating(latestEntry.rating || 3);
+        } else {
+          setCurrentEntry("");
+          setCurrentTitle("");
+          setCurrentRating(3);
         }
       } catch (error) {
         console.error("Error loading entries:", error);
@@ -88,18 +96,47 @@ const Index = () => {
     }
 
     try {
-      const { error } = await supabase.from("diary_entries").upsert({
+      const entryData = {
         user_id: user.id,
         content: currentEntry,
+        title: currentTitle,
+        rating: currentRating,
         date: format(selectedDate, "yyyy-MM-dd"),
-      });
+      };
 
+      let operation;
+      if (entries.length > 0) {
+        // Update existing entry
+        operation = supabase
+          .from("diary_entries")
+          .update(entryData)
+          .eq("id", entries[currentEntryIndex].id);
+      } else {
+        // Create new entry
+        operation = supabase
+          .from("diary_entries")
+          .insert([entryData]);
+      }
+
+      const { error } = await operation;
       if (error) throw error;
 
       toast({
         title: "Success",
         description: "Your entry has been saved successfully.",
       });
+
+      // Reload entries to get the updated data
+      const { data: updatedEntries, error: fetchError } = await supabase
+        .from("diary_entries")
+        .select("*")
+        .eq("user_id", user.id)
+        .eq("date", format(selectedDate, "yyyy-MM-dd"))
+        .order("created_at", { ascending: true });
+
+      if (fetchError) throw fetchError;
+      setEntries(updatedEntries || []);
+
     } catch (error) {
       console.error("Error saving entry:", error);
       toast({
@@ -122,7 +159,6 @@ const Index = () => {
 
       <main className="max-w-7xl mx-auto px-4 py-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Left Column */}
           <div className="space-y-6">
             <CalendarSection 
               selectedDate={selectedDate}
@@ -130,7 +166,6 @@ const Index = () => {
             />
           </div>
 
-          {/* Center Column */}
           <div className="space-y-6">
             <EntryDisplay
               entries={entries}
@@ -138,12 +173,15 @@ const Index = () => {
               setCurrentEntryIndex={setCurrentEntryIndex}
               currentEntry={currentEntry}
               setCurrentEntry={setCurrentEntry}
+              currentTitle={currentTitle}
+              setCurrentTitle={setCurrentTitle}
+              currentRating={currentRating}
+              setCurrentRating={setCurrentRating}
               selectedDate={selectedDate}
               onSave={handleSaveEntry}
             />
           </div>
 
-          {/* Right Column */}
           <div className="space-y-6">
             <ChatSection />
           </div>

@@ -20,6 +20,10 @@ interface EntryDisplayProps {
   setCurrentEntryIndex: (index: number) => void;
   currentEntry: string;
   setCurrentEntry: (content: string) => void;
+  currentTitle: string;
+  setCurrentTitle: (title: string) => void;
+  currentRating: number;
+  setCurrentRating: (rating: number) => void;
   selectedDate: Date;
   onSave: () => void;
 }
@@ -30,12 +34,46 @@ const getMoodIcon = (rating: number) => {
   return <Smile className="h-5 w-5 text-green-500" />;
 };
 
+const MoodSelector = ({ rating, onChange, disabled }: { rating: number; onChange: (rating: number) => void; disabled: boolean }) => {
+  const moods = [
+    { icon: Frown, value: 1, label: "Very Sad" },
+    { icon: Frown, value: 2, label: "Sad" },
+    { icon: Meh, value: 3, label: "Neutral" },
+    { icon: Smile, value: 4, label: "Happy" },
+    { icon: Smile, value: 5, label: "Very Happy" },
+  ];
+
+  return (
+    <div className="flex gap-2">
+      {moods.map(({ icon: Icon, value, label }) => (
+        <button
+          key={value}
+          onClick={() => !disabled && onChange(value)}
+          disabled={disabled}
+          className={`p-1.5 rounded-lg transition-all ${
+            rating === value
+              ? "bg-primary text-primary-foreground scale-110"
+              : "hover:bg-secondary"
+          } ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+          title={label}
+        >
+          <Icon className="h-5 w-5" />
+        </button>
+      ))}
+    </div>
+  );
+};
+
 export const EntryDisplay: React.FC<EntryDisplayProps> = ({
   entries,
   currentEntryIndex,
   setCurrentEntryIndex,
   currentEntry,
   setCurrentEntry,
+  currentTitle,
+  setCurrentTitle,
+  currentRating,
+  setCurrentRating,
   selectedDate,
   onSave,
 }) => {
@@ -84,19 +122,25 @@ export const EntryDisplay: React.FC<EntryDisplayProps> = ({
             </div>
           )}
         </div>
-        {currentDisplayEntry && (
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              {getMoodIcon(currentDisplayEntry.rating)}
-              <Input
-                value={currentDisplayEntry.title}
-                readOnly={!isCurrentDay}
-                className="font-semibold max-w-[300px]"
-                placeholder="Entry Title"
-              />
-            </div>
+        <div className="space-y-4">
+          <div className="flex items-center gap-4">
+            <Input
+              value={isCurrentDay ? currentTitle : currentDisplayEntry.title}
+              onChange={(e) => isCurrentDay && setCurrentTitle(e.target.value)}
+              readOnly={!isCurrentDay}
+              className="font-semibold"
+              placeholder="Entry Title"
+            />
           </div>
-        )}
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium">Mood:</span>
+            <MoodSelector
+              rating={isCurrentDay ? currentRating : currentDisplayEntry.rating}
+              onChange={setCurrentRating}
+              disabled={!isCurrentDay}
+            />
+          </div>
+        </div>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
