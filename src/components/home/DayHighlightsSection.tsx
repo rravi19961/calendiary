@@ -18,7 +18,6 @@ export const DayHighlightsSection: React.FC<DayHighlightsSectionProps> = ({
         .from("question_responses")
         .select(`
           *,
-          daily_questions (question_text),
           question_choices (choice_text)
         `)
         .eq("date", format(selectedDate, "yyyy-MM-dd"));
@@ -36,11 +35,8 @@ export const DayHighlightsSection: React.FC<DayHighlightsSectionProps> = ({
       <CardContent>
         <div className="space-y-4">
           {dayResponses.map((response: any) => (
-            <div key={response.id} className="space-y-1">
-              <p className="font-medium">Q: {response.daily_questions?.question_text}</p>
-              <p className="text-muted-foreground">
-                A: {response.question_choices?.choice_text || response.other_text}
-              </p>
+            <div key={response.id} className="text-muted-foreground">
+              {response.question_choices?.choice_text || response.other_text}
             </div>
           ))}
         </div>
