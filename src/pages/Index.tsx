@@ -158,15 +158,15 @@ const Index = () => {
       />
 
       <main className="max-w-7xl mx-auto px-4 py-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 min-h-[600px]">
+          <div className="flex flex-col">
             <CalendarSection 
               selectedDate={selectedDate}
               setSelectedDate={setSelectedDate}
             />
           </div>
 
-          <div className="space-y-6">
+          <div className="flex flex-col">
             <EntryDisplay
               entries={entries}
               currentEntryIndex={currentEntryIndex}
@@ -182,7 +182,7 @@ const Index = () => {
             />
           </div>
 
-          <div className="space-y-6">
+          <div className="flex flex-col">
             <ChatSection />
           </div>
         </div>

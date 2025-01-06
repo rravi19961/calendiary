@@ -28,12 +28,6 @@ interface EntryDisplayProps {
   onSave: () => void;
 }
 
-const getMoodIcon = (rating: number) => {
-  if (rating <= 2) return <Frown className="h-5 w-5 text-red-500" />;
-  if (rating === 3) return <Meh className="h-5 w-5 text-yellow-500" />;
-  return <Smile className="h-5 w-5 text-green-500" />;
-};
-
 const MoodSelector = ({ rating, onChange, disabled }: { rating: number; onChange: (rating: number) => void; disabled: boolean }) => {
   const moods = [
     { icon: Frown, value: 1, label: "Very Sad" },
@@ -44,13 +38,13 @@ const MoodSelector = ({ rating, onChange, disabled }: { rating: number; onChange
   ];
 
   return (
-    <div className="flex gap-2">
+    <div className="flex justify-center gap-2">
       {moods.map(({ icon: Icon, value, label }) => (
         <button
           key={value}
           onClick={() => !disabled && onChange(value)}
           disabled={disabled}
-          className={`p-1.5 rounded-lg transition-all ${
+          className={`p-2 rounded-lg transition-all ${
             rating === value
               ? "bg-primary text-primary-foreground scale-110"
               : "hover:bg-secondary"
@@ -83,8 +77,8 @@ export const EntryDisplay: React.FC<EntryDisplayProps> = ({
 
   if (!hasEntries) {
     return (
-      <Card className="glass">
-        <CardContent className="flex justify-center items-center py-8">
+      <Card className="h-full">
+        <CardContent className="flex justify-center items-center h-full py-8">
           <p className="text-muted-foreground">No entries for this date</p>
         </CardContent>
       </Card>
@@ -92,7 +86,7 @@ export const EntryDisplay: React.FC<EntryDisplayProps> = ({
   }
 
   return (
-    <Card className="glass">
+    <Card className="h-full flex flex-col">
       <CardHeader className="space-y-4">
         <div className="flex justify-between items-center">
           <h2 className="text-xl font-semibold">
@@ -127,27 +121,25 @@ export const EntryDisplay: React.FC<EntryDisplayProps> = ({
           placeholder="Entry Title"
         />
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className="flex-grow flex flex-col space-y-6">
         <Textarea
           value={isCurrentDay ? currentEntry : currentDisplayEntry.content}
           onChange={(e) => isCurrentDay && setCurrentEntry(e.target.value)}
           placeholder="Write about your day..."
-          className="min-h-[200px]"
+          className="flex-grow min-h-[200px]"
           readOnly={!isCurrentDay}
         />
         <div className="space-y-4">
-          <div className="flex flex-col gap-4">
-            <MoodSelector
-              rating={isCurrentDay ? currentRating : currentDisplayEntry.rating}
-              onChange={setCurrentRating}
-              disabled={!isCurrentDay}
-            />
-            {isCurrentDay && (
-              <Button onClick={onSave} className="w-full">
-                Save Entry
-              </Button>
-            )}
-          </div>
+          <MoodSelector
+            rating={isCurrentDay ? currentRating : currentDisplayEntry.rating}
+            onChange={setCurrentRating}
+            disabled={!isCurrentDay}
+          />
+          {isCurrentDay && (
+            <Button onClick={onSave} className="w-full">
+              Save Entry
+            </Button>
+          )}
         </div>
       </CardContent>
     </Card>
