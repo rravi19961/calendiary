@@ -33,14 +33,16 @@ const Calendar: React.FC<CalendarProps> = ({ date, setDate, onDateSelect }) => {
 
   return (
     <div className="w-full max-w-sm mx-auto space-y-6">
-      <Button 
-        variant="outline" 
-        onClick={goToToday}
-        className="w-full rounded-md h-10"
-      >
-        <CalendarIcon className="h-4 w-4 mr-2" />
-        Today
-      </Button>
+      <div className="flex justify-center">
+        <Button 
+          variant="outline" 
+          onClick={goToToday}
+          className="w-[240px] rounded-md h-10"
+        >
+          <CalendarIcon className="h-4 w-4 mr-2" />
+          Today
+        </Button>
+      </div>
       
       <CalendarComponent
         mode="single"
