@@ -2,14 +2,10 @@ import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/context/AuthContext";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { QuestionCard } from "./questions/QuestionCard";
+import { QuestionHeader } from "./questions/QuestionHeader";
 
 interface Question {
   id: string;
@@ -61,7 +57,6 @@ export const QuestionFlow = ({ onBack }: { onBack: () => void }) => {
     if (!currentQuestion || !user) return;
 
     const questionId = currentQuestion.id;
-    const today = new Date().toISOString().split('T')[0];
 
     if (currentQuestion.question_type === "multiple") {
       const currentResponses = responses[questionId] || [];
@@ -128,94 +123,27 @@ export const QuestionFlow = ({ onBack }: { onBack: () => void }) => {
   };
 
   if (isLoading || !currentQuestion) {
-    return <div>Loading questions...</div>;
+    return <div className="min-h-[600px] flex items-center justify-center">Loading questions...</div>;
   }
 
   return (
-    <Card className="p-4">
-      <div className="space-y-4">
-        <div className="flex items-center justify-between mb-4">
-          <Button variant="ghost" size="sm" onClick={onBack}>
-            <ChevronLeft className="h-4 w-4 mr-2" />
-            Back
-          </Button>
-          <span className="text-sm text-muted-foreground">
-            Question {currentQuestionIndex + 1} of {questions.length}
-          </span>
-        </div>
-
-        <h3 className="text-lg font-medium mb-4">{currentQuestion.question_text}</h3>
-
-        {currentQuestion.question_type === "multiple" ? (
-          <div className="space-y-2">
-            {currentQuestion.choices.map((choice) => (
-              <div key={choice.id} className="flex items-start space-x-2">
-                <Checkbox
-                  id={choice.id}
-                  checked={(responses[currentQuestion.id] || []).includes(choice.id)}
-                  onCheckedChange={(checked) => handleResponse(choice.id, choice.is_other)}
-                />
-                <Label htmlFor={choice.id} className="text-sm">
-                  {choice.choice_text}
-                </Label>
-              </div>
-            ))}
-            {otherText[currentQuestion.id] !== undefined && (
-              <Input
-                placeholder="Specify other..."
-                value={otherText[currentQuestion.id]}
-                onChange={(e) =>
-                  setOtherText({ ...otherText, [currentQuestion.id]: e.target.value })
-                }
-                className="mt-2"
-              />
-            )}
-          </div>
-        ) : (
-          <RadioGroup
-            value={responses[currentQuestion.id]}
-            onValueChange={(value) => {
-              const choice = currentQuestion.choices.find((c) => c.id === value);
-              handleResponse(value, choice?.is_other);
-            }}
-          >
-            <div className="space-y-2">
-              {currentQuestion.choices.map((choice) => (
-                <div key={choice.id} className="flex items-center space-x-2">
-                  <RadioGroupItem value={choice.id} id={choice.id} />
-                  <Label htmlFor={choice.id}>{choice.choice_text}</Label>
-                </div>
-              ))}
-            </div>
-          </RadioGroup>
-        )}
-
-        {otherText[currentQuestion.id] !== undefined && (
-          <Input
-            placeholder="Specify other..."
-            value={otherText[currentQuestion.id]}
-            onChange={(e) =>
-              setOtherText({ ...otherText, [currentQuestion.id]: e.target.value })
-            }
-            className="mt-2"
-          />
-        )}
-
-        <Button
-          onClick={saveResponse}
-          disabled={!responses[currentQuestion.id]}
-          className="w-full mt-4"
-        >
-          {currentQuestionIndex === questions.length - 1 ? (
-            "Finish"
-          ) : (
-            <>
-              Next
-              <ChevronRight className="h-4 w-4 ml-2" />
-            </>
-          )}
-        </Button>
-      </div>
+    <Card className="p-6 min-h-[600px]">
+      <QuestionHeader
+        currentIndex={currentQuestionIndex}
+        totalQuestions={questions.length}
+        onBack={onBack}
+      />
+      <QuestionCard
+        question={currentQuestion}
+        responses={responses}
+        otherText={otherText}
+        onResponse={handleResponse}
+        onOtherTextChange={(questionId, value) =>
+          setOtherText({ ...otherText, [questionId]: value })
+        }
+        onSave={saveResponse}
+        isLastQuestion={currentQuestionIndex === questions.length - 1}
+      />
     </Card>
   );
 };
