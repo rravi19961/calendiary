@@ -1,39 +1,24 @@
 import React from "react";
-import { motion } from "framer-motion";
-import { Plus, ChevronLeft, ChevronRight } from "lucide-react";
+import { format } from "date-fns";
 import Calendar from "@/components/Calendar";
 import MoodTracker from "@/components/MoodTracker";
-import EntryModal from "@/components/EntryModal";
 import { ChatInterface } from "@/components/ChatInterface";
 import { useTheme } from "@/hooks/useTheme";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Textarea } from "@/components/ui/textarea";
-import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { QUOTES } from "@/components/diary/constants";
 import { useToast } from "@/hooks/use-toast";
-import { format } from "date-fns";
 import { useAuth } from "@/context/AuthContext";
-
-interface Entry {
-  id: string;
-  title: string;
-  content: string;
-  rating: number;
-  created_at: string;
-}
+import { EntryDisplay } from "@/components/diary/EntryDisplay";
 
 const Index = () => {
   const [selectedDate, setSelectedDate] = React.useState<Date>(new Date());
-  const [isModalOpen, setIsModalOpen] = React.useState(false);
-  const [modalKey, setModalKey] = React.useState(Date.now());
   const { theme } = useTheme();
   const [currentQuoteIndex, setCurrentQuoteIndex] = React.useState(0);
   const [currentEntryIndex, setCurrentEntryIndex] = React.useState(0);
   const { toast } = useToast();
-  const [entries, setEntries] = React.useState<Entry[]>([]);
+  const [entries, setEntries] = React.useState<any[]>([]);
   const [currentEntry, setCurrentEntry] = React.useState("");
   const { user } = useAuth();
 
@@ -120,7 +105,7 @@ const Index = () => {
 
     const entry = entries[currentEntryIndex];
     const upsertData = {
-      ...(entry?.id ? { id: entry.id } : {}), // Only include id if it exists
+      ...(entry?.id ? { id: entry.id } : {}),
       user_id: user.id,
       date: format(selectedDate, "yyyy-MM-dd"),
       content: currentEntry,
@@ -150,24 +135,8 @@ const Index = () => {
     fetchEntries();
   };
 
-  const handleNewEntry = () => {
-    const newEntry = {
-      id: "", // Remove this line since we don't want to send empty ID
-      title: "Untitled Entry",
-      content: "",
-      rating: 3,
-      created_at: new Date().toISOString(),
-    };
-    setEntries([...entries, newEntry]);
-    setCurrentEntryIndex(entries.length);
-    setCurrentEntry("");
-  };
-
   return (
-    <div className={cn(
-      "min-h-screen bg-gradient-to-b from-[#E6F2FA] to-white dark:from-gray-900 dark:to-gray-800",
-      theme
-    )}>
+    <div className={`min-h-screen bg-gradient-to-b from-[#E6F2FA] to-white dark:from-gray-900 dark:to-gray-800 ${theme}`}>
       {/* Header */}
       <header className="bg-gradient-to-r from-[#E6F2FA] to-[#F8F8F8] dark:from-gray-900 dark:to-gray-800 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 py-4">
@@ -215,49 +184,15 @@ const Index = () => {
 
           {/* Center Column */}
           <div className="space-y-6">
-            <Card className="glass">
-              <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle className="text-lg font-semibold">Today's Entry</CardTitle>
-                <div className="flex items-center gap-2">
-                  <Button 
-                    variant="ghost" 
-                    size="icon"
-                    onClick={() => setCurrentEntryIndex(Math.max(0, currentEntryIndex - 1))}
-                    disabled={currentEntryIndex === 0}
-                  >
-                    <ChevronLeft className="h-5 w-5" />
-                  </Button>
-                  <span className="text-sm text-muted-foreground">
-                    {currentEntryIndex + 1} of {entries.length}
-                  </span>
-                  <Button 
-                    variant="ghost" 
-                    size="icon"
-                    onClick={() => setCurrentEntryIndex(Math.min(entries.length - 1, currentEntryIndex + 1))}
-                    disabled={currentEntryIndex === entries.length - 1}
-                  >
-                    <ChevronRight className="h-5 w-5" />
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <Textarea
-                  value={currentEntry}
-                  onChange={(e) => setCurrentEntry(e.target.value)}
-                  placeholder="Write about your day..."
-                  className="min-h-[200px]"
-                />
-                <div className="flex justify-end gap-2">
-                  <Button variant="outline" onClick={handleNewEntry}>
-                    <Plus className="h-4 w-4 mr-2" />
-                    New Entry
-                  </Button>
-                  <Button onClick={handleSaveEntry}>
-                    Save Entry
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+            <EntryDisplay
+              entries={entries}
+              currentEntryIndex={currentEntryIndex}
+              setCurrentEntryIndex={setCurrentEntryIndex}
+              currentEntry={currentEntry}
+              setCurrentEntry={setCurrentEntry}
+              selectedDate={selectedDate}
+              onSave={handleSaveEntry}
+            />
           </div>
 
           {/* Right Column */}
