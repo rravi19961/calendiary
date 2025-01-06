@@ -23,11 +23,6 @@ const EntryModal: React.FC<EntryModalProps> = ({ isOpen, onClose, date }) => {
   const [currentIndex, setCurrentIndex] = React.useState(0);
   const { entries, setEntries, isLoading } = useEntries(date);
   
-  const randomQuote = React.useMemo(
-    () => QUOTES[Math.floor(Math.random() * QUOTES.length)],
-    [date]
-  );
-
   const handleClose = () => {
     setCurrentIndex(0);
     setIsSaving(false);
@@ -133,7 +128,6 @@ const EntryModal: React.FC<EntryModalProps> = ({ isOpen, onClose, date }) => {
                   currentIndex={currentIndex}
                   setCurrentIndex={setCurrentIndex}
                   isReadOnly={Boolean(entries[currentIndex]?.id)}
-                  quote={randomQuote}
                   onSave={handleSave}
                   onClose={handleClose}
                   isSaving={isSaving}

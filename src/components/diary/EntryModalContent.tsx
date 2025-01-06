@@ -14,7 +14,6 @@ interface EntryModalContentProps {
   currentIndex: number;
   setCurrentIndex: (index: number) => void;
   isReadOnly: boolean;
-  quote: string;
   onSave: () => void;
   onClose: () => void;
   isSaving: boolean;
@@ -26,7 +25,6 @@ export const EntryModalContent: React.FC<EntryModalContentProps> = ({
   currentIndex,
   setCurrentIndex,
   isReadOnly,
-  quote,
   onSave,
   onClose,
   isSaving,
@@ -67,15 +65,24 @@ export const EntryModalContent: React.FC<EntryModalContentProps> = ({
               </AlertDescription>
             </Alert>
           )}
-          <div className="flex items-center justify-between">
-            <EntryTitle
-              title={entries[currentIndex]?.title || ""}
-              disabled={isReadOnly}
-              onChange={(title) =>
-                handleEntryChange({ title }, entries[currentIndex].id)
-              }
-              quote={quote}
-            />
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={addNewEntry}
+                disabled={isReadOnly}
+              >
+                <Plus className="h-4 w-4" />
+              </Button>
+              <EntryTitle
+                title={entries[currentIndex]?.title || ""}
+                disabled={isReadOnly}
+                onChange={(title) =>
+                  handleEntryChange({ title }, entries[currentIndex].id)
+                }
+              />
+            </div>
             {!isReadOnly && (
               <VoiceRecorder onTranscriptionComplete={handleVoiceTranscription} />
             )}
