@@ -4,6 +4,7 @@ import { format } from "date-fns";
 import { useTheme } from "@/hooks/useTheme";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/context/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { EntryDisplay } from "@/components/diary/EntryDisplay";
 import { HeaderSection } from "@/components/diary/HeaderSection";
 import EntryModal from "@/components/EntryModal";
