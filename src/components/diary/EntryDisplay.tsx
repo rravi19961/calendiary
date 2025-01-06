@@ -47,7 +47,7 @@ export const EntryDisplay: React.FC<EntryDisplayProps> = ({
     return (
       <Card className="glass">
         <CardContent className="flex justify-center items-center py-8">
-          <p className="text-muted-foreground">No entries</p>
+          <p className="text-muted-foreground">No entries for this date</p>
         </CardContent>
       </Card>
     );
