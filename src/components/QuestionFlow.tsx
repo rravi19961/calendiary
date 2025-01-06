@@ -132,8 +132,8 @@ export const QuestionFlow = ({ onBack }: { onBack: () => void }) => {
   }
 
   return (
-    <Card className="p-4">
-      <div className="space-y-4">
+    <Card className="p-6 min-h-[600px]">
+      <div className="space-y-6">
         <div className="flex items-center justify-between mb-4">
           <Button variant="ghost" size="sm" onClick={onBack}>
             <ChevronLeft className="h-4 w-4 mr-2" />
@@ -144,18 +144,22 @@ export const QuestionFlow = ({ onBack }: { onBack: () => void }) => {
           </span>
         </div>
 
-        <h3 className="text-lg font-medium mb-4">{currentQuestion.question_text}</h3>
+        <h3 className="text-lg font-medium mb-6">{currentQuestion.question_text}</h3>
 
         {currentQuestion.question_type === "multiple" ? (
-          <div className="space-y-2">
+          <div className="space-y-4">
             {currentQuestion.choices.map((choice) => (
-              <div key={choice.id} className="flex items-start space-x-2">
+              <div key={choice.id} className="flex items-start space-x-3 p-2">
                 <Checkbox
                   id={choice.id}
                   checked={(responses[currentQuestion.id] || []).includes(choice.id)}
                   onCheckedChange={(checked) => handleResponse(choice.id, choice.is_other)}
+                  className="mt-1"
                 />
-                <Label htmlFor={choice.id} className="text-sm">
+                <Label 
+                  htmlFor={choice.id} 
+                  className="text-base font-medium cursor-pointer hover:text-primary transition-colors"
+                >
                   {choice.choice_text}
                 </Label>
               </div>
@@ -167,7 +171,7 @@ export const QuestionFlow = ({ onBack }: { onBack: () => void }) => {
                 onChange={(e) =>
                   setOtherText({ ...otherText, [currentQuestion.id]: e.target.value })
                 }
-                className="mt-2"
+                className="mt-4"
               />
             )}
           </div>
@@ -178,15 +182,19 @@ export const QuestionFlow = ({ onBack }: { onBack: () => void }) => {
               const choice = currentQuestion.choices.find((c) => c.id === value);
               handleResponse(value, choice?.is_other);
             }}
+            className="space-y-4"
           >
-            <div className="space-y-2">
-              {currentQuestion.choices.map((choice) => (
-                <div key={choice.id} className="flex items-center space-x-2">
-                  <RadioGroupItem value={choice.id} id={choice.id} />
-                  <Label htmlFor={choice.id}>{choice.choice_text}</Label>
-                </div>
-              ))}
-            </div>
+            {currentQuestion.choices.map((choice) => (
+              <div key={choice.id} className="flex items-center space-x-3 p-2">
+                <RadioGroupItem value={choice.id} id={choice.id} className="mt-1" />
+                <Label 
+                  htmlFor={choice.id} 
+                  className="text-base font-medium cursor-pointer hover:text-primary transition-colors"
+                >
+                  {choice.choice_text}
+                </Label>
+              </div>
+            ))}
           </RadioGroup>
         )}
 
@@ -197,14 +205,14 @@ export const QuestionFlow = ({ onBack }: { onBack: () => void }) => {
             onChange={(e) =>
               setOtherText({ ...otherText, [currentQuestion.id]: e.target.value })
             }
-            className="mt-2"
+            className="mt-4"
           />
         )}
 
         <Button
           onClick={saveResponse}
           disabled={!responses[currentQuestion.id]}
-          className="w-full mt-4"
+          className="w-full mt-8"
         >
           {currentQuestionIndex === questions.length - 1 ? (
             "Finish"
