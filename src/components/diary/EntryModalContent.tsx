@@ -7,6 +7,7 @@ import { EntrySlider } from "./EntrySlider";
 import { EntryTitle } from "./EntryTitle";
 import { useEntryActions } from "./useEntryActions";
 import { VoiceRecorder } from "./VoiceRecorder";
+import { EntryForm } from "./EntryForm";
 
 interface EntryModalContentProps {
   entries: Entry[];
@@ -58,25 +59,14 @@ export const EntryModalContent: React.FC<EntryModalContentProps> = ({
       {entries.length > 0 ? (
         <>
           <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-2 flex-1">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={addNewEntry}
+            <div className="flex-1">
+              <EntryTitle
+                title={entries[currentIndex]?.title || ""}
                 disabled={isReadOnly}
-                className="hover:bg-secondary"
-              >
-                <Plus className="h-4 w-4" />
-              </Button>
-              <div className="flex-1">
-                <EntryTitle
-                  title={entries[currentIndex]?.title || ""}
-                  disabled={isReadOnly}
-                  onChange={(title) =>
-                    handleEntryChange({ title }, entries[currentIndex].id)
-                  }
-                />
-              </div>
+                onChange={(title) =>
+                  handleEntryChange({ title }, entries[currentIndex].id)
+                }
+              />
             </div>
             {!isReadOnly && (
               <VoiceRecorder onTranscriptionComplete={handleVoiceTranscription} />
@@ -92,21 +82,31 @@ export const EntryModalContent: React.FC<EntryModalContentProps> = ({
         </>
       ) : (
         <div className="text-center py-8 text-muted-foreground">
-          <p className="mb-4">No entries yet. Click the button below to add one.</p>
-          <Button variant="outline" onClick={addNewEntry} className="flex items-center gap-2">
-            <Plus className="h-4 w-4" />
-            Add New Entry
-          </Button>
+          <p className="mb-4">No entries yet for this day.</p>
+          <EntryForm
+            content=""
+            rating={3}
+            disabled={false}
+            onChange={(changes) => handleEntryChange(changes, "")}
+          />
         </div>
       )}
 
-      <div className="flex justify-end space-x-2">
+      <div className="flex justify-between space-x-2">
         <Button variant="outline" onClick={onClose}>
           Cancel
         </Button>
-        <Button onClick={onSave} disabled={isReadOnly || isSaving}>
-          {isSaving ? "Saving..." : "Save Entry"}
-        </Button>
+        <div className="flex gap-2">
+          {!isReadOnly && (
+            <Button variant="outline" onClick={addNewEntry}>
+              <Plus className="h-4 w-4 mr-2" />
+              Add New Entry
+            </Button>
+          )}
+          <Button onClick={onSave} disabled={isReadOnly || isSaving}>
+            {isSaving ? "Saving..." : "Save Entry"}
+          </Button>
+        </div>
       </div>
     </div>
   );

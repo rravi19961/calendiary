@@ -15,17 +15,17 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
   const [recognition, setRecognition] = useState<SpeechRecognition | null>(null);
 
   const toggleRecording = () => {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    
-    if (!SpeechRecognition) {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
       toast({
         title: "Error",
-        description: "Speech recognition is not supported in your browser.",
+        description: "Speech recognition is not supported in your browser. Please use Chrome, Edge, or Safari.",
         variant: "destructive",
       });
       return;
     }
 
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    
     if (isRecording && recognition) {
       recognition.stop();
       setIsRecording(false);
@@ -33,35 +33,35 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
       return;
     }
 
-    const newRecognition = new SpeechRecognition();
-    setRecognition(newRecognition);
-    
-    newRecognition.continuous = true;
-    newRecognition.interimResults = true;
-    newRecognition.lang = "en-US";
-
-    newRecognition.onresult = (event) => {
-      const transcript = Array.from(event.results)
-        .map(result => result[0].transcript)
-        .join(" ");
-      
-      if (event.results[event.results.length - 1].isFinal) {
-        onTranscriptionComplete(transcript);
-      }
-    };
-
-    newRecognition.onerror = (event) => {
-      console.error("Speech recognition error:", event.error);
-      toast({
-        title: "Error",
-        description: "Error recording audio. Please try again.",
-        variant: "destructive",
-      });
-      setIsRecording(false);
-      setRecognition(null);
-    };
-
     try {
+      const newRecognition = new SpeechRecognition();
+      setRecognition(newRecognition);
+      
+      newRecognition.continuous = true;
+      newRecognition.interimResults = true;
+      newRecognition.lang = "en-US";
+
+      newRecognition.onresult = (event) => {
+        const transcript = Array.from(event.results)
+          .map(result => result[0].transcript)
+          .join(" ");
+        
+        if (event.results[event.results.length - 1].isFinal) {
+          onTranscriptionComplete(transcript);
+        }
+      };
+
+      newRecognition.onerror = (event) => {
+        console.error("Speech recognition error:", event.error);
+        toast({
+          title: "Error",
+          description: "Error recording audio. Please try again.",
+          variant: "destructive",
+        });
+        setIsRecording(false);
+        setRecognition(null);
+      };
+
       newRecognition.start();
       setIsRecording(true);
       toast({
@@ -87,6 +87,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
       className={`transition-colors ${
         isRecording ? "bg-red-100 hover:bg-red-200 dark:bg-red-900" : ""
       }`}
+      title={isRecording ? "Stop recording" : "Start voice recording"}
     >
       {isRecording ? (
         <MicOff className="h-4 w-4 text-red-500" />
