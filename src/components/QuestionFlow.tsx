@@ -132,8 +132,8 @@ export const QuestionFlow = ({ onBack }: { onBack: () => void }) => {
   }
 
   return (
-    <Card className="p-5 min-h-[600px]">
-      <div className="space-y-6">
+    <Card className="p-5">
+      <div className="space-y-6 h-[400px] overflow-y-auto">
         <QuestionHeader 
           currentIndex={currentQuestionIndex}
           totalQuestions={questions.length}
