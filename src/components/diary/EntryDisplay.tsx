@@ -75,6 +75,15 @@ export const EntryDisplay: React.FC<EntryDisplayProps> = ({
   const currentDisplayEntry = entries[currentEntryIndex];
   const hasEntries = entries.length > 0;
 
+  // When switching entries, update the current entry state if it's today
+  React.useEffect(() => {
+    if (isCurrentDay && currentDisplayEntry) {
+      setCurrentEntry(currentDisplayEntry.content || "");
+      setCurrentTitle(currentDisplayEntry.title || "");
+      setCurrentRating(currentDisplayEntry.rating || 3);
+    }
+  }, [currentEntryIndex, isCurrentDay, currentDisplayEntry]);
+
   if (!hasEntries) {
     return (
       <Card className="h-full">
@@ -114,7 +123,7 @@ export const EntryDisplay: React.FC<EntryDisplayProps> = ({
           )}
         </div>
         <Input
-          value={isCurrentDay ? currentTitle : currentDisplayEntry.title}
+          value={currentDisplayEntry.title || ""}
           onChange={(e) => isCurrentDay && setCurrentTitle(e.target.value)}
           readOnly={!isCurrentDay}
           className="font-semibold"
@@ -123,7 +132,7 @@ export const EntryDisplay: React.FC<EntryDisplayProps> = ({
       </CardHeader>
       <CardContent className="flex-grow flex flex-col space-y-6">
         <Textarea
-          value={isCurrentDay ? currentEntry : currentDisplayEntry.content}
+          value={currentDisplayEntry.content || ""}
           onChange={(e) => isCurrentDay && setCurrentEntry(e.target.value)}
           placeholder="Write about your day..."
           className="flex-grow min-h-[200px]"
@@ -131,7 +140,7 @@ export const EntryDisplay: React.FC<EntryDisplayProps> = ({
         />
         <div className="space-y-4">
           <MoodSelector
-            rating={isCurrentDay ? currentRating : currentDisplayEntry.rating}
+            rating={currentDisplayEntry.rating || 3}
             onChange={setCurrentRating}
             disabled={!isCurrentDay}
           />
