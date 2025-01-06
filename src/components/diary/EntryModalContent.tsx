@@ -57,14 +57,6 @@ export const EntryModalContent: React.FC<EntryModalContentProps> = ({
     <div className="space-y-6">
       {entries.length > 0 ? (
         <>
-          {isReadOnly && (
-            <Alert>
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>
-                This entry is read-only as it has already been saved.
-              </AlertDescription>
-            </Alert>
-          )}
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-2 flex-1">
               <Button
