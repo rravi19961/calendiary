@@ -6,6 +6,7 @@ import { Entry } from "./useEntries";
 import { EntrySlider } from "./EntrySlider";
 import { EntryTitle } from "./EntryTitle";
 import { useEntryActions } from "./useEntryActions";
+import { VoiceRecorder } from "./VoiceRecorder";
 
 interface EntryModalContentProps {
   entries: Entry[];
@@ -44,6 +45,16 @@ export const EntryModalContent: React.FC<EntryModalContentProps> = ({
     setCurrentIndex(entries.length);
   };
 
+  const handleVoiceTranscription = (transcribedText: string) => {
+    if (entries.length === 0) {
+      addNewEntry();
+    }
+    handleEntryChange(
+      { content: transcribedText },
+      entries[currentIndex]?.id || ""
+    );
+  };
+
   return (
     <div className="space-y-6">
       {entries.length > 0 ? (
@@ -56,14 +67,19 @@ export const EntryModalContent: React.FC<EntryModalContentProps> = ({
               </AlertDescription>
             </Alert>
           )}
-          <EntryTitle
-            title={entries[currentIndex]?.title || ""}
-            disabled={isReadOnly}
-            onChange={(title) =>
-              handleEntryChange({ title }, entries[currentIndex].id)
-            }
-            quote={quote}
-          />
+          <div className="flex items-center justify-between">
+            <EntryTitle
+              title={entries[currentIndex]?.title || ""}
+              disabled={isReadOnly}
+              onChange={(title) =>
+                handleEntryChange({ title }, entries[currentIndex].id)
+              }
+              quote={quote}
+            />
+            {!isReadOnly && (
+              <VoiceRecorder onTranscriptionComplete={handleVoiceTranscription} />
+            )}
+          </div>
           <EntrySlider
             entries={entries}
             currentIndex={currentIndex}
@@ -74,27 +90,27 @@ export const EntryModalContent: React.FC<EntryModalContentProps> = ({
         </>
       ) : (
         <div className="text-center py-8 text-muted-foreground">
-          No entries yet. Click the button below to add one.
+          <p className="mb-4">No entries yet. Click the button below to add one.</p>
+          <div className="flex justify-center gap-2">
+            <Button variant="outline" onClick={addNewEntry}>
+              <Plus className="h-4 w-4 mr-2" />
+              Add New Entry
+            </Button>
+            <VoiceRecorder
+              onTranscriptionComplete={(text) => {
+                addNewEntry();
+                setTimeout(() => handleVoiceTranscription(text), 0);
+              }}
+            />
+          </div>
         </div>
       )}
-
-      <Button
-        variant="outline"
-        onClick={addNewEntry}
-        className="w-full"
-      >
-        <Plus className="h-4 w-4 mr-2" />
-        Add New Entry
-      </Button>
 
       <div className="flex justify-end space-x-2">
         <Button variant="outline" onClick={onClose}>
           Cancel
         </Button>
-        <Button 
-          onClick={onSave} 
-          disabled={isReadOnly || isSaving}
-        >
+        <Button onClick={onSave} disabled={isReadOnly || isSaving}>
           {isSaving ? "Saving..." : "Save Entry"}
         </Button>
       </div>
