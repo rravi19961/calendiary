@@ -30,9 +30,9 @@ function Calendar({
         nav_button_previous: "absolute left-0",
         nav_button_next: "absolute right-0",
         table: "w-full border-collapse space-y-2",
-        head_row: "flex justify-between w-full px-2",
-        head_cell: "text-muted-foreground rounded-md w-10 font-medium text-[0.9rem] text-center mx-1",
-        row: "flex w-full mt-3 justify-between px-2",
+        head_row: "flex justify-between w-full px-4",
+        head_cell: "text-muted-foreground rounded-md w-9 font-medium text-[0.9rem] text-center",
+        row: "flex w-full mt-3 justify-between px-4",
         cell: cn(
           "relative p-0 text-center text-sm focus-within:relative focus-within:z-20 [&:has([aria-selected])]:bg-accent",
           "first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md"
