@@ -34,6 +34,40 @@ const Index = () => {
   }, [user, navigate]);
 
   useEffect(() => {
+    const loadEntries = async () => {
+      if (!user) return;
+      
+      try {
+        const { data, error } = await supabase
+          .from("diary_entries")
+          .select("*")
+          .eq("user_id", user.id)
+          .eq("date", format(selectedDate, "yyyy-MM-dd"))
+          .order("created_at", { ascending: true });
+
+        if (error) throw error;
+
+        setEntries(data || []);
+        setCurrentEntryIndex(0);
+        
+        // If it's today, set the current entry to the latest entry's content or empty
+        if (isToday(selectedDate)) {
+          setCurrentEntry(data?.[data.length - 1]?.content || "");
+        }
+      } catch (error) {
+        console.error("Error loading entries:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load your entries",
+          variant: "destructive",
+        });
+      }
+    };
+
+    loadEntries();
+  }, [selectedDate, user]);
+
+  useEffect(() => {
     const interval = setInterval(() => {
       setCurrentQuoteIndex((prevIndex) => 
         prevIndex === QUOTES.length - 1 ? 0 : prevIndex + 1
