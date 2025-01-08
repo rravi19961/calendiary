@@ -1,14 +1,12 @@
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { format } from "date-fns";
-import { X, Lock } from "lucide-react";
+import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/context/AuthContext";
-import { QUOTES } from "./diary/constants";
-import { useEntries } from "./diary/useEntries";
-import { EntryModalContent } from "./diary/EntryModalContent";
+import { NewEntryForm } from "./diary/NewEntryForm";
 
 interface EntryModalProps {
   isOpen: boolean;
@@ -20,20 +18,8 @@ const EntryModal: React.FC<EntryModalProps> = ({ isOpen, onClose, date }) => {
   const { toast } = useToast();
   const { user } = useAuth();
   const [isSaving, setIsSaving] = React.useState(false);
-  const [currentIndex, setCurrentIndex] = React.useState(0);
-  const { entries, setEntries, isLoading } = useEntries(date);
-  
-  const handleClose = () => {
-    setCurrentIndex(0);
-    setIsSaving(false);
-    onClose();
-  };
 
-  React.useEffect(() => {
-    setCurrentIndex(0);
-  }, [date]);
-
-  const handleSave = async () => {
+  const handleSave = async (entry: { title: string; content: string; rating: number }) => {
     if (!user) {
       toast({
         title: "Error",
@@ -43,8 +29,7 @@ const EntryModal: React.FC<EntryModalProps> = ({ isOpen, onClose, date }) => {
       return;
     }
 
-    const currentEntry = entries[currentIndex];
-    if (!currentEntry?.title?.trim() || !currentEntry?.content?.trim() || !currentEntry?.rating) {
+    if (!entry.title?.trim() || !entry.content?.trim() || !entry.rating) {
       toast({
         title: "Validation Error",
         description: "Please fill in all required fields (Title, Mood, and Description)",
@@ -58,9 +43,9 @@ const EntryModal: React.FC<EntryModalProps> = ({ isOpen, onClose, date }) => {
       const { error } = await supabase.from("diary_entries").insert({
         user_id: user.id,
         date: format(date, "yyyy-MM-dd"),
-        title: currentEntry.title,
-        content: currentEntry.content,
-        rating: currentEntry.rating,
+        title: entry.title,
+        content: entry.content,
+        rating: entry.rating,
       });
 
       if (error) throw error;
@@ -69,7 +54,7 @@ const EntryModal: React.FC<EntryModalProps> = ({ isOpen, onClose, date }) => {
         title: "Success",
         description: "Your diary entry has been saved successfully.",
       });
-      handleClose();
+      onClose();
     } catch (error) {
       console.error("Error saving entry:", error);
       toast({
@@ -100,39 +85,19 @@ const EntryModal: React.FC<EntryModalProps> = ({ isOpen, onClose, date }) => {
             <div className="p-6">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-xl font-semibold">
-                  {format(date, "MMMM d, yyyy")}
+                  New Entry - {format(date, "MMMM d, yyyy")}
                 </h2>
-                <div className="flex items-center space-x-2">
-                  {entries.length > 0 && entries[currentIndex]?.id && (
-                    <Lock className="h-4 w-4 text-muted-foreground" />
-                  )}
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={handleClose}
-                    className="hover:bg-secondary"
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={onClose}
+                  className="hover:bg-secondary"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
               </div>
 
-              {isLoading ? (
-                <div className="flex justify-center py-8">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-                </div>
-              ) : (
-                <EntryModalContent
-                  entries={entries}
-                  setEntries={setEntries}
-                  currentIndex={currentIndex}
-                  setCurrentIndex={setCurrentIndex}
-                  isReadOnly={Boolean(entries[currentIndex]?.id)}
-                  onSave={handleSave}
-                  onClose={handleClose}
-                  isSaving={isSaving}
-                />
-              )}
+              <NewEntryForm onSave={handleSave} onCancel={onClose} isSaving={isSaving} />
             </div>
           </motion.div>
         </motion.div>
