@@ -94,10 +94,8 @@
     @apply bg-sky-500 dark:bg-green-500;
   }
 
-  .animated-gradient {
-    background: linear-gradient(60deg, #abecd6 0%, #fbed96 100%);
-    background-size: 200% 200%;
-    animation: gradient 15s ease infinite;
+  .modal-backdrop {
+    @apply fixed inset-0 bg-black/20 backdrop-blur-sm;
   }
 
   @keyframes gradient {

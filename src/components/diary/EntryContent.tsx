@@ -13,6 +13,7 @@ interface EntryContentProps {
   onContentChange: (content: string) => void;
   onRatingChange: (rating: number) => void;
   onSave: () => void;
+  hideTitle?: boolean;
 }
 
 export const EntryContent: React.FC<EntryContentProps> = ({
@@ -24,21 +25,24 @@ export const EntryContent: React.FC<EntryContentProps> = ({
   onContentChange,
   onRatingChange,
   onSave,
+  hideTitle = false,
 }) => {
   return (
     <div className="space-y-6">
-      <Input
-        value={title}
-        onChange={(e) => isCurrentDay && onTitleChange(e.target.value)}
-        readOnly={!isCurrentDay}
-        className="font-semibold"
-        placeholder="Entry Title"
-      />
+      {!hideTitle && (
+        <Input
+          value={title}
+          onChange={(e) => isCurrentDay && onTitleChange(e.target.value)}
+          readOnly={!isCurrentDay}
+          className="font-semibold"
+          placeholder="Entry Title"
+        />
+      )}
       <Textarea
         value={content}
         onChange={(e) => isCurrentDay && onContentChange(e.target.value)}
         placeholder="Write about your day..."
-        className="flex-grow min-h-[200px]"
+        className="flex-grow min-h-[200px] resize-none"
         readOnly={!isCurrentDay}
       />
       <div className="space-y-4">
