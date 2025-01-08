@@ -1,7 +1,8 @@
 import React from "react";
-import { format, isToday } from "date-fns";
+import { isToday } from "date-fns";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
-import { EntryNavigation } from "./EntryNavigation";
+import { DateNavigation } from "./DateNavigation";
+import { EntryPagination } from "./EntryPagination";
 import { EntryContent } from "./EntryContent";
 
 interface Entry {
@@ -24,6 +25,7 @@ interface EntryDisplayProps {
   setCurrentRating: (rating: number) => void;
   selectedDate: Date;
   onSave: () => void;
+  onDateChange: (date: Date) => void;
 }
 
 export const EntryDisplay: React.FC<EntryDisplayProps> = ({
@@ -38,6 +40,7 @@ export const EntryDisplay: React.FC<EntryDisplayProps> = ({
   setCurrentRating,
   selectedDate,
   onSave,
+  onDateChange,
 }) => {
   const isCurrentDay = isToday(selectedDate);
   const currentDisplayEntry = entries[currentEntryIndex];
@@ -54,6 +57,9 @@ export const EntryDisplay: React.FC<EntryDisplayProps> = ({
   if (!hasEntries) {
     return (
       <Card className="h-full">
+        <CardHeader>
+          <DateNavigation date={selectedDate} onDateChange={onDateChange} />
+        </CardHeader>
         <CardContent className="flex justify-center items-center h-full py-8">
           <p className="text-muted-foreground">No entries for this date</p>
         </CardContent>
@@ -63,17 +69,8 @@ export const EntryDisplay: React.FC<EntryDisplayProps> = ({
 
   return (
     <Card className="h-full flex flex-col">
-      <CardHeader className="space-y-4">
-        <div className="flex justify-between items-center">
-          <h2 className="text-xl font-semibold">
-            {isCurrentDay ? "Today's Entry" : format(selectedDate, "MMMM d, yyyy")}
-          </h2>
-          <EntryNavigation
-            entriesCount={entries.length}
-            currentIndex={currentEntryIndex}
-            onNavigate={setCurrentEntryIndex}
-          />
-        </div>
+      <CardHeader>
+        <DateNavigation date={selectedDate} onDateChange={onDateChange} />
       </CardHeader>
       <CardContent className="flex-grow flex flex-col">
         <EntryContent
@@ -85,6 +82,12 @@ export const EntryDisplay: React.FC<EntryDisplayProps> = ({
           onContentChange={setCurrentEntry}
           onRatingChange={setCurrentRating}
           onSave={onSave}
+        />
+        <EntryPagination
+          currentIndex={currentEntryIndex}
+          totalEntries={entries.length}
+          onNavigate={setCurrentEntryIndex}
+          className="mt-4"
         />
       </CardContent>
     </Card>

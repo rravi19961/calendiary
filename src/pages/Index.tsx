@@ -147,6 +147,10 @@ const Index = () => {
     }
   };
 
+  const handleDateChange = (newDate: Date) => {
+    setSelectedDate(newDate);
+  };
+
   return (
     <div className={`min-h-screen bg-gradient-to-b from-[#E6F2FA] to-white dark:from-gray-900 dark:to-gray-800 ${theme}`}>
       <HeaderSection 
@@ -162,7 +166,7 @@ const Index = () => {
           <div className="h-[600px]">
             <CalendarSection 
               selectedDate={selectedDate}
-              setSelectedDate={setSelectedDate}
+              setSelectedDate={handleDateChange}
             />
           </div>
 
@@ -179,6 +183,7 @@ const Index = () => {
               setCurrentRating={setCurrentRating}
               selectedDate={selectedDate}
               onSave={handleSaveEntry}
+              onDateChange={handleDateChange}
             />
           </div>
 
