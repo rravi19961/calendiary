@@ -4,6 +4,7 @@ import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { DateNavigation } from "./DateNavigation";
 import { EntryPagination } from "./EntryPagination";
 import { EntryContent } from "./EntryContent";
+import { EntryMaximizeModal } from "./EntryMaximizeModal";
 
 interface Entry {
   id: string;
@@ -68,7 +69,7 @@ export const EntryDisplay: React.FC<EntryDisplayProps> = ({
   }
 
   return (
-    <Card className="h-full flex flex-col">
+    <Card className="h-full flex flex-col relative">
       <CardHeader>
         <DateNavigation date={selectedDate} onDateChange={onDateChange} />
       </CardHeader>
@@ -90,6 +91,19 @@ export const EntryDisplay: React.FC<EntryDisplayProps> = ({
           className="mt-4"
         />
       </CardContent>
+      <EntryMaximizeModal
+        entries={entries}
+        currentEntryIndex={currentEntryIndex}
+        setCurrentEntryIndex={setCurrentEntryIndex}
+        currentEntry={currentEntry}
+        setCurrentEntry={setCurrentEntry}
+        currentTitle={currentTitle}
+        setCurrentTitle={setCurrentTitle}
+        currentRating={currentRating}
+        setCurrentRating={setCurrentRating}
+        selectedDate={selectedDate}
+        onSave={onSave}
+      />
     </Card>
   );
 };
