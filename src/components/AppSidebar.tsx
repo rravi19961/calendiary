@@ -12,6 +12,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarHeader,
 } from "@/components/ui/sidebar";
 import { useToast } from "@/hooks/use-toast";
 
@@ -49,6 +50,18 @@ export function AppSidebar() {
 
   return (
     <Sidebar>
+      <SidebarHeader className="p-4">
+        <button 
+          onClick={() => navigate("/")}
+          className="w-full flex justify-center items-center hover:opacity-80 transition-opacity"
+        >
+          <img 
+            src="/lovable-uploads/8f33fce6-960e-4f1f-894a-0e2a12c49357.png" 
+            alt="Calendiary Logo" 
+            className="h-16 w-auto"
+          />
+        </button>
+      </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>Navigation</SidebarGroupLabel>
