@@ -16,7 +16,7 @@ export const CalendarSection: React.FC<CalendarSectionProps> = ({
       <CardHeader>
         <CardTitle className="text-lg font-semibold">Calendar</CardTitle>
       </CardHeader>
-      <CardContent className="flex-grow flex justify-center">
+      <CardContent className="flex-grow flex items-center justify-center p-6">
         <Calendar date={selectedDate} setDate={setSelectedDate} />
       </CardContent>
     </Card>
