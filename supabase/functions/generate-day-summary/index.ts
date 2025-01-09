@@ -77,11 +77,12 @@ Please provide a brief, empathetic summary that captures the key moments and ove
 
     const geminiApiKey = Deno.env.get('GEMINI_API_KEY');
     if (!geminiApiKey) {
+      console.error('GEMINI_API_KEY is not set');
       throw new Error('GEMINI_API_KEY is not set in environment variables');
     }
 
     console.log('Calling Gemini API...');
-    // Call Gemini API
+    // Call Gemini API with detailed error logging
     const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent', {
       method: 'POST',
       headers: {
@@ -96,14 +97,16 @@ Please provide a brief, empathetic summary that captures the key moments and ove
         }],
         generationConfig: {
           temperature: 0.7,
-          maxOutputTokens: 100
+          maxOutputTokens: 100,
         }
       })
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Gemini API error:', errorText);
+      console.error('Gemini API error response:', errorText);
+      console.error('Response status:', response.status);
+      console.error('Response headers:', Object.fromEntries(response.headers.entries()));
       throw new Error(`Gemini API error: ${errorText}`);
     }
 
@@ -111,6 +114,7 @@ Please provide a brief, empathetic summary that captures the key moments and ove
     console.log('Generated summary:', result);
     
     if (!result.candidates || !result.candidates[0]?.content?.parts?.[0]?.text) {
+      console.error('Unexpected response format:', result);
       throw new Error('Unexpected response format from Gemini API');
     }
 
