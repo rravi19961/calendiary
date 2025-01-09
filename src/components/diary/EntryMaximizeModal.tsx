@@ -52,7 +52,7 @@ export const EntryMaximizeModal: React.FC<EntryMaximizeModalProps> = ({
         variant="ghost" 
         size="icon" 
         onClick={() => setIsOpen(true)}
-        className="absolute top-4 right-4 hover:bg-blue-100 dark:hover:bg-blue-900"
+        className="absolute bottom-4 right-4 hover:bg-blue-100 dark:hover:bg-blue-900 transition-transform hover:scale-105"
       >
         <Maximize2 className="h-4 w-4" />
       </Button>
