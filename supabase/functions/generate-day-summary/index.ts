@@ -75,13 +75,18 @@ ${responsesContent || 'No responses for this day.'}
 
 Please provide a brief, empathetic summary that captures the key moments and overall mood of the day. Keep it to 2-3 sentences.`;
 
+    const geminiApiKey = Deno.env.get('GEMINI_API_KEY');
+    if (!geminiApiKey) {
+      throw new Error('GEMINI_API_KEY is not set in environment variables');
+    }
+
     console.log('Calling Gemini API...');
     // Call Gemini API
     const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${Deno.env.get('GEMINI_API_KEY')}`,
+        'Authorization': `Bearer ${geminiApiKey}`,
       },
       body: JSON.stringify({
         contents: [{
