@@ -21,6 +21,20 @@ import {
 } from "@/components/ui/card";
 import { Smile, Star, Pin, Calendar } from "lucide-react";
 
+interface DiaryEntry {
+  id: string;
+  title: string | null;
+  content: string | null;
+  rating: number | null;
+  date: string;
+  created_at: string;
+  updated_at: string;
+  user_id: string;
+  tags: string[] | null;
+  is_pinned: boolean | null;
+  is_best_day: boolean | null;
+}
+
 const timeRanges = [
   { value: "7", label: "Last 7 Days" },
   { value: "30", label: "Last 30 Days" },
@@ -32,7 +46,7 @@ const DaysReview = () => {
   const [timeRange, setTimeRange] = useState("30");
   const { toast } = useToast();
 
-  const { data: entries = [], isLoading } = useQuery({
+  const { data: entries = [], isLoading } = useQuery<DiaryEntry[]>({
     queryKey: ["diary-entries", timeRange],
     queryFn: async () => {
       const daysAgo = timeRange === "all" ? undefined : parseInt(timeRange);
@@ -58,10 +72,7 @@ const DaysReview = () => {
         throw error;
       }
 
-      return data.map((entry) => ({
-        ...entry,
-        date: new Date(entry.date),
-      }));
+      return data || [];
     },
   });
 
@@ -70,7 +81,7 @@ const DaysReview = () => {
     bestMoodDay: entries.reduce(
       (best, current) =>
         (current.rating || 0) > (best.rating || 0) ? current : best,
-      entries[0] || { rating: 0 }
+      entries[0] || { rating: 0, date: new Date().toISOString() }
     ),
     pinnedCount: entries.filter((entry) => entry.is_pinned).length,
     bestDaysCount: entries.filter((entry) => entry.is_best_day).length,
@@ -168,7 +179,7 @@ const DaysReview = () => {
                 key={entry.id}
                 title={entry.title || "Untitled Entry"}
                 content={entry.content || ""}
-                date={entry.date}
+                date={new Date(entry.date)}
                 rating={entry.rating || 0}
               />
             ))}
