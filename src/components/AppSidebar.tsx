@@ -8,7 +8,6 @@ import {
   SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
@@ -18,7 +17,7 @@ import { useToast } from "@/hooks/use-toast";
 
 const navigationItems = [
   { title: "Home", icon: Home, path: "/" },
-  { title: "Best Days", icon: Award, path: "/best-days" },
+  { title: "Days Review", icon: Award, path: "/days-review" },
   { title: "Profile", icon: User, path: "/profile" },
   { title: "Settings", icon: Settings, path: "/preferences" },
 ];
@@ -62,7 +61,6 @@ export function AppSidebar() {
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Navigation</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu className="space-y-2">
               {navigationItems.map((item) => (
@@ -71,7 +69,7 @@ export function AppSidebar() {
                     tooltip={item.title}
                     isActive={location.pathname === item.path}
                     onClick={() => navigate(item.path)}
-                    className="py-3"
+                    className="py-3 text-base"
                   >
                     <item.icon className="h-5 w-5" />
                     <span>{item.title}</span>
