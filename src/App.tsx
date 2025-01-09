@@ -7,7 +7,7 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Profile from "./pages/Profile";
-import BestDays from "./pages/BestDays";
+import DaysReview from "./pages/DaysReview";
 import Preferences from "./pages/Preferences";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { AppSidebar } from "./components/AppSidebar";
@@ -52,10 +52,10 @@ const App = () => (
                 }
               />
               <Route
-                path="/best-days"
+                path="/days-review"
                 element={
                   <ProtectedRoute>
-                    <BestDays />
+                    <DaysReview />
                   </ProtectedRoute>
                 }
               />

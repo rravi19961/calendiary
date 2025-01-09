@@ -1,13 +1,15 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { format } from "date-fns";
-import { Smile, SmilePlus } from "lucide-react";
+import { Smile, SmilePlus, Star, Pin } from "lucide-react";
 
 interface DiaryCardProps {
   title: string;
   content: string;
   date: Date;
   rating: number;
+  isPinned?: boolean;
+  isBestDay?: boolean;
 }
 
 export const DiaryCard: React.FC<DiaryCardProps> = ({
@@ -15,6 +17,8 @@ export const DiaryCard: React.FC<DiaryCardProps> = ({
   content,
   date,
   rating,
+  isPinned = false,
+  isBestDay = false,
 }) => {
   const [isFlipped, setIsFlipped] = useState(false);
 
@@ -30,9 +34,23 @@ export const DiaryCard: React.FC<DiaryCardProps> = ({
         className="w-full h-full relative preserve-3d"
       >
         {/* Front of card */}
-        <div className={`absolute w-full h-full backface-hidden ${!isFlipped ? "z-10" : "z-0"}`}>
+        <div
+          className={`absolute w-full h-full backface-hidden ${
+            !isFlipped ? "z-10" : "z-0"
+          }`}
+        >
           <div className="neo-card h-full p-6 flex flex-col justify-between">
-            <h3 className="text-xl font-semibold">{title}</h3>
+            <div className="flex justify-between items-start">
+              <h3 className="text-xl font-semibold">{title}</h3>
+              <div className="flex gap-2">
+                {isPinned && (
+                  <Pin className="h-4 w-4 text-primary" />
+                )}
+                {isBestDay && (
+                  <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
+                )}
+              </div>
+            </div>
             <div className="flex justify-between items-center">
               {rating === 5 ? (
                 <SmilePlus className="h-6 w-6 text-green-500" />
@@ -47,8 +65,10 @@ export const DiaryCard: React.FC<DiaryCardProps> = ({
         </div>
 
         {/* Back of card */}
-        <div 
-          className={`absolute w-full h-full backface-hidden rotate-y-180 ${isFlipped ? "z-10" : "z-0"}`}
+        <div
+          className={`absolute w-full h-full backface-hidden rotate-y-180 ${
+            isFlipped ? "z-10" : "z-0"
+          }`}
         >
           <div className="neo-card h-full p-6 overflow-auto">
             <p className="text-sm text-muted-foreground">{content}</p>

@@ -63,7 +63,10 @@ export type Database = {
           created_at: string
           date: string
           id: string
+          is_best_day: boolean | null
+          is_pinned: boolean | null
           rating: number | null
+          tags: string[] | null
           title: string | null
           updated_at: string
           user_id: string
@@ -73,7 +76,10 @@ export type Database = {
           created_at?: string
           date: string
           id?: string
+          is_best_day?: boolean | null
+          is_pinned?: boolean | null
           rating?: number | null
+          tags?: string[] | null
           title?: string | null
           updated_at?: string
           user_id: string
@@ -83,7 +89,10 @@ export type Database = {
           created_at?: string
           date?: string
           id?: string
+          is_best_day?: boolean | null
+          is_pinned?: boolean | null
           rating?: number | null
+          tags?: string[] | null
           title?: string | null
           updated_at?: string
           user_id?: string
