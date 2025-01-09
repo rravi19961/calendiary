@@ -93,7 +93,11 @@ Please provide a brief, empathetic summary that captures the key moments and ove
           parts: [{
             text: prompt
           }]
-        }]
+        }],
+        generationConfig: {
+          temperature: 0.7,
+          maxOutputTokens: 100
+        }
       })
     });
 
@@ -104,8 +108,14 @@ Please provide a brief, empathetic summary that captures the key moments and ove
     }
 
     const result = await response.json();
+    console.log('Generated summary:', result);
+    
+    if (!result.candidates || !result.candidates[0]?.content?.parts?.[0]?.text) {
+      throw new Error('Unexpected response format from Gemini API');
+    }
+
     const summary = result.candidates[0].content.parts[0].text;
-    console.log('Generated summary:', summary);
+    console.log('Final summary:', summary);
 
     return new Response(
       JSON.stringify({ summary }),
