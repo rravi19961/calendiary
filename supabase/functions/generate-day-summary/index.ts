@@ -8,18 +8,25 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
     const { date, userId } = await req.json();
+    console.log('Received request for date:', date, 'userId:', userId);
+
+    if (!date || !userId) {
+      throw new Error('Date and userId are required');
+    }
 
     // Initialize Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
+    console.log('Fetching diary entries...');
     // Fetch diary entries for the day
     const { data: diaryEntries, error: diaryError } = await supabase
       .from('diary_entries')
@@ -27,8 +34,12 @@ serve(async (req) => {
       .eq('user_id', userId)
       .eq('date', date);
 
-    if (diaryError) throw diaryError;
+    if (diaryError) {
+      console.error('Error fetching diary entries:', diaryError);
+      throw diaryError;
+    }
 
+    console.log('Fetching question responses...');
     // Fetch question responses for the day
     const { data: responses, error: responsesError } = await supabase
       .from('question_responses')
@@ -39,7 +50,10 @@ serve(async (req) => {
       .eq('user_id', userId)
       .eq('date', date);
 
-    if (responsesError) throw responsesError;
+    if (responsesError) {
+      console.error('Error fetching responses:', responsesError);
+      throw responsesError;
+    }
 
     // Prepare the content for summarization
     const diaryContent = diaryEntries?.map(entry => 
@@ -50,16 +64,18 @@ serve(async (req) => {
       response.question_choices?.choice_text || response.other_text
     ).join('\n');
 
+    console.log('Preparing prompt for Gemini...');
     const prompt = `Please provide a concise summary of this person's day based on their diary entries and responses:
 
 Diary Entries:
-${diaryContent}
+${diaryContent || 'No diary entries for this day.'}
 
 Daily Responses:
-${responsesContent}
+${responsesContent || 'No responses for this day.'}
 
 Please provide a brief, empathetic summary that captures the key moments and overall mood of the day. Keep it to 2-3 sentences.`;
 
+    console.log('Calling Gemini API...');
     // Call Gemini API
     const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent', {
       method: 'POST',
@@ -77,11 +93,14 @@ Please provide a brief, empathetic summary that captures the key moments and ove
     });
 
     if (!response.ok) {
-      throw new Error(`Gemini API error: ${await response.text()}`);
+      const errorText = await response.text();
+      console.error('Gemini API error:', errorText);
+      throw new Error(`Gemini API error: ${errorText}`);
     }
 
     const result = await response.json();
     const summary = result.candidates[0].content.parts[0].text;
+    console.log('Generated summary:', summary);
 
     return new Response(
       JSON.stringify({ summary }),
