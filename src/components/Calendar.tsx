@@ -1,7 +1,7 @@
 import React from "react";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
-import { isFuture, startOfDay } from "date-fns";
+import { isFuture, startOfDay, startOfMonth } from "date-fns";
 import { Button } from "@/components/ui/button";
 
 interface CalendarProps {
@@ -11,10 +11,13 @@ interface CalendarProps {
 }
 
 const Calendar: React.FC<CalendarProps> = ({ date, setDate, onDateSelect }) => {
+  const [month, setMonth] = React.useState<Date>(startOfMonth(date));
+
   const handleSelect = (newDate: Date | undefined) => {
     if (newDate) {
       const selectedDate = startOfDay(newDate);
       setDate(selectedDate);
+      setMonth(startOfMonth(selectedDate));
       
       if (onDateSelect && !isFuture(selectedDate)) {
         console.log(`Date selected: ${selectedDate}`);
@@ -26,6 +29,8 @@ const Calendar: React.FC<CalendarProps> = ({ date, setDate, onDateSelect }) => {
   const goToToday = () => {
     const today = startOfDay(new Date());
     setDate(today);
+    setMonth(startOfMonth(today));
+    
     if (onDateSelect && !isFuture(today)) {
       console.log("Going to today's date");
       onDateSelect();
@@ -48,6 +53,8 @@ const Calendar: React.FC<CalendarProps> = ({ date, setDate, onDateSelect }) => {
           mode="single"
           selected={date}
           onSelect={handleSelect}
+          month={month}
+          onMonthChange={setMonth}
           disabled={(date) => isFuture(date)}
           className="rounded-md border shadow-sm w-full max-w-[320px]"
         />
