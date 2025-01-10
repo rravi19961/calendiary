@@ -149,6 +149,43 @@ const Index = () => {
 
   const handleDateChange = (newDate: Date) => {
     setSelectedDate(newDate);
+    loadEntries(newDate);
+  };
+
+  const loadEntries = async (date: Date) => {
+    if (!user) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from("diary_entries")
+        .select("*")
+        .eq("user_id", user.id)
+        .eq("date", format(date, "yyyy-MM-dd"))
+        .order("created_at", { ascending: true });
+
+      if (error) throw error;
+
+      setEntries(data || []);
+      setCurrentEntryIndex(0);
+      
+      if (data && data.length > 0) {
+        const latestEntry = data[data.length - 1];
+        setCurrentEntry(latestEntry.content || "");
+        setCurrentTitle(latestEntry.title || "");
+        setCurrentRating(latestEntry.rating || 3);
+      } else {
+        setCurrentEntry("");
+        setCurrentTitle("");
+        setCurrentRating(3);
+      }
+    } catch (error) {
+      console.error("Error loading entries:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load your entries",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -167,6 +204,7 @@ const Index = () => {
             <CalendarSection 
               selectedDate={selectedDate}
               setSelectedDate={handleDateChange}
+              onDateSelect={() => loadEntries(selectedDate)}
             />
           </div>
 

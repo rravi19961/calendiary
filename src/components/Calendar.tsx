@@ -26,7 +26,8 @@ const Calendar: React.FC<CalendarProps> = ({ date, setDate, onDateSelect }) => {
   const goToToday = () => {
     const today = startOfDay(new Date());
     setDate(today);
-    if (onDateSelect) {
+    if (onDateSelect && !isFuture(today)) {
+      console.log("Going to today's date");
       onDateSelect();
     }
   };
