@@ -63,6 +63,7 @@ export type Database = {
           created_at: string
           date: string
           id: string
+          image_url: string | null
           is_best_day: boolean | null
           is_pinned: boolean | null
           rating: number | null
@@ -76,6 +77,7 @@ export type Database = {
           created_at?: string
           date: string
           id?: string
+          image_url?: string | null
           is_best_day?: boolean | null
           is_pinned?: boolean | null
           rating?: number | null
@@ -89,6 +91,7 @@ export type Database = {
           created_at?: string
           date?: string
           id?: string
+          image_url?: string | null
           is_best_day?: boolean | null
           is_pinned?: boolean | null
           rating?: number | null

@@ -10,6 +10,7 @@ export interface Entry {
   content: string;
   rating: number;
   createdAt: Date;
+  image_url?: string | null;
 }
 
 export const useEntries = (date: Date) => {
@@ -38,6 +39,7 @@ export const useEntries = (date: Date) => {
             content: entry.content || "",
             rating: entry.rating || 3,
             createdAt: new Date(entry.created_at),
+            image_url: entry.image_url,
           }))
         );
       } catch (error) {
