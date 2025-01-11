@@ -30,17 +30,13 @@ serve(async (req) => {
 
     if (entriesError) throw entriesError;
 
-    // Fetch question responses for the day
-    const { data: responses, error: responsesError } = await supabase
-      .from('question_responses')
-      .select(`
-        other_text,
-        question_choices (choice_text)
-      `)
-      .eq('date', date)
-      .eq('user_id', userId);
-
-    if (responsesError) throw responsesError;
+    // If no entries, return empty summary
+    if (!entries || entries.length === 0) {
+      return new Response(
+        JSON.stringify({ summary: null }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
     // Prepare the content for OpenAI
     const entriesContent = entries?.map(entry => 
@@ -56,8 +52,8 @@ ${entriesContent}`;
     console.log('Sending request to OpenAI with prompt:', prompt);
 
     const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
-    if (!openAIApiKey) {
-      throw new Error('OpenAI API key is not configured');
+    if (!openAIApiKey || openAIApiKey.trim() === '') {
+      throw new Error('OpenAI API key is not configured or is empty');
     }
 
     // Call OpenAI API
