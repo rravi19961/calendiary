@@ -24,6 +24,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button"; // Added this import
 import { Smile, Star, Pin, Calendar } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 
