@@ -16,9 +16,6 @@ export const MoodTrendsSection = () => {
         <MoodTracker onDateSelect={setSelectedDate} />
         <div className="space-y-4">
           <Separator className="my-4" />
-          <div className="flex items-center">
-            <h3 className="text-lg font-semibold">Photo Gallery</h3>
-          </div>
           <DailyImageCarousel selectedDate={selectedDate} />
         </div>
       </CardContent>

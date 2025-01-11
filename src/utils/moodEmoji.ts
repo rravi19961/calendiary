@@ -13,3 +13,7 @@ export const getMoodEmoji = (rating: number | null | undefined): string => {
     default: return "😐";
   }
 };
+
+export const formatTitle = (title: string): string => {
+  return title?.replace(/^["']|["']$/g, '').trim();
+};

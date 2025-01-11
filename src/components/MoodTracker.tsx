@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { LineChart, Line, XAxis, YAxis, ResponsiveContainer } from "recharts";
+import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, CartesianGrid } from "recharts";
 import { format, subDays } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/context/AuthContext";
@@ -96,6 +96,12 @@ const MoodTracker: React.FC<MoodTrackerProps> = ({ onDateSelect }) => {
     <div className="h-48">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={moodData}>
+          <CartesianGrid 
+            horizontal={true} 
+            vertical={false} 
+            stroke="hsl(var(--border))"
+            strokeOpacity={0.2}
+          />
           <XAxis 
             dataKey="date"
             stroke="hsl(var(--muted-foreground))"
@@ -114,6 +120,7 @@ const MoodTracker: React.FC<MoodTrackerProps> = ({ onDateSelect }) => {
             strokeWidth={2}
             dot={{ fill: "hsl(var(--primary))", r: 4 }}
             activeDot={false}
+            isAnimationActive={false}
           />
         </LineChart>
       </ResponsiveContainer>
