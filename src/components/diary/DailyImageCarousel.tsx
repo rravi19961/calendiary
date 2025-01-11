@@ -73,12 +73,17 @@ export const DailyImageCarousel = ({ selectedDate }: DailyImageCarouselProps) =>
     );
   }
 
+  const handleCarouselChange = (api: any) => {
+    const selectedIndex = api.selectedScrollSnap();
+    setCurrentIndex(selectedIndex);
+  };
+
   return (
     <div className="min-h-[200px] w-full space-y-2">
       <h3 className="text-lg font-semibold mb-4">Photo Gallery</h3>
       <Carousel 
         className="w-full max-w-md mx-auto"
-        onSelect={(index: number) => setCurrentIndex(index)}
+        onSelect={handleCarouselChange}
       >
         <CarouselContent>
           {images.map((imageUrl, index) => (
@@ -105,12 +110,12 @@ export const DailyImageCarousel = ({ selectedDate }: DailyImageCarouselProps) =>
       </div>
 
       <Dialog open={!!fullscreenImage} onOpenChange={() => setFullscreenImage(null)}>
-        <DialogContent className="max-w-[90vw] max-h-[90vh] p-0">
-          <div className="relative w-full h-full">
+        <DialogContent className="max-w-[90vw] max-h-[90vh] p-0 flex items-center justify-center bg-transparent border-none">
+          <div className="relative w-full h-full flex items-center justify-center">
             <Button
               variant="ghost"
               size="icon"
-              className="absolute top-2 right-2 z-50"
+              className="absolute top-4 right-4 z-50 bg-black/20 hover:bg-black/40 text-white"
               onClick={() => setFullscreenImage(null)}
             >
               <X className="h-4 w-4" />
@@ -119,7 +124,7 @@ export const DailyImageCarousel = ({ selectedDate }: DailyImageCarouselProps) =>
               <img
                 src={fullscreenImage}
                 alt="Full size"
-                className="w-full h-full object-contain"
+                className="max-w-[80%] max-h-[80vh] object-contain rounded-lg"
               />
             )}
           </div>

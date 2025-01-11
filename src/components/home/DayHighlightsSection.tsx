@@ -13,6 +13,15 @@ interface DayHighlightsSectionProps {
   selectedDate: Date;
 }
 
+const getEmojiForRating = (rating: number | null) => {
+  if (!rating) return "😐";
+  if (rating === 5) return "😍";
+  if (rating === 4) return "😊";
+  if (rating === 3) return "😐";
+  if (rating === 2) return "😟";
+  return "😭";
+};
+
 export const DayHighlightsSection: React.FC<DayHighlightsSectionProps> = ({
   selectedDate,
 }) => {
@@ -25,7 +34,7 @@ export const DayHighlightsSection: React.FC<DayHighlightsSectionProps> = ({
     queryFn: async () => {
       const { data, error } = await supabase
         .from('day_summaries')
-        .select('content, title')
+        .select('content, title, rating')
         .eq('date', format(selectedDate, 'yyyy-MM-dd'))
         .eq('user_id', user?.id)
         .maybeSingle();
@@ -94,11 +103,11 @@ export const DayHighlightsSection: React.FC<DayHighlightsSectionProps> = ({
             <>
               {summaryData.title && (
                 <h3 className="text-lg font-semibold text-calendiary-primary mb-2">
-                  {summaryData.title}
+                  {getEmojiForRating(summaryData.rating)} {summaryData.title}
                 </h3>
               )}
-              <div className="text-muted-foreground mb-4 italic font-serif">
-                "{summaryData.content}"
+              <div className="text-muted-foreground mb-4 font-serif">
+                {summaryData.content}
               </div>
             </>
           ) : (
