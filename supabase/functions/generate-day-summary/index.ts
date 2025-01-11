@@ -8,7 +8,6 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -16,7 +15,6 @@ serve(async (req) => {
   try {
     const { date, userId } = await req.json();
 
-    // Initialize Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
@@ -30,24 +28,48 @@ serve(async (req) => {
 
     if (entriesError) throw entriesError;
 
-    // If no entries, return empty summary
-    if (!entries || entries.length === 0) {
+    // Fetch chat responses for the day
+    const { data: chatResponses, error: responsesError } = await supabase
+      .from('question_responses')
+      .select(`
+        question_choices (
+          choice_text
+        ),
+        other_text,
+        daily_questions (
+          question_text
+        )
+      `)
+      .eq('date', date)
+      .eq('user_id', userId);
+
+    if (responsesError) throw responsesError;
+
+    // If no data available, return empty summary
+    if ((!entries || entries.length === 0) && (!chatResponses || chatResponses.length === 0)) {
       return new Response(
         JSON.stringify({ summary: null }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Prepare the content for OpenAI
+    // Prepare diary entries content
     const entriesContent = entries?.map(entry => 
       `Title: ${entry.title}\nContent: ${entry.content}\nMood Rating: ${entry.rating}`
     ).join('\n\n');
 
-    // Create the prompt for OpenAI
-    const prompt = `Please provide a concise summary of this person's day based on their diary entries. Focus on the main events, mood, and key activities. Keep it personal and empathetic.
+    // Prepare chat responses content
+    const chatContent = chatResponses?.map(response => {
+      const questionText = response.daily_questions?.question_text || '';
+      const answerText = response.question_choices?.choice_text || response.other_text || '';
+      return `Question: ${questionText}\nAnswer: ${answerText}`;
+    }).join('\n\n');
 
-Diary Entries:
-${entriesContent}`;
+    // Create the prompt for OpenAI
+    const prompt = `Please provide a comprehensive summary of this person's day based on their diary entries and chat responses. Focus on the main events, mood, and key activities. Keep it personal and empathetic.
+
+${entries?.length > 0 ? `Diary Entries:\n${entriesContent}\n\n` : ''}
+${chatResponses?.length > 0 ? `Chat Responses:\n${chatContent}` : ''}`;
 
     console.log('Sending request to OpenAI with prompt:', prompt);
 
@@ -57,7 +79,7 @@ ${entriesContent}`;
     }
 
     // Call OpenAI API
-    const openAIResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${openAIApiKey}`,
@@ -74,14 +96,14 @@ ${entriesContent}`;
       }),
     });
 
-    if (!openAIResponse.ok) {
-      const error = await openAIResponse.text();
+    if (!response.ok) {
+      const error = await response.text();
       console.error('OpenAI API error:', error);
       throw new Error(`OpenAI API error: ${error}`);
     }
 
-    const aiData = await openAIResponse.json();
-    const summary = aiData.choices[0].message.content;
+    const data = await response.json();
+    const summary = data.choices[0].message.content;
 
     console.log('Generated summary:', summary);
 
