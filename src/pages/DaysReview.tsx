@@ -5,36 +5,16 @@ import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { StatisticsSection } from "@/components/diary/StatisticsSection";
-import { SummaryCard } from "@/components/diary/SummaryCard";
+import { FilterControls } from "@/components/diary/FilterControls";
+import { SummaryList } from "@/components/diary/SummaryList";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { getMoodEmoji } from "@/utils/moodEmoji";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
-
-const sortOptions = [
-  { value: "date-desc", label: "Newest First" },
-  { value: "date-asc", label: "Oldest First" },
-  { value: "mood-desc", label: "Best Mood First" },
-  { value: "mood-asc", label: "Worst Mood First" },
-];
-
-const timeRanges = [
-  { value: "7", label: "Last 7 Days" },
-  { value: "30", label: "Last 30 Days" },
-  { value: "90", label: "Last 90 Days" },
-  { value: "all", label: "All Time" },
-];
 
 const DaysReview = () => {
   const [timeRange, setTimeRange] = useState("7");
@@ -80,7 +60,7 @@ const DaysReview = () => {
     return true;
   });
 
-  // Calculate overall stats (independent of filters)
+  // Calculate overall stats
   const stats = {
     summarizedDays: allSummaries.length,
     lastCheerfulDay: allSummaries.reduce(
@@ -167,36 +147,12 @@ const DaysReview = () => {
           <p className="text-muted-foreground">
             Gain insights from your past to create a better future
           </p>
-          <div className="flex flex-wrap gap-4">
-            <div className="w-48">
-              <Select value={timeRange} onValueChange={setTimeRange}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select time range" />
-                </SelectTrigger>
-                <SelectContent>
-                  {timeRanges.map((range) => (
-                    <SelectItem key={range.value} value={range.value}>
-                      {range.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="w-48">
-              <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Sort by" />
-                </SelectTrigger>
-                <SelectContent>
-                  {sortOptions.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
+          <FilterControls
+            timeRange={timeRange}
+            sortBy={sortBy}
+            onTimeRangeChange={setTimeRange}
+            onSortByChange={setSortBy}
+          />
         </div>
 
         <StatisticsSection 
@@ -215,29 +171,13 @@ const DaysReview = () => {
           </TabsList>
 
           <TabsContent value={activeTab}>
-            {isLoading ? (
-              <div className="grid place-items-center h-64">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {sortedSummaries.map((summary) => (
-                  <SummaryCard
-                    key={summary.id}
-                    id={summary.id}
-                    title={summary.title || "Untitled Summary"}
-                    content={summary.content}
-                    date={summary.date}
-                    rating={summary.rating || 3}
-                    isPinned={summary.is_pinned || false}
-                    isBestDay={summary.is_best_day || false}
-                    onTogglePin={handleTogglePin}
-                    onToggleBestDay={handleToggleBestDay}
-                    onMaximize={() => setSelectedSummary(summary)}
-                  />
-                ))}
-              </div>
-            )}
+            <SummaryList
+              summaries={sortedSummaries}
+              onTogglePin={handleTogglePin}
+              onToggleBestDay={handleToggleBestDay}
+              onMaximize={setSelectedSummary}
+              isLoading={isLoading}
+            />
           </TabsContent>
         </Tabs>
 
