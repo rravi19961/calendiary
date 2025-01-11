@@ -30,15 +30,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     // Get initial session
     const initializeAuth = async () => {
       try {
-        const { data: { session }, error } = await supabase.auth.getSession();
+        // First, check for an existing session
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
-        if (error) {
-          console.error("Session error:", error);
+        if (sessionError) {
+          console.error("Session error:", sessionError);
           setUser(null);
           return;
         }
 
-        setUser(session?.user ?? null);
+        // Set initial user state
+        if (session?.user) {
+          setUser(session.user);
+          console.log("Initial session user:", session.user);
+        }
 
         // Listen for auth changes
         const {
@@ -52,12 +57,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
               title: "Welcome back!",
               description: "You have successfully logged in.",
             });
-          } else if (event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED') {
-            // Handle sign out or token refresh
-            setUser(session?.user ?? null);
+          } else if (event === 'SIGNED_OUT') {
+            setUser(null);
+            navigate("/login");
+          } else if (event === 'TOKEN_REFRESHED') {
+            if (session?.user) {
+              setUser(session.user);
+              console.log("Token refreshed for user:", session.user);
+            }
           } else if (event === 'USER_UPDATED') {
-            // Handle user update
-            setUser(session?.user ?? null);
+            if (session?.user) {
+              setUser(session.user);
+            }
           }
         });
 
@@ -71,7 +82,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     };
 
     initializeAuth();
-  }, [toast]);
+  }, [toast, navigate]);
 
   const logout = async () => {
     try {
