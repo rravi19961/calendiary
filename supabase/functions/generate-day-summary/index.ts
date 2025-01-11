@@ -52,13 +52,12 @@ serve(async (req) => {
     ).join('\n');
 
     // Create the prompt for OpenAI
-    const prompt = `Please provide a concise summary of this person's day based on their diary entries and daily responses. Focus on the main events, mood, and key activities. Keep it personal and empathetic.
+    const prompt = `Please provide a concise summary of this person's day based on their diary entries. Focus on the main events, mood, and key activities. Keep it personal and empathetic.
 
 Diary Entries:
-${entriesContent}
+${entriesContent}`;
 
-Daily Responses:
-${responsesContent}`;
+    console.log('Sending request to OpenAI with prompt:', prompt);
 
     // Call OpenAI API
     const openAIResponse = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -80,11 +79,14 @@ ${responsesContent}`;
 
     if (!openAIResponse.ok) {
       const error = await openAIResponse.text();
+      console.error('OpenAI API error:', error);
       throw new Error(`OpenAI API error: ${error}`);
     }
 
     const aiData = await openAIResponse.json();
     const summary = aiData.choices[0].message.content;
+
+    console.log('Generated summary:', summary);
 
     return new Response(
       JSON.stringify({ summary }),
