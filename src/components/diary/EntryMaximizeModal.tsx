@@ -60,9 +60,12 @@ export const EntryMaximizeModal: React.FC<EntryMaximizeModalProps> = ({
       const fileExt = file.name.split('.').pop();
       const filePath = `${crypto.randomUUID()}.${fileExt}`;
 
+      // Compress image before upload
+      const compressedImage = await compressImage(file);
+
       const { error: uploadError } = await supabase.storage
         .from('diary_images')
-        .upload(filePath, file);
+        .upload(filePath, compressedImage);
 
       if (uploadError) throw uploadError;
 
@@ -99,6 +102,54 @@ export const EntryMaximizeModal: React.FC<EntryMaximizeModalProps> = ({
     } finally {
       setIsUploading(false);
     }
+  };
+
+  const compressImage = async (file: File): Promise<Blob> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const MAX_WIDTH = 1200;
+          const MAX_HEIGHT = 1200;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > MAX_WIDTH) {
+              height *= MAX_WIDTH / width;
+              width = MAX_WIDTH;
+            }
+          } else {
+            if (height > MAX_HEIGHT) {
+              width *= MAX_HEIGHT / height;
+              height = MAX_HEIGHT;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx?.drawImage(img, 0, 0, width, height);
+
+          canvas.toBlob(
+            (blob) => {
+              if (blob) {
+                resolve(blob);
+              } else {
+                reject(new Error('Canvas to Blob conversion failed'));
+              }
+            },
+            'image/jpeg',
+            0.8
+          );
+        };
+        img.src = event.target?.result as string;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
   };
 
   const handleRemoveImage = async () => {
@@ -199,20 +250,22 @@ export const EntryMaximizeModal: React.FC<EntryMaximizeModalProps> = ({
                   {/* Image Upload Section */}
                   <div className="space-y-4">
                     {entries[currentEntryIndex]?.image_url ? (
-                      <div className="relative">
-                        <img
-                          src={entries[currentEntryIndex].image_url}
-                          alt="Entry"
-                          className="w-full h-48 object-cover rounded-lg"
-                        />
-                        <Button
-                          variant="destructive"
-                          size="icon"
-                          className="absolute top-2 right-2"
-                          onClick={handleRemoveImage}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                      <div className="relative rounded-lg overflow-hidden bg-gray-50 dark:bg-gray-800">
+                        <div className="aspect-video relative">
+                          <img
+                            src={entries[currentEntryIndex].image_url}
+                            alt="Entry"
+                            className="w-full h-full object-contain"
+                          />
+                          <Button
+                            variant="destructive"
+                            size="icon"
+                            className="absolute top-2 right-2 bg-red-500/80 hover:bg-red-600/80"
+                            onClick={handleRemoveImage}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
                     ) : (
                       <div className="relative">
@@ -223,10 +276,10 @@ export const EntryMaximizeModal: React.FC<EntryMaximizeModalProps> = ({
                           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                           disabled={isUploading}
                         />
-                        <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-8 text-center">
+                        <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-8 text-center transition-colors hover:border-blue-400 dark:hover:border-blue-500">
                           <Upload className="mx-auto h-8 w-8 text-muted-foreground mb-2" />
                           <p className="text-sm text-muted-foreground">
-                            {isUploading ? "Uploading..." : "Click to upload an image"}
+                            {isUploading ? "Uploading..." : "Click or drag an image here to upload"}
                           </p>
                         </div>
                       </div>
