@@ -19,6 +19,15 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
+    // Delete existing summary for the day if it exists
+    const { error: deleteError } = await supabase
+      .from('day_summaries')
+      .delete()
+      .eq('date', date)
+      .eq('user_id', userId);
+
+    if (deleteError) throw deleteError;
+
     // Fetch diary entries for the day
     const { data: entries, error: entriesError } = await supabase
       .from('diary_entries')
@@ -28,25 +37,17 @@ serve(async (req) => {
 
     if (entriesError) throw entriesError;
 
-    // Fetch chat responses for the day
-    const { data: chatResponses, error: responsesError } = await supabase
-      .from('question_responses')
-      .select(`
-        question_choices (
-          choice_text
-        ),
-        other_text,
-        daily_questions (
-          question_text
-        )
-      `)
+    // Fetch chat history for the day
+    const { data: chatHistory, error: chatError } = await supabase
+      .from('chat_history')
+      .select('content, role')
       .eq('date', date)
       .eq('user_id', userId);
 
-    if (responsesError) throw responsesError;
+    if (chatError) throw chatError;
 
     // If no data available, return empty summary
-    if ((!entries || entries.length === 0) && (!chatResponses || chatResponses.length === 0)) {
+    if ((!entries || entries.length === 0) && (!chatHistory || chatHistory.length === 0)) {
       return new Response(
         JSON.stringify({ summary: null }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -58,24 +59,20 @@ serve(async (req) => {
       `Title: ${entry.title}\nContent: ${entry.content}\nMood Rating: ${entry.rating}`
     ).join('\n\n');
 
-    // Prepare chat responses content
-    const chatContent = chatResponses?.map(response => {
-      const questionText = response.daily_questions?.question_text || '';
-      const answerText = response.question_choices?.choice_text || response.other_text || '';
-      return `Question: ${questionText}\nAnswer: ${answerText}`;
-    }).join('\n\n');
+    // Prepare chat history content
+    const chatContent = chatHistory?.map(msg => 
+      `${msg.role}: ${msg.content}`
+    ).join('\n');
 
     // Create the prompt for OpenAI
-    const prompt = `Please provide a comprehensive summary of this person's day based on their diary entries and chat responses. Focus on the main events, mood, and key activities. Keep it personal and empathetic.
+    const prompt = `Please provide a comprehensive summary of this person's day based on their diary entries and chat conversations. Focus on the main events, mood, and key activities. Keep it personal and empathetic.
 
 ${entries?.length > 0 ? `Diary Entries:\n${entriesContent}\n\n` : ''}
-${chatResponses?.length > 0 ? `Chat Responses:\n${chatContent}` : ''}`;
-
-    console.log('Sending request to OpenAI with prompt:', prompt);
+${chatHistory?.length > 0 ? `Chat History:\n${chatContent}` : ''}`;
 
     const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
-    if (!openAIApiKey || openAIApiKey.trim() === '') {
-      throw new Error('OpenAI API key is not configured or is empty');
+    if (!openAIApiKey) {
+      throw new Error('OpenAI API key is not configured');
     }
 
     // Call OpenAI API
@@ -105,7 +102,16 @@ ${chatResponses?.length > 0 ? `Chat Responses:\n${chatContent}` : ''}`;
     const data = await response.json();
     const summary = data.choices[0].message.content;
 
-    console.log('Generated summary:', summary);
+    // Save the new summary
+    const { error: insertError } = await supabase
+      .from('day_summaries')
+      .insert([{
+        user_id: userId,
+        date,
+        content: summary,
+      }]);
+
+    if (insertError) throw insertError;
 
     return new Response(
       JSON.stringify({ summary }),

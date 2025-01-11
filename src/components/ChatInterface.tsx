@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
@@ -7,32 +7,79 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/context/AuthContext";
 import { format } from "date-fns";
 import { Send, Loader2 } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+
+interface ChatMessage {
+  role: 'user' | 'assistant';
+  content: string;
+}
 
 export const ChatInterface = ({ selectedDate }: { selectedDate: Date }) => {
   const [message, setMessage] = useState("");
-  const [chatHistory, setChatHistory] = useState<Array<{ role: 'user' | 'assistant', content: string }>>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
+
+  const formattedDate = format(selectedDate, 'yyyy-MM-dd');
+
+  const { data: chatHistory = [], refetch: refetchChat } = useQuery({
+    queryKey: ['chat-history', selectedDate],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('chat_history')
+        .select('*')
+        .eq('date', formattedDate)
+        .eq('user_id', user?.id)
+        .order('created_at', { ascending: true });
+
+      if (error) throw error;
+      return data as ChatMessage[];
+    },
+    enabled: !!user,
+  });
 
   const handleSendMessage = async () => {
     if (!message.trim()) return;
     
     try {
       setIsLoading(true);
-      setChatHistory(prev => [...prev, { role: 'user', content: message }]);
       
+      // Save user message
+      const { error: userMsgError } = await supabase
+        .from('chat_history')
+        .insert({
+          user_id: user?.id,
+          date: formattedDate,
+          content: message,
+          role: 'user'
+        });
+
+      if (userMsgError) throw userMsgError;
+
+      // Get AI response
       const { data, error } = await supabase.functions.invoke('chat-with-ai', {
         body: {
           message,
-          date: format(selectedDate, 'yyyy-MM-dd'),
+          date: formattedDate,
           userId: user?.id
         },
       });
 
       if (error) throw error;
 
-      setChatHistory(prev => [...prev, { role: 'assistant', content: data.response }]);
+      // Save AI response
+      const { error: aiMsgError } = await supabase
+        .from('chat_history')
+        .insert({
+          user_id: user?.id,
+          date: formattedDate,
+          content: data.response,
+          role: 'assistant'
+        });
+
+      if (aiMsgError) throw aiMsgError;
+
+      await refetchChat();
       setMessage("");
     } catch (error) {
       console.error('Error sending message:', error);

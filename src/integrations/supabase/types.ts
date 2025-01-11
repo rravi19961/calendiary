@@ -30,6 +30,33 @@ export type Database = {
         }
         Relationships: []
       }
+      day_summaries: {
+        Row: {
+          content: string
+          created_at: string
+          date: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          date: string
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          date?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       diary_entries: {
         Row: {
           content: string | null

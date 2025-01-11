@@ -23,23 +23,33 @@ export const DayHighlightsSection: React.FC<DayHighlightsSectionProps> = ({
   const { data: summary, isLoading: isSummaryLoading, refetch: refetchSummary } = useQuery({
     queryKey: ["day-summary", selectedDate],
     queryFn: async () => {
-      const { data, error } = await supabase.functions.invoke("generate-day-summary", {
-        body: {
-          date: format(selectedDate, "yyyy-MM-dd"),
-          userId: user?.id,
-        },
-      });
+      const { data, error } = await supabase
+        .from('day_summaries')
+        .select('content')
+        .eq('date', format(selectedDate, 'yyyy-MM-dd'))
+        .eq('user_id', user?.id)
+        .single();
 
-      if (error) throw error;
-      return data.summary;
+      if (error && error.code !== 'PGRST116') throw error;
+      return data?.content || null;
     },
-    enabled: false, // Don't fetch automatically
+    enabled: !!user,
   });
 
   const handleGenerateSummary = async () => {
     try {
       setIsGenerating(true);
+      const { data, error } = await supabase.functions.invoke('generate-day-summary', {
+        body: {
+          date: format(selectedDate, 'yyyy-MM-dd'),
+          userId: user?.id,
+        },
+      });
+
+      if (error) throw error;
+
       await refetchSummary();
+      
       toast({
         title: "Success",
         description: "Summary generated successfully!",
@@ -80,10 +90,14 @@ export const DayHighlightsSection: React.FC<DayHighlightsSectionProps> = ({
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {summary && (
+          {summary ? (
             <div className="text-muted-foreground mb-4 italic">
               "{summary}"
             </div>
+          ) : (
+            <p className="text-muted-foreground">
+              No summary generated for this day yet. Click the button below to generate one.
+            </p>
           )}
           <Button
             onClick={handleGenerateSummary}
@@ -91,7 +105,7 @@ export const DayHighlightsSection: React.FC<DayHighlightsSectionProps> = ({
             className="w-full mt-4"
           >
             <RefreshCw className={`mr-2 h-4 w-4 ${isGenerating ? 'animate-spin' : ''}`} />
-            {isGenerating ? "Generating..." : "Generate Summary"}
+            {isGenerating ? "Generating..." : summary ? "Regenerate Summary" : "Generate Summary"}
           </Button>
         </div>
       </CardContent>
