@@ -10,9 +10,13 @@ interface MoodData {
   rating: number;
 }
 
+interface MoodTrackerProps {
+  onDateSelect?: (date: Date) => void;
+}
+
 const MOOD_EMOJIS = ["😢", "☹️", "😐", "🙂", "😄"];
 
-const MoodTracker: React.FC = () => {
+const MoodTracker: React.FC<MoodTrackerProps> = ({ onDateSelect }) => {
   const [moodData, setMoodData] = useState<MoodData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { user } = useAuth();
@@ -89,6 +93,13 @@ const MoodTracker: React.FC = () => {
     );
   };
 
+  const handleClick = (data: any) => {
+    if (data && data.activePayload && data.activePayload[0]) {
+      const clickedDate = data.activePayload[0].payload.fullDate;
+      onDateSelect?.(new Date(clickedDate));
+    }
+  };
+
   if (isLoading) {
     return <div className="h-48 flex items-center justify-center">Loading...</div>;
   }
@@ -96,7 +107,7 @@ const MoodTracker: React.FC = () => {
   return (
     <div className="h-48">
       <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={moodData}>
+        <LineChart data={moodData} onClick={handleClick}>
           <XAxis dataKey="date" />
           <YAxis
             domain={[1, 5]}
