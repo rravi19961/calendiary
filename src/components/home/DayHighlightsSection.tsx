@@ -20,18 +20,18 @@ export const DayHighlightsSection: React.FC<DayHighlightsSectionProps> = ({
   const { toast } = useToast();
   const [isGenerating, setIsGenerating] = React.useState(false);
 
-  const { data: summary, isLoading: isSummaryLoading, refetch: refetchSummary } = useQuery({
+  const { data: summaryData, isLoading: isSummaryLoading, refetch: refetchSummary } = useQuery({
     queryKey: ["day-summary", selectedDate],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('day_summaries')
-        .select('content')
+        .select('content, title')
         .eq('date', format(selectedDate, 'yyyy-MM-dd'))
         .eq('user_id', user?.id)
         .maybeSingle();
 
       if (error && error.code !== 'PGRST116') throw error;
-      return data?.content || null;
+      return data || null;
     },
     enabled: !!user,
   });
@@ -90,10 +90,17 @@ export const DayHighlightsSection: React.FC<DayHighlightsSectionProps> = ({
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {summary ? (
-            <div className="text-muted-foreground mb-4 italic">
-              "{summary}"
-            </div>
+          {summaryData ? (
+            <>
+              {summaryData.title && (
+                <h3 className="text-lg font-semibold text-calendiary-primary mb-2">
+                  {summaryData.title}
+                </h3>
+              )}
+              <div className="text-muted-foreground mb-4 italic font-serif">
+                "{summaryData.content}"
+              </div>
+            </>
           ) : (
             <p className="text-muted-foreground">
               No summary generated for this day yet. Click the button below to generate one.
@@ -105,7 +112,7 @@ export const DayHighlightsSection: React.FC<DayHighlightsSectionProps> = ({
             className="w-full mt-4"
           >
             <RefreshCw className={`mr-2 h-4 w-4 ${isGenerating ? 'animate-spin' : ''}`} />
-            {isGenerating ? "Generating..." : summary ? "Regenerate Summary" : "Generate Summary"}
+            {isGenerating ? "Generating..." : summaryData ? "Regenerate Summary" : "Generate Summary"}
           </Button>
         </div>
       </CardContent>

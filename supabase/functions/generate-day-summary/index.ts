@@ -64,19 +64,13 @@ serve(async (req) => {
       `${msg.role}: ${msg.content}`
     ).join('\n');
 
-    // Create the prompt for OpenAI
-    const prompt = `Please provide a comprehensive summary of this person's day based on their diary entries and chat conversations. Focus on the main events, mood, and key activities. Keep it personal and empathetic.
-
-${entries?.length > 0 ? `Diary Entries:\n${entriesContent}\n\n` : ''}
-${chatHistory?.length > 0 ? `Chat History:\n${chatContent}` : ''}`;
-
     const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
     if (!openAIApiKey) {
       throw new Error('OpenAI API key is not configured');
     }
 
-    // Call OpenAI API
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    // First, generate the summary
+    const summaryResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${openAIApiKey}`,
@@ -85,36 +79,79 @@ ${chatHistory?.length > 0 ? `Chat History:\n${chatContent}` : ''}`;
       body: JSON.stringify({
         model: 'gpt-4o-mini',
         messages: [
-          { role: 'system', content: 'You are a helpful assistant that creates empathetic and personal summaries of someone\'s day.' },
-          { role: 'user', content: prompt }
+          { 
+            role: 'system', 
+            content: 'You are a helpful assistant that creates empathetic and personal summaries of someone\'s day.' 
+          },
+          { 
+            role: 'user', 
+            content: `Please provide a comprehensive summary of this person's day based on their diary entries and chat conversations. Focus on the main events, mood, and key activities. Keep it personal and empathetic.
+
+${entries?.length > 0 ? `Diary Entries:\n${entriesContent}\n\n` : ''}
+${chatHistory?.length > 0 ? `Chat History:\n${chatContent}` : ''}`
+          }
         ],
         max_tokens: 250,
         temperature: 0.7,
       }),
     });
 
-    if (!response.ok) {
-      const error = await response.text();
+    if (!summaryResponse.ok) {
+      const error = await summaryResponse.text();
       console.error('OpenAI API error:', error);
       throw new Error(`OpenAI API error: ${error}`);
     }
 
-    const data = await response.json();
-    const summary = data.choices[0].message.content;
+    const summaryData = await summaryResponse.json();
+    const summary = summaryData.choices[0].message.content;
 
-    // Save the new summary
+    // Then, generate a title based on the summary
+    const titleResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${openAIApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        messages: [
+          { 
+            role: 'system', 
+            content: 'You are a helpful assistant that creates concise, engaging titles. Always respond with exactly 8-10 words that capture the essence of the content.' 
+          },
+          { 
+            role: 'user', 
+            content: `Create a title that captures the essence of this summary: ${summary}`
+          }
+        ],
+        max_tokens: 50,
+        temperature: 0.7,
+      }),
+    });
+
+    if (!titleResponse.ok) {
+      const error = await titleResponse.text();
+      console.error('OpenAI API error for title generation:', error);
+      throw new Error(`OpenAI API error: ${error}`);
+    }
+
+    const titleData = await titleResponse.json();
+    const title = titleData.choices[0].message.content;
+
+    // Save the new summary with title
     const { error: insertError } = await supabase
       .from('day_summaries')
       .insert([{
         user_id: userId,
         date,
         content: summary,
+        title: title,
       }]);
 
     if (insertError) throw insertError;
 
     return new Response(
-      JSON.stringify({ summary }),
+      JSON.stringify({ summary, title }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
