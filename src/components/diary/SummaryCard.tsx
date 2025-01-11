@@ -1,10 +1,9 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { format } from "date-fns";
-import { Star, Pin, Maximize2 } from "lucide-react";
+import { Star, Pin, ArrowUpRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { useToast } from "@/hooks/use-toast";
 
 interface SummaryCardProps {
   id: string;
@@ -42,30 +41,13 @@ export const SummaryCard: React.FC<SummaryCardProps> = ({
   onToggleBestDay,
   onMaximize,
 }) => {
-  const { toast } = useToast();
   const moodEmoji = getMoodEmoji(rating);
-
-  const handlePinClick = () => {
-    onTogglePin(id);
-    toast({
-      title: isPinned ? "Unpinned successfully!" : "Pinned successfully!",
-      duration: 2000,
-    });
-  };
-
-  const handleBestDayClick = () => {
-    onToggleBestDay(id);
-    toast({
-      title: isBestDay ? "Removed from Best Days" : "Marked as Best Day!",
-      duration: 2000,
-    });
-  };
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="relative bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow"
+      className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow"
     >
       <div className="flex justify-between items-start mb-4">
         <div className="flex items-center gap-2">
@@ -76,7 +58,7 @@ export const SummaryCard: React.FC<SummaryCardProps> = ({
           <Button
             variant="ghost"
             size="icon"
-            onClick={handlePinClick}
+            onClick={() => onTogglePin(id)}
             className={cn(
               "hover:bg-blue-100 dark:hover:bg-blue-900",
               isPinned && "text-blue-500"
@@ -87,7 +69,7 @@ export const SummaryCard: React.FC<SummaryCardProps> = ({
           <Button
             variant="ghost"
             size="icon"
-            onClick={handleBestDayClick}
+            onClick={() => onToggleBestDay(id)}
             className={cn(
               "hover:bg-yellow-100 dark:hover:bg-yellow-900",
               isBestDay && "text-yellow-500"
@@ -115,7 +97,7 @@ export const SummaryCard: React.FC<SummaryCardProps> = ({
           onClick={onMaximize}
           className="text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300"
         >
-          <Maximize2 className="h-4 w-4 mr-1" />
+          <ArrowUpRight className="h-4 w-4 mr-1" />
           Read more
         </Button>
       </div>
