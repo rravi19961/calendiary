@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Mic, MicOff } from "lucide-react";
+import React, { useState, useRef } from "react";
+import { Mic, MicOff, Pause, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -20,9 +20,10 @@ export const VoiceInput: React.FC<VoiceInputProps> = ({
   disabled,
 }) => {
   const [isRecording, setIsRecording] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
+  const audioChunks = useRef<Blob[]>([]);
   const { toast } = useToast();
-  const chunks: Blob[] = [];
 
   const startRecording = async () => {
     try {
@@ -31,12 +32,12 @@ export const VoiceInput: React.FC<VoiceInputProps> = ({
       
       recorder.ondataavailable = (e) => {
         if (e.data.size > 0) {
-          chunks.push(e.data);
+          audioChunks.current.push(e.data);
         }
       };
 
       recorder.onstop = async () => {
-        const audioBlob = new Blob(chunks, { type: 'audio/webm' });
+        const audioBlob = new Blob(audioChunks.current, { type: 'audio/webm' });
         const reader = new FileReader();
         
         reader.onloadend = async () => {
@@ -67,11 +68,13 @@ export const VoiceInput: React.FC<VoiceInputProps> = ({
         };
 
         reader.readAsDataURL(audioBlob);
+        audioChunks.current = [];
       };
 
       setMediaRecorder(recorder);
-      recorder.start();
+      recorder.start(1000); // Collect data every second
       setIsRecording(true);
+      setIsPaused(false);
       
       toast({
         title: "Recording started",
@@ -87,46 +90,98 @@ export const VoiceInput: React.FC<VoiceInputProps> = ({
     }
   };
 
-  const stopRecording = () => {
+  const pauseRecording = () => {
     if (mediaRecorder && isRecording) {
+      mediaRecorder.pause();
+      setIsPaused(true);
+      toast({
+        title: "Recording paused",
+        description: "Click to resume recording",
+      });
+    }
+  };
+
+  const resumeRecording = () => {
+    if (mediaRecorder && isPaused) {
+      mediaRecorder.resume();
+      setIsPaused(false);
+      toast({
+        title: "Recording resumed",
+        description: "Continue speaking...",
+      });
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorder && (isRecording || isPaused)) {
       mediaRecorder.stop();
       mediaRecorder.stream.getTracks().forEach(track => track.stop());
       setIsRecording(false);
+      setIsPaused(false);
+      setMediaRecorder(null);
     }
   };
 
-  const toggleRecording = () => {
-    if (isRecording) {
-      stopRecording();
-    } else {
+  const handleRecordingAction = () => {
+    if (!isRecording && !isPaused) {
       startRecording();
+    } else if (isRecording && !isPaused) {
+      pauseRecording();
+    } else if (isPaused) {
+      resumeRecording();
     }
+  };
+
+  const getIcon = () => {
+    if (!isRecording && !isPaused) return <Mic className="h-4 w-4" />;
+    if (isRecording && !isPaused) return <Pause className="h-4 w-4" />;
+    if (isPaused) return <Play className="h-4 w-4" />;
+    return <MicOff className="h-4 w-4" />;
+  };
+
+  const getTooltipText = () => {
+    if (!isRecording && !isPaused) return "Start recording";
+    if (isRecording && !isPaused) return "Pause recording";
+    if (isPaused) return "Resume recording";
+    return "Stop recording";
   };
 
   return (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={toggleRecording}
-            disabled={disabled}
-            className={`transition-colors ${
-              isRecording ? "bg-red-100 hover:bg-red-200 dark:bg-red-900" : ""
-            }`}
-          >
-            {isRecording ? (
-              <MicOff className="h-4 w-4 text-red-500" />
-            ) : (
-              <Mic className="h-4 w-4" />
-            )}
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent>
-          <p>{isRecording ? "Stop recording" : "Click to start voice input"}</p>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
+    <div className="flex items-center gap-2">
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleRecordingAction}
+              disabled={disabled}
+              className={`transition-colors ${
+                isRecording && !isPaused ? "bg-red-100 hover:bg-red-200 dark:bg-red-900" : ""
+              } ${
+                isPaused ? "bg-yellow-100 hover:bg-yellow-200 dark:bg-yellow-900" : ""
+              }`}
+            >
+              {getIcon()}
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>{getTooltipText()}</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+      
+      {(isRecording || isPaused) && (
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={stopRecording}
+          className="text-red-500 hover:text-red-600"
+        >
+          <MicOff className="h-4 w-4 mr-2" />
+          Stop
+        </Button>
+      )}
+    </div>
   );
 };
