@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
-import { format, subDays } from "date-fns";
+import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { StatisticsSection } from "@/components/diary/StatisticsSection";
 import { SummaryCard } from "@/components/diary/SummaryCard";
+import { getMoodEmoji } from "@/utils/moodEmoji";
 import {
   Select,
   SelectContent,
@@ -42,24 +43,19 @@ const DaysReview = () => {
   const [selectedSummary, setSelectedSummary] = useState<any>(null);
   const { toast } = useToast();
 
-  const { data: summaries = [], isLoading } = useQuery({
-    queryKey: ["day-summaries", timeRange, activeTab],
+  const { data: allSummaries = [], isLoading } = useQuery({
+    queryKey: ["day-summaries", timeRange],
     queryFn: async () => {
-      const daysAgo = timeRange === "all" ? undefined : parseInt(timeRange);
       let query = supabase
         .from("day_summaries")
         .select("*")
         .order("date", { ascending: false });
 
-      if (daysAgo) {
-        const startDate = subDays(new Date(), daysAgo);
+      if (timeRange !== "all") {
+        const daysAgo = parseInt(timeRange);
+        const startDate = new Date();
+        startDate.setDate(startDate.getDate() - daysAgo);
         query = query.gte("date", format(startDate, "yyyy-MM-dd"));
-      }
-
-      if (activeTab === "pinned") {
-        query = query.eq("is_pinned", true);
-      } else if (activeTab === "best") {
-        query = query.eq("is_best_day", true);
       }
 
       const { data, error } = await query;
@@ -77,7 +73,27 @@ const DaysReview = () => {
     },
   });
 
-  const sortedSummaries = [...summaries].sort((a, b) => {
+  // Filter summaries based on active tab
+  const filteredSummaries = allSummaries.filter(summary => {
+    if (activeTab === "pinned") return summary.is_pinned;
+    if (activeTab === "best") return summary.is_best_day;
+    return true;
+  });
+
+  // Calculate overall stats (independent of filters)
+  const stats = {
+    summarizedDays: allSummaries.length,
+    lastCheerfulDay: allSummaries.reduce(
+      (best, current) =>
+        (!best || (current.rating || 0) > (best.rating || 0)) ? current : best,
+      null
+    ),
+    pinnedCount: allSummaries.filter(summary => summary.is_pinned).length,
+    bestDaysCount: allSummaries.filter(summary => summary.is_best_day).length,
+  };
+
+  // Sort summaries
+  const sortedSummaries = [...filteredSummaries].sort((a, b) => {
     switch (sortBy) {
       case "date-desc":
         return new Date(b.date).getTime() - new Date(a.date).getTime();
@@ -92,19 +108,8 @@ const DaysReview = () => {
     }
   });
 
-  const stats = {
-    summarizedDays: summaries.length,
-    lastCheerfulDay: summaries.reduce(
-      (best, current) =>
-        (current.rating || 0) > (best?.rating || 0) ? current : best,
-      null
-    ),
-    pinnedCount: summaries.filter((summary) => summary.is_pinned).length,
-    bestDaysCount: summaries.filter((summary) => summary.is_best_day).length,
-  };
-
   const handleTogglePin = async (id: string) => {
-    const summary = summaries.find((s) => s.id === id);
+    const summary = allSummaries.find(s => s.id === id);
     if (!summary) return;
 
     const { error } = await supabase
@@ -127,7 +132,7 @@ const DaysReview = () => {
   };
 
   const handleToggleBestDay = async (id: string) => {
-    const summary = summaries.find((s) => s.id === id);
+    const summary = allSummaries.find(s => s.id === id);
     if (!summary) return;
 
     const { error } = await supabase
@@ -164,10 +169,7 @@ const DaysReview = () => {
           </p>
           <div className="flex flex-wrap gap-4">
             <div className="w-48">
-              <Select
-                value={timeRange}
-                onValueChange={(value) => setTimeRange(value)}
-              >
+              <Select value={timeRange} onValueChange={setTimeRange}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select time range" />
                 </SelectTrigger>
@@ -198,9 +200,9 @@ const DaysReview = () => {
         </div>
 
         <StatisticsSection 
-          stats={stats} 
+          stats={stats}
           onLastCheerfulDayClick={(id) => {
-            const summary = summaries.find(s => s.id === id);
+            const summary = allSummaries.find(s => s.id === id);
             if (summary) setSelectedSummary(summary);
           }}
         />
@@ -245,14 +247,7 @@ const DaysReview = () => {
               <div className="space-y-4">
                 <div className="flex items-center gap-2">
                   <span className="text-2xl">
-                    {(() => {
-                      const rating = selectedSummary.rating || 3;
-                      if (rating >= 4.5) return "😍";
-                      if (rating >= 3.5) return "😊";
-                      if (rating >= 2.5) return "😐";
-                      if (rating >= 1.5) return "😟";
-                      return "😭";
-                    })()}
+                    {getMoodEmoji(selectedSummary.rating)}
                   </span>
                   <h2 className="text-2xl font-semibold">
                     {selectedSummary.title || "Untitled Summary"}

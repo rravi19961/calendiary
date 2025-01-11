@@ -1,33 +1,26 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar, Smile, Pin, Star } from "lucide-react";
+import { format } from "date-fns";
+import { getMoodEmoji } from "@/utils/moodEmoji";
+
+interface StatsSummary {
+  summarizedDays: number;
+  lastCheerfulDay: {
+    date: string;
+    rating: number;
+    id: string;
+  } | null;
+  pinnedCount: number;
+  bestDaysCount: number;
+}
 
 interface StatisticsSectionProps {
-  stats: {
-    summarizedDays: number;
-    lastCheerfulDay: {
-      date: string;
-      rating: number;
-      id: string;
-    } | null;
-    pinnedCount: number;
-    bestDaysCount: number;
-  };
+  stats: StatsSummary;
   onLastCheerfulDayClick: (id: string) => void;
 }
 
-const getMoodEmoji = (rating: number) => {
-  if (rating >= 4.5) return "😍";
-  if (rating >= 3.5) return "😊";
-  if (rating >= 2.5) return "😐";
-  if (rating >= 1.5) return "😟";
-  return "😭";
-};
-
-export const StatisticsSection: React.FC<StatisticsSectionProps> = ({
-  stats,
-  onLastCheerfulDayClick,
-}) => {
+export const StatisticsSection = ({ stats, onLastCheerfulDayClick }: StatisticsSectionProps) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
       <Card>
@@ -73,7 +66,9 @@ export const StatisticsSection: React.FC<StatisticsSectionProps> = ({
             {stats.lastCheerfulDay ? getMoodEmoji(stats.lastCheerfulDay.rating) : "—"}
           </div>
           <p className="text-xs text-muted-foreground mt-1">
-            {stats.lastCheerfulDay ? "Click to view summary" : "No cheerful days yet"}
+            {stats.lastCheerfulDay 
+              ? format(new Date(stats.lastCheerfulDay.date), "MMM d, yyyy")
+              : "No cheerful days yet"}
           </p>
         </CardContent>
       </Card>
