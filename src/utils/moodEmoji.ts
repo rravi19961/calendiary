@@ -1,7 +1,7 @@
 export const getMoodEmoji = (rating: number | null | undefined): string => {
   if (!rating) return "😐"; // Default for missing data
   
-  // Handle decimal values
+  // Handle decimal values with proper rounding logic
   const adjustedRating = rating % 1 >= 0.5 ? Math.ceil(rating) : Math.floor(rating);
   
   switch (adjustedRating) {

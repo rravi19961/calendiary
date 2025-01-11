@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
-import { format } from "date-fns";
+import { format, subDays } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { StatisticsSection } from "@/components/diary/StatisticsSection";
@@ -33,8 +33,7 @@ const DaysReview = () => {
 
       if (timeRange !== "all") {
         const daysAgo = parseInt(timeRange);
-        const startDate = new Date();
-        startDate.setDate(startDate.getDate() - daysAgo);
+        const startDate = subDays(new Date(), daysAgo);
         query = query.gte("date", format(startDate, "yyyy-MM-dd"));
       }
 
@@ -60,10 +59,10 @@ const DaysReview = () => {
     return true;
   });
 
-  // Calculate overall stats
+  // Calculate overall stats with the new rating logic
   const stats = {
-    summarizedDays: allSummaries.length,
-    lastCheerfulDay: allSummaries.reduce(
+    summarizedDays: filteredSummaries.length,
+    lastCheerfulDay: filteredSummaries.reduce(
       (best, current) =>
         (!best || (current.rating || 0) > (best.rating || 0)) ? current : best,
       null
@@ -72,7 +71,7 @@ const DaysReview = () => {
     bestDaysCount: allSummaries.filter(summary => summary.is_best_day).length,
   };
 
-  // Sort summaries
+  // Sort summaries with the updated rating logic
   const sortedSummaries = [...filteredSummaries].sort((a, b) => {
     switch (sortBy) {
       case "date-desc":

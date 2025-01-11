@@ -3,6 +3,7 @@ import { format } from "date-fns";
 import { Pin, Star, ArrowUpRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { getMoodEmoji } from "@/utils/moodEmoji";
 
 interface SummaryCardProps {
   id: string;
@@ -16,14 +17,6 @@ interface SummaryCardProps {
   onToggleBestDay: (id: string) => void;
   onMaximize: () => void;
 }
-
-const getMoodEmoji = (rating: number) => {
-  if (rating >= 4.5) return "😍";
-  if (rating >= 3.5) return "😊";
-  if (rating >= 2.5) return "😐";
-  if (rating >= 1.5) return "😟";
-  return "😭";
-};
 
 export const SummaryCard: React.FC<SummaryCardProps> = ({
   id,
