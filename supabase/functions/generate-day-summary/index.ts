@@ -47,10 +47,6 @@ serve(async (req) => {
       `Title: ${entry.title}\nContent: ${entry.content}\nMood Rating: ${entry.rating}`
     ).join('\n\n');
 
-    const responsesContent = responses?.map(response => 
-      response.question_choices?.choice_text || response.other_text
-    ).join('\n');
-
     // Create the prompt for OpenAI
     const prompt = `Please provide a concise summary of this person's day based on their diary entries. Focus on the main events, mood, and key activities. Keep it personal and empathetic.
 
@@ -59,15 +55,20 @@ ${entriesContent}`;
 
     console.log('Sending request to OpenAI with prompt:', prompt);
 
+    const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
+    if (!openAIApiKey) {
+      throw new Error('OpenAI API key is not configured');
+    }
+
     // Call OpenAI API
     const openAIResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${Deno.env.get('OPENAI_API_KEY')}`,
+        'Authorization': `Bearer ${openAIApiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o',
+        model: 'gpt-4o-mini',
         messages: [
           { role: 'system', content: 'You are a helpful assistant that creates empathetic and personal summaries of someone\'s day.' },
           { role: 'user', content: prompt }
