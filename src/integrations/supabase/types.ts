@@ -30,33 +30,6 @@ export type Database = {
         }
         Relationships: []
       }
-      daily_questions: {
-        Row: {
-          created_at: string
-          id: string
-          order_number: number
-          question_text: string
-          question_type: Database["public"]["Enums"]["question_type"]
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          order_number: number
-          question_text: string
-          question_type: Database["public"]["Enums"]["question_type"]
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          order_number?: number
-          question_text?: string
-          question_type?: Database["public"]["Enums"]["question_type"]
-          updated_at?: string
-        }
-        Relationships: []
-      }
       diary_entries: {
         Row: {
           content: string | null
@@ -131,89 +104,6 @@ export type Database = {
           username?: string | null
         }
         Relationships: []
-      }
-      question_choices: {
-        Row: {
-          choice_text: string
-          created_at: string
-          id: string
-          is_other: boolean
-          order_number: number
-          question_id: string | null
-          updated_at: string
-        }
-        Insert: {
-          choice_text: string
-          created_at?: string
-          id?: string
-          is_other?: boolean
-          order_number: number
-          question_id?: string | null
-          updated_at?: string
-        }
-        Update: {
-          choice_text?: string
-          created_at?: string
-          id?: string
-          is_other?: boolean
-          order_number?: number
-          question_id?: string | null
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "question_choices_question_id_fkey"
-            columns: ["question_id"]
-            isOneToOne: false
-            referencedRelation: "daily_questions"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      question_responses: {
-        Row: {
-          choice_id: string | null
-          created_at: string
-          date: string
-          id: string
-          other_text: string | null
-          question_id: string
-          user_id: string
-        }
-        Insert: {
-          choice_id?: string | null
-          created_at?: string
-          date: string
-          id?: string
-          other_text?: string | null
-          question_id: string
-          user_id: string
-        }
-        Update: {
-          choice_id?: string | null
-          created_at?: string
-          date?: string
-          id?: string
-          other_text?: string | null
-          question_id?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "question_responses_choice_id_fkey"
-            columns: ["choice_id"]
-            isOneToOne: false
-            referencedRelation: "question_choices"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "question_responses_question_id_fkey"
-            columns: ["question_id"]
-            isOneToOne: false
-            referencedRelation: "daily_questions"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       user_preferences: {
         Row: {
