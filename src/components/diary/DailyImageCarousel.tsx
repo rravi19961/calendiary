@@ -2,8 +2,6 @@ import React, { useEffect, useState } from "react";
 import { format } from "date-fns";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import {
   Carousel,
   CarouselContent,
@@ -27,6 +25,8 @@ export const DailyImageCarousel = ({ selectedDate }: DailyImageCarouselProps) =>
       
       try {
         setIsLoading(true);
+        console.log("Fetching images for date:", format(selectedDate, "yyyy-MM-dd"));
+        
         const { data: entries, error } = await supabase
           .from("diary_entries")
           .select("image_url")
@@ -40,6 +40,7 @@ export const DailyImageCarousel = ({ selectedDate }: DailyImageCarouselProps) =>
           .map(entry => entry.image_url)
           .filter((url): url is string => url !== null);
         
+        console.log("Fetched images:", validImages);
         setImages(validImages);
       } catch (error) {
         console.error("Error fetching images:", error);
@@ -52,34 +53,40 @@ export const DailyImageCarousel = ({ selectedDate }: DailyImageCarouselProps) =>
   }, [selectedDate, user]);
 
   if (isLoading) {
-    return <div className="h-48 flex items-center justify-center">Loading...</div>;
+    return (
+      <div className="min-h-[200px] flex items-center justify-center text-muted-foreground">
+        Loading...
+      </div>
+    );
   }
 
   if (images.length === 0) {
     return (
-      <div className="h-48 flex items-center justify-center text-muted-foreground">
+      <div className="min-h-[200px] flex items-center justify-center text-muted-foreground">
         No images uploaded for this day
       </div>
     );
   }
 
   return (
-    <Carousel className="w-full max-w-xs mx-auto">
-      <CarouselContent>
-        {images.map((imageUrl, index) => (
-          <CarouselItem key={index}>
-            <div className="aspect-square relative">
-              <img
-                src={imageUrl}
-                alt={`Entry image ${index + 1}`}
-                className="w-full h-full object-cover rounded-lg"
-              />
-            </div>
-          </CarouselItem>
-        ))}
-      </CarouselContent>
-      <CarouselPrevious />
-      <CarouselNext />
-    </Carousel>
+    <div className="min-h-[200px] w-full">
+      <Carousel className="w-full max-w-md mx-auto">
+        <CarouselContent>
+          {images.map((imageUrl, index) => (
+            <CarouselItem key={index}>
+              <div className="aspect-square relative">
+                <img
+                  src={imageUrl}
+                  alt={`Entry image ${index + 1}`}
+                  className="w-full h-full object-cover rounded-lg shadow-md"
+                />
+              </div>
+            </CarouselItem>
+          ))}
+        </CarouselContent>
+        <CarouselPrevious className="left-2" />
+        <CarouselNext className="right-2" />
+      </Carousel>
+    </div>
   );
 };

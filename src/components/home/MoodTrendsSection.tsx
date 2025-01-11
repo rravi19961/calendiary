@@ -11,9 +11,11 @@ export const MoodTrendsSection = () => {
       <CardHeader>
         <CardTitle className="text-lg font-semibold">Mood Trends</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-8">
         <MoodTracker onDateSelect={setSelectedDate} />
-        <DailyImageCarousel selectedDate={selectedDate} />
+        <div className="pt-2 border-t">
+          <DailyImageCarousel selectedDate={selectedDate} />
+        </div>
       </CardContent>
     </Card>
   );
