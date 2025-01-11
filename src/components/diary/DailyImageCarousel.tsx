@@ -12,7 +12,6 @@ import {
 } from "@/components/ui/carousel";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { useCarousel } from "@/hooks/use-carousel";
 
 interface DailyImageCarouselProps {
   selectedDate: Date;
@@ -79,7 +78,7 @@ export const DailyImageCarousel = ({ selectedDate }: DailyImageCarouselProps) =>
       <h3 className="text-lg font-semibold mb-4">Photo Gallery</h3>
       <Carousel 
         className="w-full max-w-md mx-auto"
-        onSelect={(index) => setCurrentIndex(index)}
+        onSelect={(index: number) => setCurrentIndex(index)}
       >
         <CarouselContent>
           {images.map((imageUrl, index) => (
