@@ -70,7 +70,6 @@ export const EntryMaximizeModal: React.FC<EntryMaximizeModalProps> = ({
         .from('diary_images')
         .getPublicUrl(filePath);
 
-      // Update the entry in the database with the new image URL
       const { error: updateError } = await supabase
         .from('diary_entries')
         .update({ image_url: publicUrl })
@@ -150,9 +149,19 @@ export const EntryMaximizeModal: React.FC<EntryMaximizeModalProps> = ({
             {/* Left Panel - Entry Titles */}
             <div className="w-full sm:w-1/3 border-r border-blue-100 dark:border-blue-900">
               <div className="p-6 border-b border-blue-100 dark:border-blue-900">
-                <h2 className="text-lg font-semibold">
-                  Entries for {format(selectedDate, "MMMM d, yyyy")}
-                </h2>
+                <div className="flex justify-between items-center">
+                  <h2 className="text-lg font-semibold">
+                    Entries for {format(selectedDate, "MMMM d, yyyy")}
+                  </h2>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setIsOpen(false)}
+                    className="hover:bg-blue-100 dark:hover:bg-blue-900"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
               <ScrollArea className="h-[calc(90vh-5rem)]">
                 <div className="p-4 space-y-2">
@@ -168,10 +177,12 @@ export const EntryMaximizeModal: React.FC<EntryMaximizeModalProps> = ({
                         onClick={() => setCurrentEntryIndex(index)}
                       >
                         <div className="flex flex-col w-full">
-                          <span className="text-sm text-muted-foreground">
-                            {format(new Date(entry.created_at), "h:mm a")}
-                          </span>
-                          <span>{entry.title || "Untitled Entry"}</span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm text-muted-foreground">
+                              {format(new Date(entry.created_at), "h:mm a")}
+                            </span>
+                            <span className="font-medium">{entry.title || "Untitled Entry"}</span>
+                          </div>
                         </div>
                       </Button>
                       <Separator className="my-2" />
@@ -182,17 +193,8 @@ export const EntryMaximizeModal: React.FC<EntryMaximizeModalProps> = ({
             </div>
 
             {/* Right Panel - Entry Content */}
-            <div className="flex-1 flex flex-col relative">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setIsOpen(false)}
-                className="absolute right-4 top-4 z-10 hover:bg-blue-100 dark:hover:bg-blue-900"
-              >
-                <X className="h-6 w-6" />
-              </Button>
-
-              <ScrollArea className="flex-1">
+            <div className="flex-1 flex flex-col">
+              <div className="flex-1 overflow-y-auto">
                 <div className="p-6 space-y-6">
                   {/* Image Upload Section */}
                   <div className="space-y-4">
@@ -241,9 +243,10 @@ export const EntryMaximizeModal: React.FC<EntryMaximizeModalProps> = ({
                     onContentChange={setCurrentEntry}
                     onRatingChange={setCurrentRating}
                     onSave={onSave}
+                    hideTitle
                   />
                 </div>
-              </ScrollArea>
+              </div>
             </div>
           </div>
         </DialogContent>
