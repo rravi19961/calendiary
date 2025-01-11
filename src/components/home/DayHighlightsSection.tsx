@@ -28,7 +28,7 @@ export const DayHighlightsSection: React.FC<DayHighlightsSectionProps> = ({
         .select('content')
         .eq('date', format(selectedDate, 'yyyy-MM-dd'))
         .eq('user_id', user?.id)
-        .single();
+        .maybeSingle();
 
       if (error && error.code !== 'PGRST116') throw error;
       return data?.content || null;
