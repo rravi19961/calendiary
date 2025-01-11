@@ -31,7 +31,23 @@ export const DayHighlightsSection: React.FC<DayHighlightsSectionProps> = ({
     },
   });
 
-  if (isResponsesLoading) {
+  const { data: summary, isLoading: isSummaryLoading } = useQuery({
+    queryKey: ["day-summary", selectedDate],
+    queryFn: async () => {
+      const { data, error } = await supabase.functions.invoke("generate-day-summary", {
+        body: {
+          date: format(selectedDate, "yyyy-MM-dd"),
+          userId: user?.id,
+        },
+      });
+
+      if (error) throw error;
+      return data.summary;
+    },
+    enabled: !!user,
+  });
+
+  if (isResponsesLoading || isSummaryLoading) {
     return (
       <Card className="glass">
         <CardHeader>
@@ -55,6 +71,11 @@ export const DayHighlightsSection: React.FC<DayHighlightsSectionProps> = ({
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
+          {summary && (
+            <div className="text-muted-foreground mb-4 italic">
+              "{summary}"
+            </div>
+          )}
           {dayResponses.map((response: any) => (
             <div key={response.id} className="text-muted-foreground">
               {response.question_choices?.choice_text || response.other_text}
