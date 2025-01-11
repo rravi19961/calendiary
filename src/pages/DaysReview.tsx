@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
-import { format, subDays } from "date-fns";
+import { format, subDays, isToday, startOfDay, endOfDay } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { StatisticsSection } from "@/components/diary/StatisticsSection";
@@ -9,12 +9,7 @@ import { FilterControls } from "@/components/diary/FilterControls";
 import { SummaryList } from "@/components/diary/SummaryList";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { getMoodEmoji } from "@/utils/moodEmoji";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const DaysReview = () => {
   const [timeRange, setTimeRange] = useState("7");
@@ -33,8 +28,12 @@ const DaysReview = () => {
 
       if (timeRange !== "all") {
         const daysAgo = parseInt(timeRange);
-        const startDate = subDays(new Date(), daysAgo);
-        query = query.gte("date", format(startDate, "yyyy-MM-dd"));
+        // Adjust the date range to include exactly N days
+        const startDate = startOfDay(subDays(new Date(), daysAgo - 1));
+        const endDate = endOfDay(new Date());
+        query = query
+          .gte("date", format(startDate, "yyyy-MM-dd"))
+          .lte("date", format(endDate, "yyyy-MM-dd"));
       }
 
       const { data, error } = await query;
@@ -52,40 +51,47 @@ const DaysReview = () => {
     },
   });
 
-  // Filter summaries based on active tab
-  const filteredSummaries = allSummaries.filter(summary => {
-    if (activeTab === "pinned") return summary.is_pinned;
-    if (activeTab === "best") return summary.is_best_day;
-    return true;
-  });
+  // Calculate total summaries for the time range (independent of tab selection)
+  const totalSummariesInRange = useMemo(() => allSummaries.length, [allSummaries]);
 
-  // Calculate overall stats with the new rating logic
-  const stats = {
-    summarizedDays: filteredSummaries.length,
-    lastCheerfulDay: filteredSummaries.reduce(
+  // Filter summaries based on active tab
+  const filteredSummaries = useMemo(() => {
+    return allSummaries.filter(summary => {
+      if (activeTab === "pinned") return summary.is_pinned;
+      if (activeTab === "best") return summary.is_best_day;
+      return true;
+    });
+  }, [allSummaries, activeTab]);
+
+  // Calculate stats using all summaries in range, not filtered ones
+  const stats = useMemo(() => ({
+    summarizedDays: totalSummariesInRange,
+    lastCheerfulDay: allSummaries.reduce(
       (best, current) =>
         (!best || (current.rating || 0) > (best.rating || 0)) ? current : best,
       null
     ),
     pinnedCount: allSummaries.filter(summary => summary.is_pinned).length,
     bestDaysCount: allSummaries.filter(summary => summary.is_best_day).length,
-  };
+  }), [allSummaries, totalSummariesInRange]);
 
-  // Sort summaries with the updated rating logic
-  const sortedSummaries = [...filteredSummaries].sort((a, b) => {
-    switch (sortBy) {
-      case "date-desc":
-        return new Date(b.date).getTime() - new Date(a.date).getTime();
-      case "date-asc":
-        return new Date(a.date).getTime() - new Date(b.date).getTime();
-      case "mood-desc":
-        return (b.rating || 0) - (a.rating || 0);
-      case "mood-asc":
-        return (a.rating || 0) - (b.rating || 0);
-      default:
-        return 0;
-    }
-  });
+  // Sort summaries
+  const sortedSummaries = useMemo(() => {
+    return [...filteredSummaries].sort((a, b) => {
+      switch (sortBy) {
+        case "date-desc":
+          return new Date(b.date).getTime() - new Date(a.date).getTime();
+        case "date-asc":
+          return new Date(a.date).getTime() - new Date(b.date).getTime();
+        case "mood-desc":
+          return (b.rating || 0) - (a.rating || 0);
+        case "mood-asc":
+          return (a.rating || 0) - (b.rating || 0);
+        default:
+          return 0;
+      }
+    });
+  }, [filteredSummaries, sortBy]);
 
   const handleTogglePin = async (id: string) => {
     const summary = allSummaries.find(s => s.id === id);
@@ -197,7 +203,9 @@ const DaysReview = () => {
                 </p>
                 <div className="flex justify-between items-center pt-4">
                   <span className="text-sm text-gray-500">
-                    {format(new Date(selectedSummary.date), "MMMM d, yyyy")}
+                    {isToday(new Date(selectedSummary.date)) 
+                      ? "Today" 
+                      : format(new Date(selectedSummary.date), "MMMM d, yyyy")}
                   </span>
                 </div>
               </div>

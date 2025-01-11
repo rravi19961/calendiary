@@ -1,5 +1,5 @@
 import React from "react";
-import { format } from "date-fns";
+import { format, isToday } from "date-fns";
 import { Pin, Star, ArrowUpRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -72,7 +72,7 @@ export const SummaryCard: React.FC<SummaryCardProps> = ({
 
       <div className="flex justify-between items-center">
         <span className="text-sm text-gray-500 dark:text-gray-400">
-          {format(new Date(date), "MMM d, yyyy")}
+          {isToday(new Date(date)) ? "Today" : format(new Date(date), "MMM d, yyyy")}
         </span>
         <Button
           variant="ghost"
