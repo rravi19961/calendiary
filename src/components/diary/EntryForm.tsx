@@ -2,6 +2,7 @@ import React from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { MoodSelector } from "./MoodSelector";
+import { VoiceInput } from "./VoiceInput";
 
 interface EntryFormProps {
   content: string;
@@ -16,9 +17,6 @@ export const EntryForm: React.FC<EntryFormProps> = ({
   disabled,
   onChange,
 }) => {
-  const maxLength = 500;
-  const remainingChars = maxLength - (content?.length || 0);
-
   return (
     <div className="space-y-6">
       <div className="space-y-4">
@@ -31,19 +29,19 @@ export const EntryForm: React.FC<EntryFormProps> = ({
       </div>
 
       <div className="space-y-2">
-        <Label className="flex justify-between">
-          <span>Write about your day</span>
-          <span className="text-sm text-muted-foreground">
-            ({remainingChars} characters remaining)
-          </span>
-        </Label>
+        <div className="flex items-center justify-between">
+          <Label>Write about your day</Label>
+          <VoiceInput
+            onTranscriptionComplete={(text) => onChange({ content: text })}
+            disabled={disabled}
+          />
+        </div>
         <Textarea
           value={content}
           onChange={(e) => onChange({ content: e.target.value })}
           disabled={disabled}
           placeholder="What happened today?"
           className="min-h-[150px]"
-          maxLength={maxLength}
         />
       </div>
     </div>

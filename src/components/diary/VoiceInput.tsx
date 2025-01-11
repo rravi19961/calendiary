@@ -12,9 +12,13 @@ import { supabase } from "@/integrations/supabase/client";
 
 interface VoiceInputProps {
   onTranscriptionComplete: (text: string) => void;
+  disabled?: boolean;
 }
 
-export const VoiceInput: React.FC<VoiceInputProps> = ({ onTranscriptionComplete }) => {
+export const VoiceInput: React.FC<VoiceInputProps> = ({
+  onTranscriptionComplete,
+  disabled,
+}) => {
   const [isRecording, setIsRecording] = useState(false);
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
   const { toast } = useToast();
@@ -107,6 +111,7 @@ export const VoiceInput: React.FC<VoiceInputProps> = ({ onTranscriptionComplete 
             variant="ghost"
             size="icon"
             onClick={toggleRecording}
+            disabled={disabled}
             className={`transition-colors ${
               isRecording ? "bg-red-100 hover:bg-red-200 dark:bg-red-900" : ""
             }`}
