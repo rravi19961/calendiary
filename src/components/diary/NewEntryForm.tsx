@@ -2,6 +2,7 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { EntryTitle } from "./EntryTitle";
 import { EntryForm } from "./EntryForm";
+import { VoiceInput } from "./VoiceInput";
 
 interface NewEntryFormProps {
   onSave: (entry: { title: string; content: string; rating: number }) => void;
@@ -27,6 +28,12 @@ export const NewEntryForm: React.FC<NewEntryFormProps> = ({
     }
   };
 
+  const handleVoiceTranscription = (transcribedText: string) => {
+    setContent(prevContent => 
+      prevContent ? `${prevContent}\n${transcribedText}` : transcribedText
+    );
+  };
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="space-y-6">
@@ -36,15 +43,22 @@ export const NewEntryForm: React.FC<NewEntryFormProps> = ({
           disabled={false}
         />
         
-        <EntryForm
-          content={content}
-          rating={rating}
-          onChange={({ content: newContent, rating: newRating }) => {
-            if (newContent !== undefined) setContent(newContent);
-            if (newRating !== undefined) setRating(newRating);
-          }}
-          disabled={false}
-        />
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <label className="text-sm font-medium">Write about your day</label>
+            <VoiceInput onTranscriptionComplete={handleVoiceTranscription} />
+          </div>
+          
+          <EntryForm
+            content={content}
+            rating={rating}
+            onChange={({ content: newContent, rating: newRating }) => {
+              if (newContent !== undefined) setContent(newContent);
+              if (newRating !== undefined) setRating(newRating);
+            }}
+            disabled={false}
+          />
+        </div>
       </div>
 
       <div className="flex justify-end space-x-2">
