@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
@@ -25,21 +25,23 @@ export const ChatInterface = ({ selectedDate }: { selectedDate: Date }) => {
   const { data: chatHistory = [], refetch: refetchChat } = useQuery({
     queryKey: ['chat-history', selectedDate],
     queryFn: async () => {
+      if (!user) return [];
+      
       const { data, error } = await supabase
         .from('chat_history')
-        .select('*')
+        .select('role, content')
         .eq('date', formattedDate)
-        .eq('user_id', user?.id)
+        .eq('user_id', user.id)
         .order('created_at', { ascending: true });
 
       if (error) throw error;
-      return data as ChatMessage[];
+      return (data || []) as ChatMessage[];
     },
     enabled: !!user,
   });
 
   const handleSendMessage = async () => {
-    if (!message.trim()) return;
+    if (!message.trim() || !user) return;
     
     try {
       setIsLoading(true);
@@ -48,7 +50,7 @@ export const ChatInterface = ({ selectedDate }: { selectedDate: Date }) => {
       const { error: userMsgError } = await supabase
         .from('chat_history')
         .insert({
-          user_id: user?.id,
+          user_id: user.id,
           date: formattedDate,
           content: message,
           role: 'user'
@@ -61,7 +63,7 @@ export const ChatInterface = ({ selectedDate }: { selectedDate: Date }) => {
         body: {
           message,
           date: formattedDate,
-          userId: user?.id
+          userId: user.id
         },
       });
 
@@ -71,7 +73,7 @@ export const ChatInterface = ({ selectedDate }: { selectedDate: Date }) => {
       const { error: aiMsgError } = await supabase
         .from('chat_history')
         .insert({
-          user_id: user?.id,
+          user_id: user.id,
           date: formattedDate,
           content: data.response,
           role: 'assistant'
