@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
+import { LineChart, Line, XAxis, YAxis, ResponsiveContainer } from "recharts";
 import { format, subDays } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { getMoodEmoji } from "@/utils/moodEmoji";
 
 interface MoodData {
   date: string;
@@ -13,8 +14,6 @@ interface MoodData {
 interface MoodTrackerProps {
   onDateSelect?: (date: Date) => void;
 }
-
-const MOOD_EMOJIS = ["😢", "☹️", "😐", "🙂", "😄"];
 
 const MoodTracker: React.FC<MoodTrackerProps> = ({ onDateSelect }) => {
   const [moodData, setMoodData] = useState<MoodData[]>([]);
@@ -28,7 +27,7 @@ const MoodTracker: React.FC<MoodTrackerProps> = ({ onDateSelect }) => {
 
       try {
         const endDate = new Date();
-        const startDate = subDays(endDate, 6); // Get last 7 days
+        const startDate = subDays(endDate, 6);
 
         const { data: entries, error } = await supabase
           .from("diary_entries")
@@ -40,16 +39,13 @@ const MoodTracker: React.FC<MoodTrackerProps> = ({ onDateSelect }) => {
 
         if (error) throw error;
 
-        // Create a map to store all ratings for each day
         const moodsByDay = new Map<string, number[]>();
 
-        // Initialize the last 7 days with empty arrays
         for (let i = 0; i <= 6; i++) {
           const date = format(subDays(endDate, i), "yyyy-MM-dd");
           moodsByDay.set(date, []);
         }
 
-        // Group all ratings by day
         entries?.forEach((entry) => {
           if (entry.rating) {
             const ratings = moodsByDay.get(entry.date) || [];
@@ -58,15 +54,14 @@ const MoodTracker: React.FC<MoodTrackerProps> = ({ onDateSelect }) => {
           }
         });
 
-        // Calculate averages and format data for the chart
         const averagedData: MoodData[] = Array.from(moodsByDay.entries())
           .map(([date, ratings]) => ({
             date: format(new Date(date), "EEE"),
             rating: ratings.length > 0
               ? Number((ratings.reduce((sum, r) => sum + r, 0) / ratings.length).toFixed(1))
-              : 3 // Default to neutral mood if no entries
+              : 3
           }))
-          .reverse(); // Show most recent day last
+          .reverse();
 
         setMoodData(averagedData);
       } catch (error) {
@@ -88,16 +83,9 @@ const MoodTracker: React.FC<MoodTrackerProps> = ({ onDateSelect }) => {
     const emojiIndex = Math.round(payload.value) - 1;
     return (
       <text x={x} y={y} dy={5} textAnchor="end" fontSize={16}>
-        {MOOD_EMOJIS[emojiIndex]}
+        {getMoodEmoji(emojiIndex + 1)}
       </text>
     );
-  };
-
-  const handleClick = (data: any) => {
-    if (data && data.activePayload && data.activePayload[0]) {
-      const clickedDate = data.activePayload[0].payload.fullDate;
-      onDateSelect?.(new Date(clickedDate));
-    }
   };
 
   if (isLoading) {
@@ -107,25 +95,25 @@ const MoodTracker: React.FC<MoodTrackerProps> = ({ onDateSelect }) => {
   return (
     <div className="h-48">
       <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={moodData} onClick={handleClick}>
-          <XAxis dataKey="date" />
+        <LineChart data={moodData}>
+          <XAxis 
+            dataKey="date"
+            stroke="hsl(var(--muted-foreground))"
+            fontSize={12}
+          />
           <YAxis
             domain={[1, 5]}
             ticks={[1, 2, 3, 4, 5]}
             tick={<CustomYAxisTick />}
-          />
-          <Tooltip
-            formatter={(value: number) => [
-              `Mood: ${MOOD_EMOJIS[Math.round(value) - 1]} (${value})`,
-              "",
-            ]}
+            stroke="hsl(var(--muted-foreground))"
           />
           <Line
             type="monotone"
             dataKey="rating"
             stroke="hsl(var(--primary))"
             strokeWidth={2}
-            dot={{ fill: "hsl(var(--primary))" }}
+            dot={{ fill: "hsl(var(--primary))", r: 4 }}
+            activeDot={false}
           />
         </LineChart>
       </ResponsiveContainer>
