@@ -43,22 +43,15 @@ export const NewEntryForm: React.FC<NewEntryFormProps> = ({
           disabled={false}
         />
         
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <label className="text-sm font-medium">Write about your day</label>
-            <VoiceInput onTranscriptionComplete={handleVoiceTranscription} />
-          </div>
-          
-          <EntryForm
-            content={content}
-            rating={rating}
-            onChange={({ content: newContent, rating: newRating }) => {
-              if (newContent !== undefined) setContent(newContent);
-              if (newRating !== undefined) setRating(newRating);
-            }}
-            disabled={false}
-          />
-        </div>
+        <EntryForm
+          content={content}
+          rating={rating}
+          onChange={({ content: newContent, rating: newRating }) => {
+            if (newContent !== undefined) setContent(newContent);
+            if (newRating !== undefined) setRating(newRating);
+          }}
+          disabled={false}
+        />
       </div>
 
       <div className="flex justify-end space-x-2">
