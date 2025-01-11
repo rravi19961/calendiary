@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { format, subDays } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { StatisticsCards } from "@/components/diary/StatisticsCards";
+import { StatisticsSection } from "@/components/diary/StatisticsSection";
 import { SummaryCard } from "@/components/diary/SummaryCard";
 import {
   Select,
@@ -52,9 +52,14 @@ const DaysReview = () => {
         .order("date", { ascending: false });
 
       if (daysAgo) {
-        const startDate = new Date();
-        startDate.setDate(startDate.getDate() - daysAgo);
+        const startDate = subDays(new Date(), daysAgo);
         query = query.gte("date", format(startDate, "yyyy-MM-dd"));
+      }
+
+      if (activeTab === "pinned") {
+        query = query.eq("is_pinned", true);
+      } else if (activeTab === "best") {
+        query = query.eq("is_best_day", true);
       }
 
       const { data, error } = await query;
@@ -192,7 +197,7 @@ const DaysReview = () => {
           </div>
         </div>
 
-        <StatisticsCards 
+        <StatisticsSection 
           stats={stats} 
           onLastCheerfulDayClick={(id) => {
             const summary = summaries.find(s => s.id === id);
@@ -219,9 +224,9 @@ const DaysReview = () => {
                     key={summary.id}
                     id={summary.id}
                     title={summary.title || "Untitled Summary"}
-                    content={summary.content || ""}
+                    content={summary.content}
                     date={summary.date}
-                    rating={summary.rating || 0}
+                    rating={summary.rating || 3}
                     isPinned={summary.is_pinned || false}
                     isBestDay={summary.is_best_day || false}
                     onTogglePin={handleTogglePin}
@@ -241,14 +246,12 @@ const DaysReview = () => {
                 <div className="flex items-center gap-2">
                   <span className="text-2xl">
                     {(() => {
-                      switch (selectedSummary.rating) {
-                        case 5: return "😍";
-                        case 4: return "😊";
-                        case 3: return "😐";
-                        case 2: return "😟";
-                        case 1: return "😭";
-                        default: return "😐";
-                      }
+                      const rating = selectedSummary.rating || 3;
+                      if (rating >= 4.5) return "😍";
+                      if (rating >= 3.5) return "😊";
+                      if (rating >= 2.5) return "😐";
+                      if (rating >= 1.5) return "😟";
+                      return "😭";
                     })()}
                   </span>
                   <h2 className="text-2xl font-semibold">

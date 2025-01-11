@@ -1,7 +1,6 @@
 import React from "react";
-import { motion } from "framer-motion";
 import { format } from "date-fns";
-import { Star, Pin, ArrowUpRight } from "lucide-react";
+import { Pin, Star, ArrowUpRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -19,14 +18,11 @@ interface SummaryCardProps {
 }
 
 const getMoodEmoji = (rating: number) => {
-  switch (rating) {
-    case 5: return "😍";
-    case 4: return "😊";
-    case 3: return "😐";
-    case 2: return "😟";
-    case 1: return "😭";
-    default: return "😐";
-  }
+  if (rating >= 4.5) return "😍";
+  if (rating >= 3.5) return "😊";
+  if (rating >= 2.5) return "😐";
+  if (rating >= 1.5) return "😟";
+  return "😭";
 };
 
 export const SummaryCard: React.FC<SummaryCardProps> = ({
@@ -41,18 +37,12 @@ export const SummaryCard: React.FC<SummaryCardProps> = ({
   onToggleBestDay,
   onMaximize,
 }) => {
-  const moodEmoji = getMoodEmoji(rating);
-
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow"
-    >
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow">
       <div className="flex justify-between items-start mb-4">
         <div className="flex items-center gap-2">
-          <span className="text-2xl">{moodEmoji}</span>
-          <h3 className="text-xl font-semibold">{title}</h3>
+          <span className="text-2xl">{getMoodEmoji(rating)}</span>
+          <h3 className="text-xl font-semibold">{title || "Untitled Summary"}</h3>
         </div>
         <div className="flex gap-2">
           <Button
@@ -101,6 +91,6 @@ export const SummaryCard: React.FC<SummaryCardProps> = ({
           Read more
         </Button>
       </div>
-    </motion.div>
+    </div>
   );
 };
