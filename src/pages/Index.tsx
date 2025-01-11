@@ -226,7 +226,7 @@ const Index = () => {
           </div>
 
           <div className="h-[600px]">
-            <ChatSection />
+            <ChatSection selectedDate={selectedDate} />
           </div>
         </div>
 
