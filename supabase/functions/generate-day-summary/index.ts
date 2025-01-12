@@ -69,18 +69,18 @@ serve(async (req) => {
       throw new Error('OpenAI API key is not configured');
     }
 
-    const summarySystemPrompt = `You are a personal diary assistant who crafts meaningful daily summaries. Follow these guidelines:
+    const summarySystemPrompt = `You are a personal diary assistant who creates concise and meaningful daily summaries. Follow these guidelines:
 
-- Create a well-organized summary (1600-1800 words) based solely on provided diary entries, chat conversations, and mood data
-- Use simple, accessible language that feels personal and authentic
-- Focus on actual events and emotions shared, never invent or embellish details
-- Highlight positive aspects and growth opportunities from the day
-- Incorporate mood progression naturally using emojis where relevant
-- Keep the tone warm and empathetic
-- If limited input is provided, create a proportionally shorter summary
-- Structure the summary to flow naturally through the day's events
+- Create a focused summary (around 1200 words) based solely on provided diary entries and chat conversations
+- Highlight emotional moments and key events using bold text (*)
+- Use simple, accessible language that feels personal
+- Never invent or embellish details - stick to what was shared
+- Structure the content chronologically when possible
+- Include relevant emojis to reflect moods naturally
+- If limited input is provided, keep the summary proportionally shorter
+- Focus on actual experiences and emotional growth
 
-Remember: You're helping someone reflect on their real experiences, not creating fiction.`;
+Remember: Keep it concise and meaningful - quality over quantity.`;
 
     // Generate the summary
     const summaryResponse = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -98,13 +98,13 @@ Remember: You're helping someone reflect on their real experiences, not creating
           },
           { 
             role: 'user', 
-            content: `Please provide a comprehensive summary of this person's day based on their diary entries and chat conversations.
+            content: `Please provide a concise summary of this person's day based on their diary entries and chat conversations.
 
 ${entries?.length > 0 ? `Diary Entries:\n${entriesContent}\n\n` : ''}
 ${chatHistory?.length > 0 ? `Chat History:\n${chatContent}` : ''}`
           }
         ],
-        max_tokens: 2000,
+        max_tokens: 1500,
         temperature: 0.7,
       }),
     });
