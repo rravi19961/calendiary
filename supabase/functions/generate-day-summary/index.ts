@@ -56,7 +56,7 @@ serve(async (req) => {
 
     // Prepare diary entries content
     const entriesContent = entries?.map(entry => 
-      `Title: ${entry.title}\nContent: ${entry.content}\nMood Rating: ${entry.rating}`
+      `Title: ${entry.title}\nContent: ${entry.content}\nMood: ${entry.rating}`
     ).join('\n\n');
 
     // Prepare chat history content
@@ -69,7 +69,20 @@ serve(async (req) => {
       throw new Error('OpenAI API key is not configured');
     }
 
-    // First, generate the summary
+    const summarySystemPrompt = `You are a personal diary assistant who crafts meaningful daily summaries. Follow these guidelines:
+
+- Create a well-organized summary (1600-1800 words) based solely on provided diary entries, chat conversations, and mood data
+- Use simple, accessible language that feels personal and authentic
+- Focus on actual events and emotions shared, never invent or embellish details
+- Highlight positive aspects and growth opportunities from the day
+- Incorporate mood progression naturally using emojis where relevant
+- Keep the tone warm and empathetic
+- If limited input is provided, create a proportionally shorter summary
+- Structure the summary to flow naturally through the day's events
+
+Remember: You're helping someone reflect on their real experiences, not creating fiction.`;
+
+    // Generate the summary
     const summaryResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -81,17 +94,17 @@ serve(async (req) => {
         messages: [
           { 
             role: 'system', 
-            content: 'You are a helpful assistant that creates empathetic and personal summaries of someone\'s day.' 
+            content: summarySystemPrompt
           },
           { 
             role: 'user', 
-            content: `Please provide a comprehensive summary of this person's day based on their diary entries and chat conversations. Focus on the main events, mood, and key activities. Keep it personal and empathetic.
+            content: `Please provide a comprehensive summary of this person's day based on their diary entries and chat conversations.
 
 ${entries?.length > 0 ? `Diary Entries:\n${entriesContent}\n\n` : ''}
 ${chatHistory?.length > 0 ? `Chat History:\n${chatContent}` : ''}`
           }
         ],
-        max_tokens: 250,
+        max_tokens: 2000,
         temperature: 0.7,
       }),
     });
@@ -105,7 +118,18 @@ ${chatHistory?.length > 0 ? `Chat History:\n${chatContent}` : ''}`
     const summaryData = await summaryResponse.json();
     const summary = summaryData.choices[0].message.content;
 
-    // Then, generate a title based on the summary
+    const titleSystemPrompt = `You are a personal diary assistant who creates meaningful titles. Follow these guidelines:
+
+- Create exactly 6-8 words that capture the day's essence
+- Use the day's overall mood and key events as inspiration
+- Keep language simple yet engaging
+- Focus on the most impactful or meaningful aspect of the day
+- Avoid clichés and generic phrases
+- Never use quotes in the title
+
+Remember: The title should feel personal and reflect the actual content of their day.`;
+
+    // Generate the title
     const titleResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -117,7 +141,7 @@ ${chatHistory?.length > 0 ? `Chat History:\n${chatContent}` : ''}`
         messages: [
           { 
             role: 'system', 
-            content: 'You are a helpful assistant that creates concise, engaging titles. Always respond with exactly 8-10 words that capture the essence of the content.' 
+            content: titleSystemPrompt
           },
           { 
             role: 'user', 
@@ -138,7 +162,13 @@ ${chatHistory?.length > 0 ? `Chat History:\n${chatContent}` : ''}`
     const titleData = await titleResponse.json();
     const title = titleData.choices[0].message.content;
 
-    // Save the new summary with title
+    // Calculate average rating from diary entries
+    const ratings = entries?.map(entry => entry.rating).filter(rating => rating !== null) || [];
+    const averageRating = ratings.length > 0 
+      ? Math.round(ratings.reduce((a, b) => a + b, 0) / ratings.length)
+      : 3; // Default to neutral if no ratings
+
+    // Save the new summary with title and rating
     const { error: insertError } = await supabase
       .from('day_summaries')
       .insert([{
@@ -146,6 +176,7 @@ ${chatHistory?.length > 0 ? `Chat History:\n${chatContent}` : ''}`
         date,
         content: summary,
         title: title,
+        rating: averageRating
       }]);
 
     if (insertError) throw insertError;

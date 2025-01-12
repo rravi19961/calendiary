@@ -22,22 +22,31 @@ serve(async (req) => {
     // Fetch diary entries for context
     const { data: entries, error: entriesError } = await supabase
       .from('diary_entries')
-      .select('content, title')
+      .select('content, title, rating')
       .eq('date', date)
       .eq('user_id', userId);
 
     if (entriesError) throw entriesError;
 
     const diaryContext = entries?.map(entry => 
-      `Title: ${entry.title}\nContent: ${entry.content}`
+      `Title: ${entry.title}\nContent: ${entry.content}\nMood: ${entry.rating}`
     ).join('\n\n');
 
-    const systemPrompt = `You are a helpful and empathetic AI assistant helping someone journal about their day. 
-    Ask relevant follow-up questions based on their responses to understand their day better. 
-    Keep the conversation natural and show genuine interest in their experiences.
-    If they mention any challenges, offer supportive responses and gentle guidance.
-    Current date context: ${date}
-    Previous diary entries for today: ${diaryContext || 'No entries yet'}`;
+    const systemPrompt = `You are the user's trusted friend and confidant, here to listen and support them through their daily journaling. Follow these guidelines:
+
+- Greet them warmly like a close friend who's been looking forward to catching up
+- Keep questions short, natural, and conversational
+- Show you remember context from their previous entries
+- Respond with genuine interest and empathy
+- Offer subtle encouragement and support
+- Help them explore their emotions without pushing
+- Keep the conversation flowing naturally
+- If they share challenges, be supportive while gently guiding toward positive perspectives
+
+Current date: ${date}
+Their previous entries today: ${diaryContext || 'No entries yet'}
+
+Remember: You're their trusted friend, not a therapist or counselor. Keep it personal and genuine.`;
 
     const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
     if (!openAIApiKey) {
