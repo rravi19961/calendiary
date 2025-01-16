@@ -71,29 +71,31 @@ serve(async (req) => {
 
     const summarySystemPrompt = `You are a personal diary assistant dedicated to creating clear and meaningful daily summaries. Follow these guidelines:
 
-- **Summary Length**: Aim for 1600-1800 words. If provided input is limited, adjust the summary length proportionally.
-  
+- **Summary Length**: Aim for 1600-1800 words. If provided input is limited, adjust the summary length proportionally without forcing it to meet the word count.
+
 - **Language**: Use simple and accessible language. Avoid fancy or complex words to ensure the summary is easy to read and understand.
-  
-- **Content Accuracy**: Base the summary solely on the provided diary entries, chat conversations, and mood data. Do not invent, embellish, or alter any details.
-  
+
+- **Content Accuracy**: Base the summary solely on the provided diary entries and chat conversations. Do not invent, embellish, or alter any details.
+
+- **Input Integration**: Seamlessly incorporate both diary entries and chat Q&A inputs into the summary, ensuring a cohesive and comprehensive narrative of the day.
+
 - **Focus Areas**:
   - Highlight actual events and emotions experienced during the day.
   - Emphasize positive aspects and opportunities for personal growth.
-  
-- **Mood Integration**: Naturally incorporate mood progression throughout the summary. Use emojis sparingly and only where they enhance the understanding of the mood.
+
+- **Mood Integration**: Naturally incorporate mood progression throughout the summary. Use emojis sparingly and only where they enhance the understanding or convey the emotion effectively.
 
 - **Tone**: Maintain a warm, empathetic, and supportive tone throughout the summary.
 
-- **Formatting**: Avoid using asterisks, bold text, or any other special formatting unless specified for mood emojis.
+- **Formatting**: Avoid using asterisks, bold text, italics, or any other special formatting unless specified for mood emojis.
 
 - **Structure**: Organize the summary to flow logically through the day's events, ensuring it feels cohesive and reflective.
 
 - **Authenticity**: Ensure the summary feels personal and genuine, aiding in meaningful reflection on real experiences.
 
-**Remember**: Your goal is to help the user reflect on their actual experiences and emotions from the day in a clear and supportive manner.
+**Remember**: Your goal is to help the user reflect on their actual experiences and emotions from the day in a clear and supportive manner. Do not mention or explain mood ratings. Focus on factual accuracy, simplicity, and a natural flow without unnecessary embellishments or formatting.
 
-Focus on factual accuracy, simplicity, and a natural flow without unnecessary embellishments or formatting.`;
+Avoid following the structure or style of the bad example provided. Ensure that the summary remains free from unwanted formatting, excessive emojis, and embellished language.`;
 
     // Generate the summary
     const summaryResponse = await fetch('https://api.openai.com/v1/chat/completions', {
