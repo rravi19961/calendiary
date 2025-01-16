@@ -17,7 +17,10 @@ serve(async (req) => {
       throw new Error('Text is required')
     }
 
-    console.log('Generating speech for text:', text)
+    // Limit text length to prevent stack overflow
+    const truncatedText = text.slice(0, 4096) // OpenAI's TTS has a limit
+
+    console.log('Generating speech for text:', truncatedText)
 
     // Generate speech from text using OpenAI's TTS API
     const response = await fetch('https://api.openai.com/v1/audio/speech', {
@@ -28,7 +31,7 @@ serve(async (req) => {
       },
       body: JSON.stringify({
         model: 'tts-1',
-        input: text,
+        input: truncatedText,
         voice: 'alloy',
         response_format: 'mp3',
       }),
@@ -36,12 +39,22 @@ serve(async (req) => {
 
     if (!response.ok) {
       const error = await response.json()
+      console.error('OpenAI API error:', error)
       throw new Error(error.error?.message || 'Failed to generate speech')
     }
 
-    // Convert audio buffer to base64
+    // Convert audio buffer to base64 in chunks to prevent stack overflow
     const arrayBuffer = await response.arrayBuffer()
-    const base64Audio = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)))
+    const uint8Array = new Uint8Array(arrayBuffer)
+    const chunks: string[] = []
+    const chunkSize = 32768 // Process in 32KB chunks
+
+    for (let i = 0; i < uint8Array.length; i += chunkSize) {
+      const chunk = uint8Array.slice(i, i + chunkSize)
+      chunks.push(String.fromCharCode(...chunk))
+    }
+
+    const base64Audio = btoa(chunks.join(''))
 
     return new Response(
       JSON.stringify({ audioContent: base64Audio }),

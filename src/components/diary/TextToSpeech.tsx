@@ -21,6 +21,15 @@ export const TextToSpeech = ({ text }: TextToSpeechProps) => {
         return;
       }
 
+      if (!text.trim()) {
+        toast({
+          title: "Error",
+          description: "No text to read",
+          variant: "destructive",
+        });
+        return;
+      }
+
       console.log('Calling text-to-speech function with text:', text);
 
       const { data, error } = await supabase.functions.invoke("text-to-speech", {
@@ -28,11 +37,18 @@ export const TextToSpeech = ({ text }: TextToSpeechProps) => {
       });
 
       if (error) {
+        console.error('Supabase function error:', error);
         throw error;
       }
 
       if (!data?.audioContent) {
         throw new Error("No audio content received");
+      }
+
+      // Clean up previous audio
+      if (audio) {
+        audio.pause();
+        URL.revokeObjectURL(audio.src);
       }
 
       // Create audio from base64
@@ -42,12 +58,6 @@ export const TextToSpeech = ({ text }: TextToSpeechProps) => {
       );
       const audioUrl = URL.createObjectURL(audioBlob);
       const newAudio = new Audio(audioUrl);
-
-      // Clean up previous audio
-      if (audio) {
-        audio.pause();
-        URL.revokeObjectURL(audio.src);
-      }
 
       newAudio.onended = () => {
         setIsPlaying(false);
