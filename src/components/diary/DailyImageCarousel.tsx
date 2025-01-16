@@ -11,7 +11,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 
 interface DailyImageCarouselProps {
@@ -53,18 +53,12 @@ export const DailyImageCarousel = ({ selectedDate }: DailyImageCarouselProps) =>
             description: "Failed to load images",
             variant: "destructive",
           });
-          throw error;
+          return;
         }
 
         const validImages = entries
           ?.map(entry => entry.image_url)
-          .filter((url): url is string => {
-            const isValid = url !== null && url !== '';
-            if (!isValid) {
-              console.log("Filtered out invalid image URL:", url);
-            }
-            return isValid;
-          });
+          .filter((url): url is string => Boolean(url));
         
         console.log("Fetched valid images:", validImages);
         setImages(validImages || []);
@@ -111,16 +105,11 @@ export const DailyImageCarousel = ({ selectedDate }: DailyImageCarouselProps) =>
     );
   }
 
-  const handleCarouselChange = (api: any) => {
-    const selectedIndex = api.selectedScrollSnap();
-    setCurrentIndex(selectedIndex);
-  };
-
   return (
-    <div className="min-h-[200px] w-full space-y-2">
+    <div className="space-y-4">
       <Carousel 
         className="w-full max-w-md mx-auto"
-        onSelect={handleCarouselChange}
+        onSelect={(api: any) => setCurrentIndex(api.selectedScrollSnap())}
       >
         <CarouselContent>
           {images.map((imageUrl, index) => (
@@ -156,7 +145,6 @@ export const DailyImageCarousel = ({ selectedDate }: DailyImageCarouselProps) =>
 
       <Dialog open={!!fullscreenImage} onOpenChange={() => setFullscreenImage(null)}>
         <DialogContent className="max-w-[90vw] max-h-[90vh] p-0">
-          <DialogTitle className="sr-only">Image Preview</DialogTitle>
           <div className="relative w-full h-full flex items-center justify-center bg-black/50 rounded-lg">
             <Button
               variant="ghost"
