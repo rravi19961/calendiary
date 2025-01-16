@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import MoodTracker from "@/components/MoodTracker";
 import { DailyImageCarousel } from "@/components/diary/DailyImageCarousel";
+import { Separator } from "@/components/ui/separator";
 
 export const MoodTrendsSection = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
@@ -13,7 +14,11 @@ export const MoodTrendsSection = () => {
       </CardHeader>
       <CardContent className="space-y-8">
         <MoodTracker onDateSelect={setSelectedDate} />
-        <DailyImageCarousel selectedDate={selectedDate} />
+        <div className="space-y-4">
+          <Separator className="my-4" />
+          <h2 className="text-lg font-semibold">Photo Gallery for the Selected Day</h2>
+          <DailyImageCarousel selectedDate={selectedDate} />
+        </div>
       </CardContent>
     </Card>
   );

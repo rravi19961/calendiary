@@ -7,7 +7,6 @@ import { useAuth } from "@/context/AuthContext";
 import { TextToSpeech } from "@/components/diary/TextToSpeech";
 import { useToast } from "@/hooks/use-toast";
 import { RefreshCw } from "lucide-react";
-import { DailyImageCarousel } from "@/components/diary/DailyImageCarousel";
 
 interface DayHighlightsSectionProps {
   selectedDate: Date;
@@ -104,8 +103,6 @@ export const DayHighlightsSection = ({ selectedDate }: DayHighlightsSectionProps
             </Button>
           </div>
         )}
-
-        <DailyImageCarousel selectedDate={selectedDate} />
       </CardContent>
     </Card>
   );
