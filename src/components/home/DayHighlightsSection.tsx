@@ -7,6 +7,7 @@ import { useAuth } from "@/context/AuthContext";
 import { TextToSpeech } from "@/components/diary/TextToSpeech";
 import { useToast } from "@/hooks/use-toast";
 import { RefreshCw } from "lucide-react";
+import { DailyImageCarousel } from "@/components/diary/DailyImageCarousel";
 
 interface DayHighlightsSectionProps {
   selectedDate: Date;
@@ -66,12 +67,10 @@ export const DayHighlightsSection = ({ selectedDate }: DayHighlightsSectionProps
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-xl font-bold text-calendiary-primary">
-          {format(selectedDate, "MMMM d, yyyy")}
-        </CardTitle>
+        <CardTitle className="text-xl font-bold">Your Day Highlights</CardTitle>
         {summary?.content && <TextToSpeech text={summary.content} />}
       </CardHeader>
-      <CardContent>
+      <CardContent className="space-y-6">
         {isLoading ? (
           <div className="flex items-center justify-center h-48">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -105,6 +104,8 @@ export const DayHighlightsSection = ({ selectedDate }: DayHighlightsSectionProps
             </Button>
           </div>
         )}
+
+        <DailyImageCarousel selectedDate={selectedDate} />
       </CardContent>
     </Card>
   );
