@@ -20,7 +20,7 @@ export const DayHighlightsSection = ({ selectedDate }: DayHighlightsSectionProps
         .select("*")
         .eq("user_id", user?.id)
         .eq("date", format(selectedDate, "yyyy-MM-dd"))
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
       return data;
