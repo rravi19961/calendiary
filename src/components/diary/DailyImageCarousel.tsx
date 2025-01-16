@@ -43,7 +43,7 @@ export const DailyImageCarousel = ({ selectedDate }: DailyImageCarouselProps) =>
 
         const validImages = entries
           .map(entry => entry.image_url)
-          .filter((url): url is string => url !== null);
+          .filter((url): url is string => url !== null && url !== '');
         
         console.log("Fetched images:", validImages);
         setImages(validImages);
