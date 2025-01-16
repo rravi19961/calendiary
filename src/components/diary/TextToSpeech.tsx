@@ -77,5 +77,3 @@ export const TextToSpeech = ({ text }: TextToSpeechProps) => {
     </Button>
   );
 };
-
-export default TextToSpeech;
