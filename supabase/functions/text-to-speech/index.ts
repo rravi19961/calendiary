@@ -17,6 +17,8 @@ serve(async (req) => {
       throw new Error('Text is required')
     }
 
+    console.log('Generating speech for text:', text)
+
     // Generate speech from text using OpenAI's TTS API
     const response = await fetch('https://api.openai.com/v1/audio/speech', {
       method: 'POST',

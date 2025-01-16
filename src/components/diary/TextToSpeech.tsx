@@ -21,6 +21,8 @@ export const TextToSpeech = ({ text }: TextToSpeechProps) => {
         return;
       }
 
+      console.log('Calling text-to-speech function with text:', text);
+
       const { data, error } = await supabase.functions.invoke("text-to-speech", {
         body: { text },
       });
