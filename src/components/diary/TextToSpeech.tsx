@@ -13,7 +13,7 @@ export const TextToSpeech = ({ text }: TextToSpeechProps) => {
   const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
   const { toast } = useToast();
 
-  const handlePlay = async () => {
+  const handlePlayback = async () => {
     try {
       if (isPlaying && audio) {
         audio.pause();
@@ -21,43 +21,55 @@ export const TextToSpeech = ({ text }: TextToSpeechProps) => {
         return;
       }
 
-      const { data, error } = await supabase.functions.invoke('text-to-speech', {
+      const { data, error } = await supabase.functions.invoke("text-to-speech", {
         body: { text },
       });
 
-      if (error) throw error;
+      if (error) {
+        throw error;
+      }
 
-      const audioContent = data.audioContent;
+      if (!data?.audioContent) {
+        throw new Error("No audio content received");
+      }
+
+      // Create audio from base64
       const audioBlob = new Blob(
-        [Uint8Array.from(atob(audioContent), c => c.charCodeAt(0))],
-        { type: 'audio/mp3' }
+        [Uint8Array.from(atob(data.audioContent), (c) => c.charCodeAt(0))],
+        { type: "audio/mp3" }
       );
       const audioUrl = URL.createObjectURL(audioBlob);
       const newAudio = new Audio(audioUrl);
 
+      // Clean up previous audio
+      if (audio) {
+        audio.pause();
+        URL.revokeObjectURL(audio.src);
+      }
+
       newAudio.onended = () => {
         setIsPlaying(false);
-        setAudio(null);
       };
 
       setAudio(newAudio);
       await newAudio.play();
       setIsPlaying(true);
     } catch (error) {
-      console.error('Error playing audio:', error);
+      console.error("Text-to-speech error:", error);
       toast({
+        variant: "destructive",
         title: "Error",
         description: "Failed to play audio. Please try again.",
-        variant: "destructive",
       });
+      setIsPlaying(false);
     }
   };
 
   return (
     <Button
-      variant="outline"
+      variant="ghost"
       size="icon"
-      onClick={handlePlay}
+      onClick={handlePlayback}
       className="ml-2"
       title={isPlaying ? "Stop" : "Play"}
     >
@@ -65,3 +77,5 @@ export const TextToSpeech = ({ text }: TextToSpeechProps) => {
     </Button>
   );
 };
+
+export default TextToSpeech;
