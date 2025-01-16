@@ -38,13 +38,14 @@ export const DayHighlightsSection = ({ selectedDate }: DayHighlightsSectionProps
 
   const handleRegenerateSummary = async () => {
     try {
-      const response = await fetch("/api/generate-day-summary", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ date: format(selectedDate, "yyyy-MM-dd") }),
+      const { data, error } = await supabase.functions.invoke('generate-day-summary', {
+        body: {
+          date: format(selectedDate, "yyyy-MM-dd"),
+          userId: user?.id
+        }
       });
 
-      if (!response.ok) throw new Error("Failed to generate summary");
+      if (error) throw error;
 
       toast({
         title: "Success",
