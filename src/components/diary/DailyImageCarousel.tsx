@@ -3,6 +3,7 @@ import { format } from "date-fns";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { X } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 import {
   Carousel,
   CarouselContent,
@@ -10,7 +11,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 
 interface DailyImageCarouselProps {
@@ -23,44 +24,81 @@ export const DailyImageCarousel = ({ selectedDate }: DailyImageCarouselProps) =>
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const { user } = useAuth();
+  const { toast } = useToast();
 
   useEffect(() => {
     const fetchImages = async () => {
-      if (!user) return;
+      if (!user) {
+        console.log("No user found, cannot fetch images");
+        setIsLoading(false);
+        return;
+      }
       
       try {
         setIsLoading(true);
-        console.log("Fetching images for date:", format(selectedDate, "yyyy-MM-dd"));
+        const formattedDate = format(selectedDate, "yyyy-MM-dd");
+        console.log("Fetching images for date:", formattedDate);
         
         const { data: entries, error } = await supabase
           .from("diary_entries")
           .select("image_url")
           .eq("user_id", user.id)
-          .eq("date", format(selectedDate, "yyyy-MM-dd"))
+          .eq("date", formattedDate)
           .not("image_url", "is", null);
 
-        if (error) throw error;
+        if (error) {
+          console.error("Error fetching images:", error);
+          toast({
+            title: "Error",
+            description: "Failed to load images",
+            variant: "destructive",
+          });
+          throw error;
+        }
 
         const validImages = entries
-          .map(entry => entry.image_url)
-          .filter((url): url is string => url !== null && url !== '');
+          ?.map(entry => entry.image_url)
+          .filter((url): url is string => {
+            const isValid = url !== null && url !== '';
+            if (!isValid) {
+              console.log("Filtered out invalid image URL:", url);
+            }
+            return isValid;
+          });
         
-        console.log("Fetched images:", validImages);
-        setImages(validImages);
+        console.log("Fetched valid images:", validImages);
+        setImages(validImages || []);
+        
+        if (validImages?.length === 0) {
+          console.log("No images found for date:", formattedDate);
+        }
       } catch (error) {
-        console.error("Error fetching images:", error);
+        console.error("Error in fetchImages:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load images",
+          variant: "destructive",
+        });
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchImages();
-  }, [selectedDate, user]);
+  }, [selectedDate, user, toast]);
 
   if (isLoading) {
     return (
       <div className="min-h-[200px] flex items-center justify-center text-muted-foreground">
-        Loading...
+        Loading images...
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-[200px] flex items-center justify-center text-muted-foreground">
+        Please log in to view images
       </div>
     );
   }
@@ -68,7 +106,7 @@ export const DailyImageCarousel = ({ selectedDate }: DailyImageCarouselProps) =>
   if (images.length === 0) {
     return (
       <div className="min-h-[200px] flex items-center justify-center text-muted-foreground">
-        No images uploaded for this day
+        No images uploaded for {format(selectedDate, "MMMM d, yyyy")}
       </div>
     );
   }
@@ -95,13 +133,21 @@ export const DailyImageCarousel = ({ selectedDate }: DailyImageCarouselProps) =>
                   src={imageUrl}
                   alt={`Entry image ${index + 1}`}
                   className="w-full h-full object-cover rounded-lg shadow-md"
+                  onError={(e) => {
+                    console.error("Failed to load image:", imageUrl);
+                    e.currentTarget.src = "/placeholder.svg";
+                  }}
                 />
               </div>
             </CarouselItem>
           ))}
         </CarouselContent>
-        <CarouselPrevious className="left-2" />
-        <CarouselNext className="right-2" />
+        {images.length > 1 && (
+          <>
+            <CarouselPrevious className="left-2" />
+            <CarouselNext className="right-2" />
+          </>
+        )}
       </Carousel>
       
       <div className="text-center text-sm text-muted-foreground">
@@ -109,8 +155,9 @@ export const DailyImageCarousel = ({ selectedDate }: DailyImageCarouselProps) =>
       </div>
 
       <Dialog open={!!fullscreenImage} onOpenChange={() => setFullscreenImage(null)}>
-        <DialogContent className="max-w-[90vw] max-h-[90vh] p-0 flex items-center justify-center bg-transparent border-none">
-          <div className="relative w-full h-full flex items-center justify-center">
+        <DialogContent className="max-w-[90vw] max-h-[90vh] p-0">
+          <DialogTitle className="sr-only">Image Preview</DialogTitle>
+          <div className="relative w-full h-full flex items-center justify-center bg-black/50 rounded-lg">
             <Button
               variant="ghost"
               size="icon"
@@ -123,7 +170,11 @@ export const DailyImageCarousel = ({ selectedDate }: DailyImageCarouselProps) =>
               <img
                 src={fullscreenImage}
                 alt="Full size"
-                className="max-w-[80%] max-h-[80vh] object-contain rounded-lg"
+                className="max-w-[80%] max-h-[80vh] object-contain"
+                onError={(e) => {
+                  console.error("Failed to load fullscreen image:", fullscreenImage);
+                  e.currentTarget.src = "/placeholder.svg";
+                }}
               />
             )}
           </div>
