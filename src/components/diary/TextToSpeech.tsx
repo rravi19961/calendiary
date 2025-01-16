@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Volume2, Volume2Off } from "lucide-react";
+import { Volume2, VolumeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -61,7 +61,7 @@ export const TextToSpeech = ({ text }: TextToSpeechProps) => {
       className="ml-2"
       title={isPlaying ? "Stop" : "Play"}
     >
-      {isPlaying ? <Volume2Off className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+      {isPlaying ? <VolumeOff className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
     </Button>
   );
 };
