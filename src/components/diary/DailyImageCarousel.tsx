@@ -80,7 +80,6 @@ export const DailyImageCarousel = ({ selectedDate }: DailyImageCarouselProps) =>
 
   return (
     <div className="min-h-[200px] w-full space-y-2">
-      <h3 className="text-lg font-semibold mb-4">Photo Gallery</h3>
       <Carousel 
         className="w-full max-w-md mx-auto"
         onSelect={handleCarouselChange}
