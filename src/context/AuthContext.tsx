@@ -27,15 +27,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Get initial session
     const initializeAuth = async () => {
       try {
-        // First, check for an existing session
+        // Get initial session
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
         if (sessionError) {
           console.error("Session error:", sessionError);
           setUser(null);
+          navigate("/login");
           return;
         }
 
@@ -43,6 +43,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         if (session?.user) {
           setUser(session.user);
           console.log("Initial session user:", session.user);
+        } else {
+          // If no session, redirect to login
+          navigate("/login");
         }
 
         // Listen for auth changes
@@ -53,22 +56,25 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           
           if (event === 'SIGNED_IN' && session?.user) {
             setUser(session.user);
+            navigate("/");
             toast({
               title: "Welcome back!",
               description: "You have successfully logged in.",
             });
-          } else if (event === 'SIGNED_OUT') {
+          } else if (event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED' && !session) {
             setUser(null);
             navigate("/login");
-          } else if (event === 'TOKEN_REFRESHED') {
-            if (session?.user) {
-              setUser(session.user);
-              console.log("Token refreshed for user:", session.user);
+            if (event === 'TOKEN_REFRESHED') {
+              toast({
+                title: "Session Expired",
+                description: "Please log in again.",
+                variant: "destructive",
+              });
             }
-          } else if (event === 'USER_UPDATED') {
-            if (session?.user) {
-              setUser(session.user);
-            }
+          } else if (event === 'TOKEN_REFRESHED' && session?.user) {
+            setUser(session.user);
+          } else if (event === 'USER_UPDATED' && session?.user) {
+            setUser(session.user);
           }
         });
 
@@ -78,6 +84,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       } catch (error) {
         console.error("Auth initialization error:", error);
         setUser(null);
+        navigate("/login");
       }
     };
 
@@ -89,12 +96,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
 
-      // Clear the user state
       setUser(null);
-      
-      // Navigate to login page
       navigate("/login");
-
       toast({
         title: "Logged out",
         description: "You have been successfully logged out.",
