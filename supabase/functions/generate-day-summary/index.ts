@@ -181,7 +181,7 @@ Remember: The title should feel personal and reflect the actual content of their
       ? Math.round(ratings.reduce((a, b) => a + b, 0) / ratings.length)
       : 3; // Default to neutral if no ratings
 
-    // Save the new summary with title and rating
+    // Save the new summary
     const { error: insertError } = await supabase
       .from('day_summaries')
       .insert([{
