@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { User } from "@supabase/supabase-js";
+import { User, AuthError, AuthApiError } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
@@ -21,6 +21,25 @@ export const useAuth = () => {
   return context;
 };
 
+const getErrorMessage = (error: AuthError) => {
+  if (error instanceof AuthApiError) {
+    switch (error.status) {
+      case 400:
+        if (error.message.includes("Invalid login credentials")) {
+          return "Invalid email or password. Please check your credentials and try again.";
+        }
+        return "Login failed. Please check your credentials and try again.";
+      case 422:
+        return "Invalid email format. Please enter a valid email address.";
+      case 429:
+        return "Too many login attempts. Please try again later.";
+      default:
+        return error.message;
+    }
+  }
+  return "An unexpected error occurred. Please try again.";
+};
+
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const { toast } = useToast();
@@ -29,8 +48,33 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const initializeAuth = async () => {
       try {
-        // Set up session handling
-        supabase.auth.onAuthStateChange((event, session) => {
+        // Get initial session
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError) {
+          console.error("Session error:", sessionError);
+          toast({
+            title: "Authentication Error",
+            description: getErrorMessage(sessionError),
+            variant: "destructive",
+          });
+          setUser(null);
+          navigate("/login");
+          return;
+        }
+
+        // Set initial user state
+        if (session?.user) {
+          setUser(session.user);
+          console.log("Initial session user:", session.user);
+        } else {
+          navigate("/login");
+        }
+
+        // Set up auth state change listener
+        const {
+          data: { subscription },
+        } = supabase.auth.onAuthStateChange(async (event, session) => {
           console.log("Auth event:", event);
           
           if (session?.user) {
@@ -57,26 +101,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           }
         });
 
-        // Get initial session
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-        
-        if (sessionError) {
-          console.error("Session error:", sessionError);
-          setUser(null);
-          navigate("/login");
-          return;
-        }
-
-        // Set initial user state
-        if (session?.user) {
-          setUser(session.user);
-          console.log("Initial session user:", session.user);
-        } else {
-          navigate("/login");
-        }
+        return () => {
+          subscription.unsubscribe();
+        };
 
       } catch (error) {
         console.error("Auth initialization error:", error);
+        if (error instanceof AuthError) {
+          toast({
+            title: "Authentication Error",
+            description: getErrorMessage(error),
+            variant: "destructive",
+          });
+        }
         setUser(null);
         navigate("/login");
       }
@@ -98,13 +135,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       });
     } catch (error) {
       console.error("Logout error:", error);
+      if (error instanceof AuthError) {
+        toast({
+          title: "Error",
+          description: getErrorMessage(error),
+          variant: "destructive",
+        });
+      }
       // Still clear local state and redirect even if there's an error
       setUser(null);
       navigate("/login");
-      toast({
-        title: "Logged out",
-        description: "You have been logged out.",
-      });
     }
   };
 
