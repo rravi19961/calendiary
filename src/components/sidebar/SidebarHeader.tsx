@@ -1,5 +1,5 @@
 import React from "react";
-import { Menu } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useSidebar } from "@/components/ui/sidebar";
@@ -15,12 +15,15 @@ export function SidebarHeader() {
         variant="ghost"
         size="icon"
         onClick={toggleSidebar}
-        className="absolute -left-3 top-4 z-50 h-6 w-6 rounded-full bg-white shadow-md hover:bg-gray-100"
+        className="absolute -right-3 top-4 z-50 h-6 w-6 rounded-full bg-white shadow-md hover:bg-gray-100 transition-transform duration-200"
+        style={{
+          transform: state === "collapsed" ? "rotate(180deg)" : "rotate(0deg)",
+        }}
       >
-        <Menu className="h-4 w-4" />
+        <ChevronLeft className="h-4 w-4" />
       </Button>
       <div className={cn(
-        "flex items-center justify-center transition-all duration-200",
+        "flex items-center justify-center transition-all duration-200 bg-calendiary-primary",
         state === "collapsed" ? "p-2" : "p-4"
       )}>
         <button 

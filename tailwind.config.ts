@@ -53,7 +53,7 @@ export default {
           foreground: "hsl(var(--card-foreground))",
         },
         calendiary: {
-          primary: "#3486CF",
+          primary: "#242d58",
           background: "#E6F2FA",
           card: "#F8F8F8",
         },
