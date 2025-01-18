@@ -21,11 +21,7 @@ interface Profile {
   avatar_url: string | null;
 }
 
-interface AppSidebarProps {
-  onNewEntry?: () => void;
-}
-
-export function AppSidebar({ onNewEntry }: AppSidebarProps) {
+export function AppSidebar() {
   const navigate = useNavigate();
   const { logout, user } = useAuth();
   const { toast } = useToast();
@@ -76,11 +72,7 @@ export function AppSidebar({ onNewEntry }: AppSidebarProps) {
       <SidebarHeader />
       <SidebarContent className="px-2">
         <SidebarGroup>
-          <SidebarProfile 
-            profile={profile} 
-            userEmail={user?.email} 
-            onNewEntry={onNewEntry}
-          />
+          <SidebarProfile profile={profile} userEmail={user?.email} />
           <SidebarGroupContent>
             <SidebarNavigation />
           </SidebarGroupContent>

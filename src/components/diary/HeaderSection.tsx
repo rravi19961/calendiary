@@ -1,24 +1,43 @@
 import React from "react";
-import { format } from "date-fns";
+import { motion } from "framer-motion";
+import { Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { QUOTES } from "./constants";
 
 interface HeaderSectionProps {
   currentQuoteIndex: number;
-  selectedDate?: Date;
+  onNewEntry: () => void;
 }
 
-export const HeaderSection: React.FC<HeaderSectionProps> = ({ 
+export const HeaderSection: React.FC<HeaderSectionProps> = ({
   currentQuoteIndex,
-  selectedDate = new Date()
+  onNewEntry,
 }) => {
   return (
-    <header className="py-6 px-4 text-center">
-      <h1 className="text-2xl font-bold text-calendiary-primary text-left mb-4">
-        {format(selectedDate, "MMMM d, yyyy")}
-      </h1>
-      <p className="text-lg text-calendiary-primary/80 italic animate-fadeIn">
-        {QUOTES[currentQuoteIndex]}
-      </p>
+    <header className="bg-gradient-to-r from-[#E6F2FA] to-[#F8F8F8] dark:from-gray-900 dark:to-gray-800 shadow-sm">
+      <div className="max-w-7xl mx-auto px-4 py-4">
+        <div className="flex flex-col space-y-2">
+          <div className="flex justify-between items-center">
+            <motion.p 
+              className="text-lg text-gray-600 dark:text-gray-300 italic"
+              key={currentQuoteIndex}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.5 }}
+            >
+              {QUOTES[currentQuoteIndex]}
+            </motion.p>
+            <Button
+              onClick={onNewEntry}
+              className="bg-[#3486CF] hover:bg-[#2a6ba6]"
+            >
+              <Plus className="h-5 w-5 mr-2" />
+              New Entry
+            </Button>
+          </div>
+        </div>
+      </div>
     </header>
   );
 };

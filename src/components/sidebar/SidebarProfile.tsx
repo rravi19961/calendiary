@@ -1,7 +1,5 @@
 import React from "react";
-import { Plus } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useSidebar } from "@/components/ui/sidebar";
 
@@ -13,10 +11,9 @@ interface Profile {
 interface SidebarProfileProps {
   profile: Profile;
   userEmail?: string | null;
-  onNewEntry?: () => void;
 }
 
-export function SidebarProfile({ profile, userEmail, onNewEntry }: SidebarProfileProps) {
+export function SidebarProfile({ profile, userEmail }: SidebarProfileProps) {
   const { state } = useSidebar();
   
   return (
@@ -31,18 +28,9 @@ export function SidebarProfile({ profile, userEmail, onNewEntry }: SidebarProfil
         </AvatarFallback>
       </Avatar>
       {state !== "collapsed" && (
-        <>
-          <p className="text-lg font-medium text-calendiary-primary">
-            {profile.username || userEmail?.split("@")[0] || "User"}
-          </p>
-          <Button
-            onClick={onNewEntry}
-            className="w-full bg-calendiary-primary hover:bg-calendiary-hover text-lg font-semibold py-6 mb-6"
-          >
-            <Plus className="h-5 w-5 mr-2" />
-            New Entry
-          </Button>
-        </>
+        <p className="text-lg font-medium text-foreground">
+          {profile.username || userEmail?.split("@")[0] || "User"}
+        </p>
       )}
     </div>
   );

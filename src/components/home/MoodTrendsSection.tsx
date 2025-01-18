@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import React, { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import MoodTracker from "@/components/MoodTracker";
 import { PhotoGallerySection } from "@/components/diary/PhotoGallerySection";
 import { Separator } from "@/components/ui/separator";
@@ -7,6 +7,7 @@ import { Separator } from "@/components/ui/separator";
 export const MoodTrendsSection = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
 
+  // Update selectedDate when MoodTracker triggers a date selection
   const handleDateSelect = (date: Date) => {
     console.log("MoodTrendsSection: Date selected:", date);
     setSelectedDate(date);
@@ -14,8 +15,8 @@ export const MoodTrendsSection = () => {
 
   return (
     <Card className="glass">
-      <CardHeader className="pb-2">
-        <h2 className="text-2xl font-bold text-calendiary-primary text-left">Mood Trends</h2>
+      <CardHeader>
+        <CardTitle className="text-lg font-semibold">Mood Trends</CardTitle>
       </CardHeader>
       <CardContent className="space-y-8">
         <MoodTracker onDateSelect={handleDateSelect} />
