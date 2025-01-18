@@ -98,27 +98,24 @@ const MoodTracker: React.FC<MoodTrackerProps> = ({ onDateSelect }) => {
         <LineChart data={moodData}>
           <CartesianGrid 
             horizontal={true} 
-            vertical={false} 
-            stroke="hsl(var(--border))"
-            strokeOpacity={0.2}
+            vertical={false}
           />
           <XAxis 
             dataKey="date"
-            stroke="hsl(var(--muted-foreground))"
+            stroke="currentColor"
             fontSize={12}
           />
           <YAxis
             domain={[1, 5]}
             ticks={[1, 2, 3, 4, 5]}
             tick={<CustomYAxisTick />}
-            stroke="hsl(var(--muted-foreground))"
+            stroke="currentColor"
           />
           <Line
             type="monotone"
             dataKey="rating"
-            stroke="hsl(var(--primary))"
             strokeWidth={2}
-            dot={{ fill: "hsl(var(--primary))", r: 4 }}
+            dot={{ r: 4 }}
             activeDot={false}
             isAnimationActive={false}
           />

@@ -104,7 +104,14 @@ export const ChatInterface = ({ selectedDate }: { selectedDate: Date }) => {
           </p>
         ) : (
           chatHistory.map((msg, index) => (
-            <Card key={index} className={`p-3 ${msg.role === 'user' ? 'ml-auto bg-primary text-primary-foreground' : 'mr-auto bg-muted'} max-w-[80%]`}>
+            <Card 
+              key={index} 
+              className={`p-3 ${
+                msg.role === 'user' 
+                  ? 'ml-auto chat-bubble-user' 
+                  : 'mr-auto chat-bubble-assistant'
+              } max-w-[80%]`}
+            >
               <p className="text-sm">{msg.content}</p>
             </Card>
           ))
@@ -128,7 +135,7 @@ export const ChatInterface = ({ selectedDate }: { selectedDate: Date }) => {
           <Button 
             onClick={handleSendMessage} 
             disabled={isLoading || !message.trim()}
-            className="self-end"
+            className="self-end btn-primary"
           >
             {isLoading ? (
               <Loader2 className="h-4 w-4 animate-spin" />

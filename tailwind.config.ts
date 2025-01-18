@@ -54,6 +54,7 @@ export default {
         },
         calendiary: {
           primary: "#242d58",
+          hover: "#1e274f",
           background: "#E6F2FA",
           card: "#F8F8F8",
         },
