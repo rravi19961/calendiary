@@ -73,6 +73,11 @@
   body {
     @apply bg-background text-calendiary-primary;
   }
+  
+  /* Modal heading styles */
+  .modal-heading {
+    @apply text-modal-heading font-modal-heading text-calendiary-primary;
+  }
 }
 
 .backdrop-blur-modal {
@@ -127,4 +132,9 @@
 
 .recharts-dot {
   @apply fill-calendiary-primary;
+}
+
+/* Highlight asterisk words */
+.highlight-asterisk {
+  @apply font-bold text-calendiary-primary;
 }

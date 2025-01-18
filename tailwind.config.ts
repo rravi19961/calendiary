@@ -59,6 +59,12 @@ export default {
           card: "#F8F8F8",
         },
       },
+      fontSize: {
+        'modal-heading': '24px',
+      },
+      fontWeight: {
+        'modal-heading': '700',
+      },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
