@@ -29,6 +29,34 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const initializeAuth = async () => {
       try {
+        // Set up session handling
+        supabase.auth.onAuthStateChange((event, session) => {
+          console.log("Auth event:", event);
+          
+          if (session?.user) {
+            setUser(session.user);
+            if (event === 'SIGNED_IN') {
+              navigate("/");
+              toast({
+                title: "Welcome back!",
+                description: "You have successfully logged in.",
+              });
+            }
+          } else {
+            setUser(null);
+            if (event === 'SIGNED_OUT') {
+              navigate("/login");
+            } else if (event === 'TOKEN_REFRESHED') {
+              toast({
+                title: "Session Expired",
+                description: "Please log in again.",
+                variant: "destructive",
+              });
+              navigate("/login");
+            }
+          }
+        });
+
         // Get initial session
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
@@ -44,43 +72,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           setUser(session.user);
           console.log("Initial session user:", session.user);
         } else {
-          // If no session, redirect to login
           navigate("/login");
         }
 
-        // Listen for auth changes
-        const {
-          data: { subscription },
-        } = supabase.auth.onAuthStateChange(async (event, session) => {
-          console.log("Auth event:", event);
-          
-          if (event === 'SIGNED_IN' && session?.user) {
-            setUser(session.user);
-            navigate("/");
-            toast({
-              title: "Welcome back!",
-              description: "You have successfully logged in.",
-            });
-          } else if (event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED' && !session) {
-            setUser(null);
-            navigate("/login");
-            if (event === 'TOKEN_REFRESHED') {
-              toast({
-                title: "Session Expired",
-                description: "Please log in again.",
-                variant: "destructive",
-              });
-            }
-          } else if (event === 'TOKEN_REFRESHED' && session?.user) {
-            setUser(session.user);
-          } else if (event === 'USER_UPDATED' && session?.user) {
-            setUser(session.user);
-          }
-        });
-
-        return () => {
-          subscription.unsubscribe();
-        };
       } catch (error) {
         console.error("Auth initialization error:", error);
         setUser(null);
