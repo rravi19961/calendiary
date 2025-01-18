@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { User, Settings, LogOut, BookOpen } from "lucide-react";
+import { Settings, LogOut } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,7 +25,11 @@ const Navbar = () => {
     <nav className="flex justify-between items-center mb-8 py-4 px-6 bg-gray-100 dark:bg-gray-800">
       <div className="flex items-center space-x-6">
         <Link to="/" className="flex items-center space-x-2 hover:opacity-80">
-          <BookOpen className="h-6 w-6" />
+          <img 
+            src="/lovable-uploads/02591592-bfe3-4424-b997-ae6fbecba899.png" 
+            alt="CalenDiary Logo" 
+            className="h-8 w-auto"
+          />
           <span className="text-2xl font-bold">CalenDiary</span>
         </Link>
         <Link to="/" className="text-xl hover:text-primary/80">
@@ -48,7 +52,11 @@ const Navbar = () => {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon">
-              <User className="h-5 w-5" />
+              <img 
+                src="/placeholder.svg" 
+                alt="User Avatar" 
+                className="h-5 w-5 rounded-full"
+              />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
