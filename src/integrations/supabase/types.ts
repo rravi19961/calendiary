@@ -62,6 +62,7 @@ export type Database = {
       }
       day_summaries: {
         Row: {
+          audio_url: string | null
           content: string
           created_at: string
           date: string
@@ -74,6 +75,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          audio_url?: string | null
           content: string
           created_at?: string
           date: string
@@ -86,6 +88,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          audio_url?: string | null
           content?: string
           created_at?: string
           date?: string

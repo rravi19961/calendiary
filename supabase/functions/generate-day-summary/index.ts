@@ -183,7 +183,55 @@ Remember: The title should feel personal and reflect the actual content of their
       ? Math.round(ratings.reduce((a, b) => a + b, 0) / ratings.length)
       : 3; // Default to neutral if no ratings
 
-    // Save the new summary
+    // Generate audio for the summary
+    const audioResponse = await fetch(`${supabaseUrl}/functions/v1/text-to-speech`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${supabaseKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ text: summary }),
+    });
+
+    if (!audioResponse.ok) {
+      console.error('Error generating audio:', await audioResponse.text());
+      throw new Error('Failed to generate audio');
+    }
+
+    const audioData = await audioResponse.json();
+    
+    // Convert base64 to Blob
+    const byteCharacters = atob(audioData.audioContent);
+    const byteNumbers = new Uint8Array(byteCharacters.length);
+    
+    for (let i = 0; i < byteCharacters.length; i++) {
+      byteNumbers[i] = byteCharacters.charCodeAt(i);
+    }
+    
+    const audioBlob = new Blob([byteNumbers], { type: 'audio/mp3' });
+
+    // Upload audio to storage
+    const audioFileName = `${userId}/${date}_summary.mp3`;
+    const { data: uploadData, error: uploadError } = await supabase
+      .storage
+      .from('diary_images')
+      .upload(audioFileName, audioBlob, {
+        contentType: 'audio/mp3',
+        upsert: true
+      });
+
+    if (uploadError) {
+      console.error('Error uploading audio:', uploadError);
+      throw uploadError;
+    }
+
+    // Get public URL for the audio file
+    const { data: { publicUrl: audioUrl } } = supabase
+      .storage
+      .from('diary_images')
+      .getPublicUrl(audioFileName);
+
+    // Save the new summary with audio URL
     const { error: insertError } = await supabase
       .from('day_summaries')
       .insert([{
@@ -191,13 +239,14 @@ Remember: The title should feel personal and reflect the actual content of their
         date,
         content: summary,
         title: title,
-        rating: averageRating
+        rating: averageRating,
+        audio_url: audioUrl
       }]);
 
     if (insertError) throw insertError;
 
     return new Response(
-      JSON.stringify({ summary, title }),
+      JSON.stringify({ summary, title, audioUrl }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 

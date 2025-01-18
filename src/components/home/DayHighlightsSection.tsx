@@ -4,9 +4,9 @@ import { format } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/context/AuthContext";
-import { TextToSpeech } from "@/components/diary/TextToSpeech";
 import { useToast } from "@/hooks/use-toast";
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, Volume2, Loader2 } from "lucide-react";
+import { useState } from "react";
 
 interface DayHighlightsSectionProps {
   selectedDate: Date;
@@ -20,6 +20,8 @@ const highlightAsteriskWords = (text: string) => {
 export const DayHighlightsSection = ({ selectedDate }: DayHighlightsSectionProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
 
   const { data: summary, isLoading, refetch } = useQuery({
     queryKey: ["day-summary", selectedDate],
@@ -63,11 +65,42 @@ export const DayHighlightsSection = ({ selectedDate }: DayHighlightsSectionProps
     }
   };
 
+  const handlePlayAudio = () => {
+    if (!summary?.audio_url) return;
+
+    if (audio) {
+      if (isPlaying) {
+        audio.pause();
+        setIsPlaying(false);
+      } else {
+        audio.play();
+        setIsPlaying(true);
+      }
+    } else {
+      const newAudio = new Audio(summary.audio_url);
+      newAudio.addEventListener('ended', () => setIsPlaying(false));
+      newAudio.addEventListener('pause', () => setIsPlaying(false));
+      newAudio.addEventListener('play', () => setIsPlaying(true));
+      setAudio(newAudio);
+      newAudio.play();
+      setIsPlaying(true);
+    }
+  };
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-xl font-bold">Your Day Highlights</CardTitle>
-        {summary?.content && <TextToSpeech text={summary.content} />}
+        {summary?.audio_url && (
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={handlePlayAudio}
+            className={`transition-all duration-200 ${isPlaying ? 'bg-primary text-primary-foreground' : ''}`}
+          >
+            <Volume2 className={`h-4 w-4 ${isPlaying ? 'animate-pulse' : ''}`} />
+          </Button>
+        )}
       </CardHeader>
       <CardContent className="space-y-6">
         {isLoading ? (
