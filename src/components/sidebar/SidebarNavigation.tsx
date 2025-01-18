@@ -30,7 +30,7 @@ export function SidebarNavigation() {
             isActive={location.pathname === item.path}
             onClick={() => navigate(item.path)}
             className={cn(
-              "w-full py-3 text-base transition-colors",
+              "w-full py-3 text-base transition-colors text-calendiary-primary",
               location.pathname === item.path 
                 ? "bg-calendiary-primary text-white hover:bg-calendiary-primary/90"
                 : "hover:bg-muted"

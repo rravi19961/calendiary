@@ -24,7 +24,7 @@ export function SidebarHeader() {
       </Button>
       <div className={cn(
         "flex items-center justify-center transition-all duration-200 bg-calendiary-primary",
-        state === "collapsed" ? "p-2" : "p-4"
+        state === "collapsed" ? "p-2" : "p-8"
       )}>
         <button 
           onClick={() => navigate("/")}
@@ -35,7 +35,7 @@ export function SidebarHeader() {
             alt="Calendiary Logo" 
             className={cn(
               "transition-all duration-200",
-              state === "collapsed" ? "h-8" : "h-12 w-full object-contain"
+              state === "collapsed" ? "h-8" : "h-24 w-full object-contain"
             )}
           />
         </button>
