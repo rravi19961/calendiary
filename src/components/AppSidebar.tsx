@@ -82,7 +82,7 @@ export function AppSidebar() {
         <Button
           variant="destructive"
           onClick={handleLogout}
-          className="w-full"
+          className="w-full py-3 text-base"
         >
           <LogOut className="h-5 w-5 mr-2" />
           <span>Logout</span>

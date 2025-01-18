@@ -22,7 +22,7 @@ export function SidebarNavigation() {
   const { state } = useSidebar();
 
   return (
-    <SidebarMenu className="space-y-1">
+    <SidebarMenu className="space-y-2">
       {navigationItems.map((item) => (
         <SidebarMenuItem key={item.title}>
           <SidebarMenuButton
@@ -30,9 +30,9 @@ export function SidebarNavigation() {
             isActive={location.pathname === item.path}
             onClick={() => navigate(item.path)}
             className={cn(
-              "w-full py-2 transition-colors",
+              "w-full py-3 text-base transition-colors",
               location.pathname === item.path 
-                ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                ? "bg-calendiary-primary text-white hover:bg-calendiary-primary/90"
                 : "hover:bg-muted"
             )}
           >
