@@ -22,7 +22,7 @@ export function SidebarNavigation() {
   const { state } = useSidebar();
 
   return (
-    <SidebarMenu className="space-y-2">
+    <SidebarMenu className="mt-8 space-y-2">
       {navigationItems.map((item) => (
         <SidebarMenuItem key={item.title}>
           <SidebarMenuButton

@@ -1,6 +1,6 @@
 import React from "react";
 import Calendar from "@/components/Calendar";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
 interface CalendarSectionProps {
   selectedDate: Date;
@@ -15,8 +15,8 @@ export const CalendarSection: React.FC<CalendarSectionProps> = ({
 }) => {
   return (
     <Card className="h-full flex flex-col">
-      <CardHeader>
-        <CardTitle className="text-lg font-semibold">Calendar</CardTitle>
+      <CardHeader className="pb-2">
+        <h2 className="text-2xl font-bold text-calendiary-primary text-left">Calendar</h2>
       </CardHeader>
       <CardContent className="flex-grow flex items-center justify-center p-4">
         <Calendar 

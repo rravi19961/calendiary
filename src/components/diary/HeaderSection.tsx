@@ -1,30 +1,24 @@
 import React from "react";
-import { motion } from "framer-motion";
+import { format } from "date-fns";
 import { QUOTES } from "./constants";
 
 interface HeaderSectionProps {
   currentQuoteIndex: number;
+  selectedDate?: Date;
 }
 
-export const HeaderSection: React.FC<HeaderSectionProps> = ({
+export const HeaderSection: React.FC<HeaderSectionProps> = ({ 
   currentQuoteIndex,
+  selectedDate = new Date()
 }) => {
   return (
-    <header className="bg-gradient-to-r from-[#E6F2FA] to-[#F8F8F8] dark:from-gray-900 dark:to-gray-800 shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 py-4">
-        <div className="flex flex-col space-y-2">
-          <motion.p 
-            className="text-lg text-[#242d58] dark:text-gray-300 italic"
-            key={currentQuoteIndex}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.5 }}
-          >
-            {QUOTES[currentQuoteIndex]}
-          </motion.p>
-        </div>
-      </div>
+    <header className="py-6 px-4 text-center">
+      <h1 className="text-2xl font-bold text-calendiary-primary text-left mb-4">
+        {format(selectedDate, "MMMM d, yyyy")}
+      </h1>
+      <p className="text-lg text-calendiary-primary/80 italic animate-fadeIn">
+        {QUOTES[currentQuoteIndex]}
+      </p>
     </header>
   );
 };

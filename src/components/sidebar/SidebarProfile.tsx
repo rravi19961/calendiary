@@ -32,12 +32,12 @@ export function SidebarProfile({ profile, userEmail, onNewEntry }: SidebarProfil
       </Avatar>
       {state !== "collapsed" && (
         <>
-          <p className="text-lg font-medium text-[#242d58]">
+          <p className="text-lg font-medium text-calendiary-primary">
             {profile.username || userEmail?.split("@")[0] || "User"}
           </p>
           <Button
             onClick={onNewEntry}
-            className="w-full bg-[#242d58] hover:bg-[#1e274f] text-lg font-semibold py-6"
+            className="w-full bg-calendiary-primary hover:bg-calendiary-hover text-lg font-semibold py-6 mb-6"
           >
             <Plus className="h-5 w-5 mr-2" />
             New Entry

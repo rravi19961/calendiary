@@ -1,5 +1,5 @@
 import React from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { DailyImageCarousel } from "./DailyImageCarousel";
 
 interface PhotoGallerySectionProps {
@@ -9,8 +9,8 @@ interface PhotoGallerySectionProps {
 export const PhotoGallerySection: React.FC<PhotoGallerySectionProps> = ({ selectedDate }) => {
   return (
     <Card className="glass">
-      <CardHeader>
-        <CardTitle className="text-lg font-semibold">Photo Gallery</CardTitle>
+      <CardHeader className="pb-2">
+        <h2 className="text-2xl font-bold text-calendiary-primary text-left">Photo Gallery</h2>
       </CardHeader>
       <CardContent>
         <DailyImageCarousel selectedDate={selectedDate} />
