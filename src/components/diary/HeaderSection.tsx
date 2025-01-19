@@ -4,7 +4,6 @@ import { QUOTES } from "./constants";
 
 interface HeaderSectionProps {
   currentQuoteIndex: number;
-  onNewEntry?: () => void;  // Made optional since it might not always be needed
 }
 
 export const HeaderSection: React.FC<HeaderSectionProps> = ({
