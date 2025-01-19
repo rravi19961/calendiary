@@ -96,6 +96,19 @@ export default {
           "50%": { transform: "translateX(-25%)" },
           "100%": { transform: "translateX(0)" },
         },
+        'gradient-foreground-1': {
+          'from, 16.667%, to': { opacity: '1' },
+          '33.333%, 83.333%': { opacity: '0' },
+        },
+        'gradient-foreground-2': {
+          'from, to': { opacity: '0' },
+          '33.333%, 50%': { opacity: '1' },
+          '16.667%, 66.667%': { opacity: '0' },
+        },
+        'gradient-foreground-3': {
+          'from, 50%, to': { opacity: '0' },
+          '66.667%, 83.333%': { opacity: '1' },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -104,6 +117,9 @@ export default {
         slideIn: "slideIn 0.3s ease-out",
         float: "float 3s ease-in-out infinite",
         wave: "wave 10s ease-in-out infinite",
+        'gradient-foreground-1': 'gradient-foreground-1 8s infinite',
+        'gradient-foreground-2': 'gradient-foreground-2 8s infinite',
+        'gradient-foreground-3': 'gradient-foreground-3 8s infinite',
       },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',

@@ -1,0 +1,1 @@
+// ... paste the entire canvas-effect.tsx code here as provided
