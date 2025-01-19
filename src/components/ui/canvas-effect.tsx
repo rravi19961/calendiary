@@ -14,7 +14,7 @@ interface CanvasRevealEffectProps {
   showGradient?: boolean;
 }
 
-const CanvasRevealEffect: React.FC<CanvasRevealEffectProps> = ({
+const CanvasRevealEffect = ({
   animationSpeed = 0.4,
   opacities = [0.3, 0.3, 0.3, 0.5, 0.5, 0.5, 0.8, 0.8, 0.8, 1],
   colors = [[0, 255, 255]],

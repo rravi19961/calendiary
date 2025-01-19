@@ -9,7 +9,7 @@ import { useAuth } from "@/context/AuthContext";
 import { format } from "date-fns";
 import { Send, Plus } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import { CanvasRevealEffect } from "@/components/ui/canvas-effect";
+import CanvasRevealEffect from "@/components/ui/canvas-effect";
 import { AnimatePresence, motion } from "framer-motion";
 
 interface ChatMessage {
