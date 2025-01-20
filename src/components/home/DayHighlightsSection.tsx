@@ -8,10 +8,10 @@ import { useToast } from "@/hooks/use-toast";
 import { RefreshCw, Volume2 } from "lucide-react";
 import { useState } from "react";
 import { getMoodEmoji } from "@/utils/moodEmoji";
+import { useDayMood } from "@/hooks/useDayMood";
 
 interface DayHighlightsSectionProps {
   selectedDate: Date;
-  dayMood?: number;
 }
 
 const highlightAsteriskWords = (text: string) => {
@@ -19,11 +19,12 @@ const highlightAsteriskWords = (text: string) => {
   return text.replace(/\*(.*?)\*/g, '<span class="text-primary font-semibold">$1</span>');
 };
 
-export const DayHighlightsSection = ({ selectedDate, dayMood = 3 }: DayHighlightsSectionProps) => {
+export const DayHighlightsSection = ({ selectedDate }: DayHighlightsSectionProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [isPlaying, setIsPlaying] = useState(false);
   const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
+  const { data: dayMood = 3, isLoading: isMoodLoading } = useDayMood(selectedDate);
 
   const { data: summary, isLoading, refetch } = useQuery({
     queryKey: ["day-summary", selectedDate],
@@ -113,7 +114,7 @@ export const DayHighlightsSection = ({ selectedDate, dayMood = 3 }: DayHighlight
         )}
       </CardHeader>
       <CardContent className="space-y-6">
-        {isLoading ? (
+        {isLoading || isMoodLoading ? (
           <div className="flex items-center justify-center h-48">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
           </div>

@@ -29,7 +29,6 @@ const Index = () => {
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalKey, setModalKey] = useState(0);
-  const [dayMood, setDayMood] = useState<number>(3);
 
   useEffect(() => {
     if (!user) {
@@ -147,11 +146,6 @@ const Index = () => {
     loadEntries(newDate);
   };
 
-  const handleMoodCalculated = (mood: number) => {
-    console.log("Index: Mood calculated:", mood);
-    setDayMood(mood);
-  };
-
   return (
     <div className={`min-h-screen bg-gradient-to-b from-[#E6F2FA] to-white dark:from-gray-900 dark:to-gray-800 ${theme}`}>
       <HeaderSection 
@@ -196,7 +190,7 @@ const Index = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="h-[400px]">
-            <MoodTrendsSection onMoodCalculated={handleMoodCalculated} />
+            <MoodTrendsSection />
           </div>
           <div className="h-[400px]">
             <PhotoGallerySection selectedDate={selectedDate} />
@@ -204,7 +198,7 @@ const Index = () => {
         </div>
 
         <div className="w-full">
-          <DayHighlightsSection selectedDate={selectedDate} dayMood={dayMood} />
+          <DayHighlightsSection selectedDate={selectedDate} />
         </div>
 
         <EntryModal
