@@ -15,7 +15,7 @@ export const MoodTrendsSection: React.FC<MoodTrendsSectionProps> = ({ onMoodCalc
   };
 
   return (
-    <Card className="h-full glass">
+    <Card className="h-[400px] glass">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-xl font-bold">Mood Trends</CardTitle>
       </CardHeader>
