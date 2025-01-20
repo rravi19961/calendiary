@@ -37,46 +37,6 @@ const Index = () => {
   }, [user, navigate]);
 
   useEffect(() => {
-    const loadEntries = async () => {
-      if (!user) return;
-      
-      try {
-        const { data, error } = await supabase
-          .from("diary_entries")
-          .select("*")
-          .eq("user_id", user.id)
-          .eq("date", format(selectedDate, "yyyy-MM-dd"))
-          .order("created_at", { ascending: true });
-
-        if (error) throw error;
-
-        setEntries(data || []);
-        setCurrentEntryIndex(0);
-        
-        if (data && data.length > 0) {
-          const latestEntry = data[data.length - 1];
-          setCurrentEntry(latestEntry.content || "");
-          setCurrentTitle(latestEntry.title || "");
-          setCurrentRating(latestEntry.rating || 3);
-        } else {
-          setCurrentEntry("");
-          setCurrentTitle("");
-          setCurrentRating(3);
-        }
-      } catch (error) {
-        console.error("Error loading entries:", error);
-        toast({
-          title: "Error",
-          description: "Failed to load your entries",
-          variant: "destructive",
-        });
-      }
-    };
-
-    loadEntries();
-  }, [selectedDate, user]);
-
-  useEffect(() => {
     const interval = setInterval(() => {
       setCurrentQuoteIndex((prevIndex) => 
         prevIndex === QUOTES.length - 1 ? 0 : prevIndex + 1
@@ -85,6 +45,104 @@ const Index = () => {
 
     return () => clearInterval(interval);
   }, []);
+
+  const loadEntries = async (date: Date) => {
+    if (!user) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from("diary_entries")
+        .select("*")
+        .eq("user_id", user.id)
+        .eq("date", format(date, "yyyy-MM-dd"))
+        .order("created_at", { ascending: true });
+
+      if (error) throw error;
+
+      setEntries(data || []);
+      setCurrentEntryIndex(0);
+      
+      if (data && data.length > 0) {
+        const latestEntry = data[data.length - 1];
+        setCurrentEntry(latestEntry.content || "");
+        setCurrentTitle(latestEntry.title || "");
+        setCurrentRating(latestEntry.rating || 3);
+      } else {
+        setCurrentEntry("");
+        setCurrentTitle("");
+        setCurrentRating(3);
+      }
+    } catch (error) {
+      console.error("Error loading entries:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load your entries",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleSaveEntry = async () => {
+    if (!user) {
+      toast({
+        title: "Error",
+        description: "You must be logged in to save entries",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const entryData = {
+        user_id: user.id,
+        content: currentEntry,
+        title: currentTitle,
+        rating: currentRating,
+        date: format(selectedDate, "yyyy-MM-dd"),
+      };
+
+      let operation;
+      if (entries.length > 0) {
+        // Update existing entry
+        operation = supabase
+          .from("diary_entries")
+          .update(entryData)
+          .eq("id", entries[currentEntryIndex].id);
+      } else {
+        // Create new entry
+        operation = supabase
+          .from("diary_entries")
+          .insert([entryData]);
+      }
+
+      const { error } = await operation;
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Your entry has been saved successfully.",
+      });
+
+      // Reload entries to get the updated data
+      const { data: updatedEntries, error: fetchError } = await supabase
+        .from("diary_entries")
+        .select("*")
+        .eq("user_id", user.id)
+        .eq("date", format(selectedDate, "yyyy-MM-dd"))
+        .order("created_at", { ascending: true });
+
+      if (fetchError) throw fetchError;
+      setEntries(updatedEntries || []);
+
+    } catch (error) {
+      console.error("Error saving entry:", error);
+      toast({
+        title: "Error",
+        description: "Failed to save your entry. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
 
   const handleDateChange = (newDate: Date) => {
     setSelectedDate(newDate);
