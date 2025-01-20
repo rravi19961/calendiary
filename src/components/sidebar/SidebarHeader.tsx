@@ -15,7 +15,7 @@ export function SidebarHeader() {
         variant="ghost"
         size="icon"
         onClick={toggleSidebar}
-        className="absolute -right-3 top-4 z-50 h-6 w-6 rounded-full bg-white shadow-md hover:bg-gray-100 transition-transform duration-200"
+        className="absolute -right-3 top-4 z-50 h-8 w-8 rounded-full bg-white shadow-md hover:bg-gray-100 transition-transform duration-200"
         style={{
           transform: state === "collapsed" ? "rotate(180deg)" : "rotate(0deg)",
         }}
