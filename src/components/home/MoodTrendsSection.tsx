@@ -11,7 +11,7 @@ export const MoodTrendsSection = () => {
   };
 
   return (
-    <Card className="glass">
+    <Card className="h-full">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-xl font-bold">Mood Trends</CardTitle>
       </CardHeader>
