@@ -40,9 +40,9 @@ const Calendar: React.FC<CalendarProps> = ({ date, setDate, onDateSelect }) => {
   return (
     <div className="flex flex-col items-center space-y-4 w-full">
       <Button 
-        variant="outline" 
+        variant="default"
         onClick={goToToday}
-        className="w-[240px] rounded-md h-10 transition-all hover:scale-105"
+        className="w-[240px] rounded-md h-10 transition-all hover:scale-105 bg-calendiary-primary hover:bg-calendiary-hover"
       >
         <CalendarIcon className="h-4 w-4 mr-2" />
         Today
