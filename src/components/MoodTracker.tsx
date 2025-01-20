@@ -13,9 +13,10 @@ interface MoodData {
 
 interface MoodTrackerProps {
   onDateSelect?: (date: Date) => void;
+  onMoodCalculated?: (mood: number) => void;
 }
 
-const MoodTracker: React.FC<MoodTrackerProps> = ({ onDateSelect }) => {
+const MoodTracker: React.FC<MoodTrackerProps> = ({ onDateSelect, onMoodCalculated }) => {
   const [moodData, setMoodData] = useState<MoodData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { user } = useAuth();
@@ -64,6 +65,10 @@ const MoodTracker: React.FC<MoodTrackerProps> = ({ onDateSelect }) => {
           .reverse();
 
         setMoodData(averagedData);
+        
+        // Calculate today's mood and pass it up
+        const todayMood = averagedData[averagedData.length - 1]?.rating || 3;
+        onMoodCalculated?.(todayMood);
       } catch (error) {
         console.error("Error fetching mood data:", error);
         toast({
@@ -77,7 +82,7 @@ const MoodTracker: React.FC<MoodTrackerProps> = ({ onDateSelect }) => {
     };
 
     fetchMoodData();
-  }, [user, toast]);
+  }, [user, toast, onMoodCalculated]);
 
   const CustomYAxisTick = ({ x, y, payload }: any) => {
     const emojiIndex = Math.round(payload.value) - 1;
@@ -93,34 +98,43 @@ const MoodTracker: React.FC<MoodTrackerProps> = ({ onDateSelect }) => {
   }
 
   return (
-    <div className="h-48">
-      <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={moodData}>
-          <CartesianGrid 
-            horizontal={true} 
-            vertical={false}
-          />
-          <XAxis 
-            dataKey="date"
-            stroke="currentColor"
-            fontSize={12}
-          />
-          <YAxis
-            domain={[1, 5]}
-            ticks={[1, 2, 3, 4, 5]}
-            tick={<CustomYAxisTick />}
-            stroke="currentColor"
-          />
-          <Line
-            type="monotone"
-            dataKey="rating"
-            strokeWidth={2}
-            dot={{ r: 4 }}
-            activeDot={false}
-            isAnimationActive={false}
-          />
-        </LineChart>
-      </ResponsiveContainer>
+    <div className="flex flex-col h-full">
+      <div className="flex-1 flex items-center justify-center">
+        <ResponsiveContainer width="100%" height={200}>
+          <LineChart data={moodData}>
+            <CartesianGrid 
+              horizontal={true} 
+              vertical={false}
+            />
+            <XAxis 
+              dataKey="date"
+              stroke="currentColor"
+              fontSize={12}
+            />
+            <YAxis
+              domain={[1, 5]}
+              ticks={[1, 2, 3, 4, 5]}
+              tick={<CustomYAxisTick />}
+              stroke="currentColor"
+            />
+            <Line
+              type="monotone"
+              dataKey="rating"
+              strokeWidth={2}
+              dot={{ r: 4 }}
+              activeDot={false}
+              isAnimationActive={false}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+      <div className="flex justify-around items-center mt-4 text-sm text-muted-foreground">
+        <span>😭 Very Sad</span>
+        <span>😟 Sad</span>
+        <span>😐 Neutral</span>
+        <span>😊 Happy</span>
+        <span>😍 Super Happy</span>
+      </div>
     </div>
   );
 };

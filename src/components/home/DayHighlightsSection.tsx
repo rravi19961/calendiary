@@ -7,17 +7,14 @@ import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { RefreshCw, Volume2 } from "lucide-react";
 import { useState } from "react";
+import { getMoodEmoji } from "@/utils/moodEmoji";
 
 interface DayHighlightsSectionProps {
   selectedDate: Date;
+  dayMood?: number;
 }
 
-const highlightAsteriskWords = (text: string) => {
-  if (!text) return "";
-  return text.replace(/\*([^*]+)\*/g, '<span class="font-bold text-calendiary-primary">$1</span>');
-};
-
-export const DayHighlightsSection = ({ selectedDate }: DayHighlightsSectionProps) => {
+export const DayHighlightsSection = ({ selectedDate, dayMood = 3 }: DayHighlightsSectionProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [isPlaying, setIsPlaying] = useState(false);
@@ -90,7 +87,10 @@ export const DayHighlightsSection = ({ selectedDate }: DayHighlightsSectionProps
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-xl font-bold">Your Day Highlights</CardTitle>
+        <div className="flex items-center gap-2">
+          <span className="text-2xl">{getMoodEmoji(dayMood)}</span>
+          <CardTitle className="text-xl font-bold">Your Day Highlights</CardTitle>
+        </div>
         {summary?.audio_url && (
           <Button
             variant="outline"
@@ -109,7 +109,7 @@ export const DayHighlightsSection = ({ selectedDate }: DayHighlightsSectionProps
           </div>
         ) : summary ? (
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-calendiary-primary">
+            <h3 className="text-lg font-semibold text-calendiary-primary flex items-center gap-2">
               {summary.title}
             </h3>
             <div 
