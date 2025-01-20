@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/hooks/use-toast";
-import { RefreshCw, Volume2, Loader2 } from "lucide-react";
+import { RefreshCw, Volume2 } from "lucide-react";
 import { useState } from "react";
 
 interface DayHighlightsSectionProps {
