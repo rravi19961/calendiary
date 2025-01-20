@@ -35,18 +35,37 @@ export function AppSidebar() {
 
   const fetchProfile = async () => {
     try {
-      const { data, error } = await supabase
+      // First check if the user has a profile
+      const { data: existingProfile, error: checkError } = await supabase
         .from("profiles")
         .select("username, avatar_url")
         .eq("id", user?.id)
         .single();
 
-      if (error) throw error;
-      if (data) {
-        setProfile(data);
+      if (checkError) {
+        // If no profile exists, create one
+        if (checkError.code === 'PGRST116') {
+          const { data: newProfile, error: insertError } = await supabase
+            .from("profiles")
+            .insert([{ id: user?.id }])
+            .select("username, avatar_url")
+            .single();
+
+          if (insertError) throw insertError;
+          if (newProfile) setProfile(newProfile);
+        } else {
+          throw checkError;
+        }
+      } else if (existingProfile) {
+        setProfile(existingProfile);
       }
     } catch (error) {
-      console.error("Error fetching profile:", error);
+      console.error("Error fetching/creating profile:", error);
+      toast({
+        title: "Error loading profile",
+        description: "Please try refreshing the page",
+        variant: "destructive",
+      });
     }
   };
 
