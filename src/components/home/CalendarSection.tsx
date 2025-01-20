@@ -15,8 +15,8 @@ export const CalendarSection: React.FC<CalendarSectionProps> = ({
 }) => {
   return (
     <Card className="h-full flex flex-col">
-      <CardHeader>
-        <CardTitle className="text-lg font-semibold">Calendar</CardTitle>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardTitle className="text-xl font-bold">Calendar</CardTitle>
       </CardHeader>
       <CardContent className="flex-grow flex items-center justify-center p-4">
         <Calendar 

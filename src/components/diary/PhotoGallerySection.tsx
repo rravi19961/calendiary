@@ -9,8 +9,8 @@ interface PhotoGallerySectionProps {
 export const PhotoGallerySection: React.FC<PhotoGallerySectionProps> = ({ selectedDate }) => {
   return (
     <Card className="glass">
-      <CardHeader>
-        <CardTitle className="text-lg font-semibold">Photo Gallery</CardTitle>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardTitle className="text-xl font-bold">Photo Gallery</CardTitle>
       </CardHeader>
       <CardContent>
         <DailyImageCarousel selectedDate={selectedDate} />
