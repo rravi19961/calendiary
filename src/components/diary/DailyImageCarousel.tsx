@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { format } from "date-fns";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import {
   Carousel,
@@ -11,8 +10,8 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+import { ImageCarouselItem } from "./ImageCarouselItem";
+import { FullscreenImageModal } from "./FullscreenImageModal";
 
 interface DailyImageCarouselProps {
   selectedDate: Date;
@@ -63,9 +62,6 @@ export const DailyImageCarousel = ({ selectedDate }: DailyImageCarouselProps) =>
         console.log("Fetched valid images:", validImages);
         setImages(validImages || []);
         
-        if (validImages?.length === 0) {
-          console.log("No images found for date:", formattedDate);
-        }
       } catch (error) {
         console.error("Error in fetchImages:", error);
         toast({
@@ -114,20 +110,11 @@ export const DailyImageCarousel = ({ selectedDate }: DailyImageCarouselProps) =>
         <CarouselContent className="h-full">
           {images.map((imageUrl, index) => (
             <CarouselItem key={index} className="h-full">
-              <div 
-                className="w-full h-full relative cursor-pointer flex items-center justify-center"
-                onClick={() => setFullscreenImage(imageUrl)}
-              >
-                <img
-                  src={imageUrl}
-                  alt={`Entry image ${index + 1}`}
-                  className="w-full h-full object-cover rounded-lg shadow-md"
-                  onError={(e) => {
-                    console.error("Failed to load image:", imageUrl);
-                    e.currentTarget.src = "/placeholder.svg";
-                  }}
-                />
-              </div>
+              <ImageCarouselItem
+                imageUrl={imageUrl}
+                index={index}
+                onImageClick={setFullscreenImage}
+              />
             </CarouselItem>
           ))}
         </CarouselContent>
@@ -143,31 +130,10 @@ export const DailyImageCarousel = ({ selectedDate }: DailyImageCarouselProps) =>
         {currentIndex + 1} of {images.length}
       </div>
 
-      <Dialog open={!!fullscreenImage} onOpenChange={() => setFullscreenImage(null)}>
-        <DialogContent className="max-w-[90vw] max-h-[90vh] p-0 backdrop-blur-modal">
-          <div className="relative w-full h-full flex items-center justify-center bg-black/50 rounded-lg">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute top-4 right-4 z-50 bg-black/20 hover:bg-black/40 text-white"
-              onClick={() => setFullscreenImage(null)}
-            >
-              <X className="h-4 w-4" />
-            </Button>
-            {fullscreenImage && (
-              <img
-                src={fullscreenImage}
-                alt="Full size"
-                className="max-w-[80%] max-h-[80vh] object-contain"
-                onError={(e) => {
-                  console.error("Failed to load fullscreen image:", fullscreenImage);
-                  e.currentTarget.src = "/placeholder.svg";
-                }}
-              />
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
+      <FullscreenImageModal
+        imageUrl={fullscreenImage}
+        onClose={() => setFullscreenImage(null)}
+      />
     </div>
   );
 };
