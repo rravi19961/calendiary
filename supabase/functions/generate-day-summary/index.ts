@@ -82,20 +82,26 @@ serve(async (req) => {
 - **Focus Areas**:
   - Highlight actual events and emotions experienced during the day.
   - Emphasize positive aspects and opportunities for personal growth.
+  - **Avoid Redundancy**: Do not repeat the same idea or sentiment in different words. Choose the most appropriate expression and mention it only once to maintain clarity and conciseness.
+
+- **Narrative Perspective**: Use second person ("you") to address the diary owner directly. This makes the summary feel personal and as if the diary is speaking directly to you.
 
 - **Mood Integration**: Naturally incorporate mood progression throughout the summary. Use emojis sparingly and only where they enhance the understanding or convey the emotion effectively.
 
+- **Highlighting Important Words**: Highlight a few key words (2-4% of the total words) such as emotions, important events, names, places, or things. Use single asterisks to highlight these words (e.g., *important*), ensuring that highlighting is done sparingly to maintain readability.
+
 - **Tone**: Maintain a warm, empathetic, and supportive tone throughout the summary.
 
-- **Formatting**: Avoid using asterisks, bold text, italics, or any other special formatting unless specified for mood emojis.
+- **Formatting**: 
+  - Only use single asterisks (*) for highlighting important words.
+  - Avoid using any other special formatting.
+  - Keep emojis minimal and purposeful.
 
 - **Structure**: Organize the summary to flow logically through the day's events, ensuring it feels cohesive and reflective.
 
 - **Authenticity**: Ensure the summary feels personal and genuine, aiding in meaningful reflection on real experiences.
 
-**Remember**: Your goal is to help the user reflect on their actual experiences and emotions from the day in a clear and supportive manner. Do not mention or explain mood ratings. Focus on factual accuracy, simplicity, and a natural flow without unnecessary embellishments or formatting.
-
-Avoid following the structure or style of the bad example provided. Ensure that the summary remains free from unwanted formatting, excessive emojis, and embellished language.`;
+**Remember**: Your goal is to help the user reflect on their actual experiences and emotions from the day in a clear and supportive manner. Do not mention or explain mood ratings. Focus on factual accuracy, simplicity, and a natural flow without unnecessary embellishments or formatting.`;
 
     // Generate the summary
     const summaryResponse = await fetch('https://api.openai.com/v1/chat/completions', {
