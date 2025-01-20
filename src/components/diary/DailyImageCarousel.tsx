@@ -121,7 +121,7 @@ export const DailyImageCarousel = ({ selectedDate }: DailyImageCarouselProps) =>
                 <img
                   src={imageUrl}
                   alt={`Entry image ${index + 1}`}
-                  className="max-w-full max-h-full object-contain rounded-lg shadow-md"
+                  className="w-full h-full object-cover rounded-lg shadow-md"
                   onError={(e) => {
                     console.error("Failed to load image:", imageUrl);
                     e.currentTarget.src = "/placeholder.svg";
