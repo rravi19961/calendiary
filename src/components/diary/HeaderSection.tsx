@@ -3,9 +3,10 @@ import { QUOTES } from "./constants";
 
 interface HeaderSectionProps {
   currentQuoteIndex: number;
+  onNewEntry?: () => void;
 }
 
-export function HeaderSection({ currentQuoteIndex }: HeaderSectionProps) {
+export function HeaderSection({ currentQuoteIndex, onNewEntry }: HeaderSectionProps) {
   return (
     <header className="bg-gradient-to-r from-[#242d58] to-[#4a5482] text-white py-8">
       <div className="max-w-7xl mx-auto px-4">
