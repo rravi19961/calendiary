@@ -1,7 +1,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { format, isValid } from "date-fns";
+import { format } from "date-fns";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface DateNavigationProps {
@@ -15,9 +15,6 @@ export function DateNavigation({
   onPrevious,
   onNext,
 }: DateNavigationProps) {
-  // Validate the date and provide a fallback
-  const displayDate = isValid(selectedDate) ? selectedDate : new Date();
-
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -34,7 +31,7 @@ export function DateNavigation({
             <ChevronLeft className="h-4 w-4" />
           </Button>
           <span className="text-lg font-medium">
-            {format(displayDate, "MMMM d, yyyy")}
+            {format(selectedDate, "MMMM d, yyyy")}
           </span>
           <Button
             variant="outline"
