@@ -1,5 +1,5 @@
 import React from "react";
-import { isToday, addDays, subDays } from "date-fns";
+import { isToday } from "date-fns";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { DateNavigation } from "./DateNavigation";
 import { EntryPagination } from "./EntryPagination";
@@ -55,23 +55,11 @@ export const EntryDisplay: React.FC<EntryDisplayProps> = ({
     }
   }, [currentEntryIndex, currentDisplayEntry, setCurrentEntry, setCurrentTitle, setCurrentRating]);
 
-  const handlePrevious = () => {
-    onDateChange(subDays(selectedDate, 1));
-  };
-
-  const handleNext = () => {
-    onDateChange(addDays(selectedDate, 1));
-  };
-
   if (!hasEntries) {
     return (
       <Card className="h-full">
         <CardHeader>
-          <DateNavigation 
-            selectedDate={selectedDate}
-            onPrevious={handlePrevious}
-            onNext={handleNext}
-          />
+          <DateNavigation date={selectedDate} onDateChange={onDateChange} />
         </CardHeader>
         <CardContent className="flex justify-center items-center h-full py-8">
           <p className="text-muted-foreground">No entries for this date</p>
@@ -83,11 +71,7 @@ export const EntryDisplay: React.FC<EntryDisplayProps> = ({
   return (
     <Card className="h-full flex flex-col relative">
       <CardHeader>
-        <DateNavigation 
-          selectedDate={selectedDate}
-          onPrevious={handlePrevious}
-          onNext={handleNext}
-        />
+        <DateNavigation date={selectedDate} onDateChange={onDateChange} />
       </CardHeader>
       <CardContent className="flex-grow flex flex-col">
         <EntryContent

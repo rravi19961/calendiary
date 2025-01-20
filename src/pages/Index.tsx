@@ -190,7 +190,13 @@ const Index = () => {
 
   return (
     <div className={`min-h-screen bg-gradient-to-b from-[#E6F2FA] to-white dark:from-gray-900 dark:to-gray-800 ${theme}`}>
-      <HeaderSection currentQuoteIndex={currentQuoteIndex} />
+      <HeaderSection 
+        currentQuoteIndex={currentQuoteIndex}
+        onNewEntry={() => {
+          setModalKey(prev => prev + 1);
+          setIsModalOpen(true);
+        }}
+      />
 
       <main className="max-w-7xl mx-auto px-4 py-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
