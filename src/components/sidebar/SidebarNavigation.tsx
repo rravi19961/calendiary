@@ -30,14 +30,14 @@ export function SidebarNavigation() {
             isActive={location.pathname === item.path}
             onClick={() => navigate(item.path)}
             className={cn(
-              "w-full py-3 text-base transition-colors text-calendiary-primary",
+              "w-full py-3 text-base transition-colors text-calendiary-primary group",
               location.pathname === item.path 
                 ? "bg-calendiary-primary text-white hover:bg-calendiary-hover"
                 : "hover:bg-muted"
             )}
           >
             <item.icon className="h-5 w-5" />
-            <span className="transition-opacity duration-200">
+            <span className="transition-opacity duration-200 ml-2">
               {item.title}
             </span>
           </SidebarMenuButton>

@@ -11,10 +11,17 @@ import {
   SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { SidebarHeader } from "./sidebar/SidebarHeader";
 import { SidebarProfile } from "./sidebar/SidebarProfile";
 import { SidebarNavigation } from "./sidebar/SidebarNavigation";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface Profile {
   username: string | null;
@@ -25,6 +32,7 @@ export function AppSidebar() {
   const navigate = useNavigate();
   const { logout, user } = useAuth();
   const { toast } = useToast();
+  const { state } = useSidebar();
   const [profile, setProfile] = useState<Profile>({ username: null, avatar_url: null });
 
   useEffect(() => {
@@ -96,14 +104,28 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter className="p-4">
-        <Button
-          variant="destructive"
-          onClick={handleLogout}
-          className="w-full py-3 text-base bg-calendiary-primary hover:bg-calendiary-hover"
-        >
-          <LogOut className="h-5 w-5 mr-2" />
-          <span>Logout</span>
-        </Button>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="destructive"
+                onClick={handleLogout}
+                className={cn(
+                  "w-full py-3 text-base bg-calendiary-primary hover:bg-calendiary-hover",
+                  state === "collapsed" && "w-10 h-10 p-0"
+                )}
+              >
+                <LogOut className="h-5 w-5" />
+                {state !== "collapsed" && <span className="ml-2">Logout</span>}
+              </Button>
+            </TooltipTrigger>
+            {state === "collapsed" && (
+              <TooltipContent side="right">
+                <p>Logout</p>
+              </TooltipContent>
+            )}
+          </Tooltip>
+        </TooltipProvider>
       </SidebarFooter>
     </Sidebar>
   );
