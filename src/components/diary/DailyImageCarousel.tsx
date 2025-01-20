@@ -106,22 +106,22 @@ export const DailyImageCarousel = ({ selectedDate }: DailyImageCarouselProps) =>
   }
 
   return (
-    <div className="space-y-4">
+    <div className="w-full h-full flex flex-col space-y-4">
       <Carousel 
-        className="w-full max-w-md mx-auto"
+        className="w-full max-w-md mx-auto flex-1"
         onSelect={(api: any) => setCurrentIndex(api.selectedScrollSnap())}
       >
-        <CarouselContent>
+        <CarouselContent className="h-full">
           {images.map((imageUrl, index) => (
-            <CarouselItem key={index}>
+            <CarouselItem key={index} className="h-full">
               <div 
-                className="aspect-square relative cursor-pointer"
+                className="w-full h-full relative cursor-pointer flex items-center justify-center"
                 onClick={() => setFullscreenImage(imageUrl)}
               >
                 <img
                   src={imageUrl}
                   alt={`Entry image ${index + 1}`}
-                  className="w-full h-full object-cover rounded-lg shadow-md"
+                  className="max-w-full max-h-full object-contain rounded-lg shadow-md"
                   onError={(e) => {
                     console.error("Failed to load image:", imageUrl);
                     e.currentTarget.src = "/placeholder.svg";
