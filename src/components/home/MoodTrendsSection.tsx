@@ -15,15 +15,17 @@ export const MoodTrendsSection: React.FC<MoodTrendsSectionProps> = ({ onMoodCalc
   };
 
   return (
-    <Card className="h-full">
+    <Card className="h-full glass">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-xl font-bold">Mood Trends</CardTitle>
       </CardHeader>
-      <CardContent className="h-[calc(100%-4rem)]">
-        <MoodTracker 
-          onDateSelect={handleDateSelect} 
-          onMoodCalculated={onMoodCalculated}
-        />
+      <CardContent className="h-[calc(100%-4rem)] flex items-center justify-center">
+        <div className="w-full max-w-md mx-auto">
+          <MoodTracker 
+            onDateSelect={handleDateSelect} 
+            onMoodCalculated={onMoodCalculated}
+          />
+        </div>
       </CardContent>
     </Card>
   );
