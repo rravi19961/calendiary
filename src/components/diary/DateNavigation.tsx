@@ -1,46 +1,48 @@
 import React from "react";
-import { format, addDays, subDays } from "date-fns";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { format } from "date-fns";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface DateNavigationProps {
-  date: Date;
-  onDateChange: (date: Date) => void;
+  selectedDate: Date;
+  onPrevious: () => void;
+  onNext: () => void;
 }
 
-export const DateNavigation: React.FC<DateNavigationProps> = ({
-  date,
-  onDateChange,
-}) => {
-  const handlePreviousDay = () => {
-    onDateChange(subDays(date, 1));
-  };
-
-  const handleNextDay = () => {
-    onDateChange(addDays(date, 1));
-  };
-
+export function DateNavigation({
+  selectedDate,
+  onPrevious,
+  onNext,
+}: DateNavigationProps) {
   return (
-    <div className="flex items-center justify-between w-full mb-4">
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={handlePreviousDay}
-        className="hover:bg-accent"
-      >
-        <ChevronLeft className="h-4 w-4" />
-      </Button>
-      <h2 className="text-xl font-semibold">
-        {format(date, "MMMM d, yyyy")}
-      </h2>
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={handleNextDay}
-        className="hover:bg-accent"
-      >
-        <ChevronRight className="h-4 w-4" />
-      </Button>
-    </div>
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardTitle className="text-xl font-bold">Date Navigation</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="flex items-center justify-between w-full">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={onPrevious}
+            className="h-8 w-8"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <span className="text-lg font-medium">
+            {format(selectedDate, "MMMM d, yyyy")}
+          </span>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={onNext}
+            className="h-8 w-8"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
   );
-};
+}
