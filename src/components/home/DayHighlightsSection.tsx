@@ -94,7 +94,9 @@ export const DayHighlightsSection = ({ selectedDate, dayMood = 3 }: DayHighlight
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <div className="flex items-center gap-2">
-          <span className="text-2xl">{getMoodEmoji(dayMood)}</span>
+          <span className="text-2xl" title={`Mood level: ${dayMood}`}>
+            {getMoodEmoji(dayMood)}
+          </span>
           <CardTitle className="text-xl font-bold">Your Day Highlights</CardTitle>
         </div>
         {summary?.audio_url && (

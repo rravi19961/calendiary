@@ -151,6 +151,7 @@ const Index = () => {
   };
 
   const handleMoodCalculated = (mood: number) => {
+    console.log("Mood calculated:", mood);
     setDayMood(mood);
   };
 
