@@ -47,6 +47,18 @@ export const EntryDisplay: React.FC<EntryDisplayProps> = ({
   const currentDisplayEntry = entries[currentEntryIndex];
   const hasEntries = entries.length > 0;
 
+  const handlePrevious = () => {
+    const newDate = new Date(selectedDate);
+    newDate.setDate(selectedDate.getDate() - 1);
+    onDateChange(newDate);
+  };
+
+  const handleNext = () => {
+    const newDate = new Date(selectedDate);
+    newDate.setDate(selectedDate.getDate() + 1);
+    onDateChange(newDate);
+  };
+
   React.useEffect(() => {
     if (currentDisplayEntry) {
       setCurrentEntry(currentDisplayEntry.content || "");
@@ -59,7 +71,11 @@ export const EntryDisplay: React.FC<EntryDisplayProps> = ({
     return (
       <Card className="h-full">
         <CardHeader>
-          <DateNavigation date={selectedDate} onDateChange={onDateChange} />
+          <DateNavigation
+            selectedDate={selectedDate}
+            onPrevious={handlePrevious}
+            onNext={handleNext}
+          />
         </CardHeader>
         <CardContent className="flex justify-center items-center h-full py-8">
           <p className="text-muted-foreground">No entries for this date</p>
@@ -71,7 +87,11 @@ export const EntryDisplay: React.FC<EntryDisplayProps> = ({
   return (
     <Card className="h-full flex flex-col relative">
       <CardHeader>
-        <DateNavigation date={selectedDate} onDateChange={onDateChange} />
+        <DateNavigation
+          selectedDate={selectedDate}
+          onPrevious={handlePrevious}
+          onNext={handleNext}
+        />
       </CardHeader>
       <CardContent className="flex-grow flex flex-col">
         <EntryContent
