@@ -35,7 +35,6 @@ export function AppSidebar() {
 
   const fetchProfile = async () => {
     try {
-      // First check if the user has a profile
       const { data: existingProfile, error: checkError } = await supabase
         .from("profiles")
         .select("username, avatar_url")
@@ -43,7 +42,6 @@ export function AppSidebar() {
         .single();
 
       if (checkError) {
-        // If no profile exists, create one
         if (checkError.code === 'PGRST116') {
           const { data: newProfile, error: insertError } = await supabase
             .from("profiles")
