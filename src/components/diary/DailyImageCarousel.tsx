@@ -144,7 +144,7 @@ export const DailyImageCarousel = ({ selectedDate }: DailyImageCarouselProps) =>
       </div>
 
       <Dialog open={!!fullscreenImage} onOpenChange={() => setFullscreenImage(null)}>
-        <DialogContent className="max-w-[90vw] max-h-[90vh] p-0">
+        <DialogContent className="max-w-[90vw] max-h-[90vh] p-0 backdrop-blur-modal">
           <div className="relative w-full h-full flex items-center justify-center bg-black/50 rounded-lg">
             <Button
               variant="ghost"
