@@ -5,7 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/context/AuthContext";
-import { format } from "date-fns";
+import { format, isValid } from "date-fns";
 import { Send, Loader2 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 
@@ -20,7 +20,7 @@ export const ChatInterface = ({ selectedDate }: { selectedDate: Date }) => {
   const { toast } = useToast();
   const { user } = useAuth();
 
-  const formattedDate = format(selectedDate, 'yyyy-MM-dd');
+  const formattedDate = isValid(selectedDate) ? format(selectedDate, 'yyyy-MM-dd') : format(new Date(), 'yyyy-MM-dd');
 
   const { data: chatHistory = [], refetch: refetchChat } = useQuery({
     queryKey: ['chat-history', selectedDate],

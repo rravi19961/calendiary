@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { format } from "date-fns";
+import { format, startOfToday, isValid } from "date-fns";
 import { useTheme } from "@/hooks/useTheme";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/context/AuthContext";
@@ -15,7 +15,7 @@ import { MoodTrendsSection } from "@/components/home/MoodTrendsSection";
 import { QUOTES } from "@/components/diary/constants";
 
 const Index = () => {
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [selectedDate, setSelectedDate] = useState<Date>(startOfToday());
   const { theme } = useTheme();
   const [currentQuoteIndex, setCurrentQuoteIndex] = useState(0);
   const [currentEntryIndex, setCurrentEntryIndex] = useState(0);
@@ -148,6 +148,10 @@ const Index = () => {
   };
 
   const handleDateChange = (newDate: Date) => {
+    if (!isValid(newDate)) {
+      console.error("Invalid date provided to handleDateChange");
+      return;
+    }
     setSelectedDate(newDate);
     loadEntries(newDate);
   };
