@@ -14,6 +14,12 @@ interface DayHighlightsSectionProps {
   dayMood?: number;
 }
 
+// Function to highlight words between asterisks with a primary color
+const highlightAsteriskWords = (text: string) => {
+  if (!text) return '';
+  return text.replace(/\*(.*?)\*/g, '<span class="text-primary font-semibold">$1</span>');
+};
+
 export const DayHighlightsSection = ({ selectedDate, dayMood = 3 }: DayHighlightsSectionProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
