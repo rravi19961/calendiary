@@ -1,6 +1,6 @@
 import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Home, Award, User, Settings, Plus } from "lucide-react";
+import { Home, Award, User, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   SidebarMenu,
@@ -8,7 +8,6 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { Button } from "@/components/ui/button";
 import {
   Tooltip,
   TooltipContent,
@@ -23,30 +22,13 @@ const navigationItems = [
   { title: "Settings", icon: Settings, path: "/preferences" },
 ];
 
-interface SidebarNavigationProps {
-  onNewEntry: () => void;
-}
-
-export function SidebarNavigation({ onNewEntry }: SidebarNavigationProps) {
+export function SidebarNavigation() {
   const navigate = useNavigate();
   const location = useLocation();
   const { state } = useSidebar();
 
   return (
     <SidebarMenu className="space-y-2">
-      <SidebarMenuItem>
-        <Button
-          onClick={onNewEntry}
-          className={cn(
-            "w-full py-6 text-base bg-calendiary-primary hover:bg-calendiary-hover text-white transition-all",
-            state === "collapsed" && "w-10 h-10 p-0"
-          )}
-        >
-          <Plus className={cn("h-5 w-5", state !== "collapsed" && "mr-2")} />
-          {state !== "collapsed" && <span>New Entry</span>}
-        </Button>
-      </SidebarMenuItem>
-
       {navigationItems.map((item) => (
         <SidebarMenuItem key={item.title}>
           <TooltipProvider>

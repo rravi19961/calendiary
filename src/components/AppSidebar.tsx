@@ -102,9 +102,9 @@ export function AppSidebar({ onNewEntry }: AppSidebarProps) {
       <SidebarHeader />
       <SidebarContent className="px-2">
         <SidebarGroup>
-          <SidebarProfile profile={profile} userEmail={user?.email} />
-          <SidebarGroupContent>
-            <SidebarNavigation onNewEntry={onNewEntry} />
+          <SidebarProfile profile={profile} userEmail={user?.email} onNewEntry={onNewEntry} />
+          <SidebarGroupContent className="mt-6">
+            <SidebarNavigation />
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
