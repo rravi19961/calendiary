@@ -10,8 +10,12 @@ export const MoodTrendsSection: React.FC<MoodTrendsSectionProps> = ({ onMoodCalc
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
 
   const handleDateSelect = (date: Date) => {
-    console.log("MoodTrendsSection: Date selected:", date);
     setSelectedDate(date);
+  };
+
+  const handleMoodCalculated = (mood: number) => {
+    console.log("MoodTrendsSection: Mood calculated:", mood);
+    onMoodCalculated?.(mood);
   };
 
   return (
@@ -23,7 +27,7 @@ export const MoodTrendsSection: React.FC<MoodTrendsSectionProps> = ({ onMoodCalc
         <div className="w-full max-w-md mx-auto">
           <MoodTracker 
             onDateSelect={handleDateSelect} 
-            onMoodCalculated={onMoodCalculated}
+            onMoodCalculated={handleMoodCalculated}
           />
         </div>
       </CardContent>

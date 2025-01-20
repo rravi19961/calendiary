@@ -29,7 +29,7 @@ const Index = () => {
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalKey, setModalKey] = useState(0);
-  const [dayMood, setDayMood] = useState(3);
+  const [dayMood, setDayMood] = useState<number>(3);
 
   useEffect(() => {
     if (!user) {
@@ -104,13 +104,11 @@ const Index = () => {
 
       let operation;
       if (entries.length > 0) {
-        // Update existing entry
         operation = supabase
           .from("diary_entries")
           .update(entryData)
           .eq("id", entries[currentEntryIndex].id);
       } else {
-        // Create new entry
         operation = supabase
           .from("diary_entries")
           .insert([entryData]);
@@ -124,7 +122,6 @@ const Index = () => {
         description: "Your entry has been saved successfully.",
       });
 
-      // Reload entries to get the updated data
       const { data: updatedEntries, error: fetchError } = await supabase
         .from("diary_entries")
         .select("*")
@@ -151,7 +148,7 @@ const Index = () => {
   };
 
   const handleMoodCalculated = (mood: number) => {
-    console.log("Mood calculated:", mood);
+    console.log("Index: Mood calculated:", mood);
     setDayMood(mood);
   };
 

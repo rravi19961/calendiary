@@ -14,7 +14,6 @@ interface DayHighlightsSectionProps {
   dayMood?: number;
 }
 
-// Function to highlight words between asterisks with a primary color
 const highlightAsteriskWords = (text: string) => {
   if (!text) return '';
   return text.replace(/\*(.*?)\*/g, '<span class="text-primary font-semibold">$1</span>');
@@ -94,7 +93,10 @@ export const DayHighlightsSection = ({ selectedDate, dayMood = 3 }: DayHighlight
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <div className="flex items-center gap-2">
-          <span className="text-2xl" title={`Mood level: ${dayMood}`}>
+          <span 
+            className="text-2xl" 
+            title={`Current mood: ${dayMood}`}
+          >
             {getMoodEmoji(dayMood)}
           </span>
           <CardTitle className="text-xl font-bold">Your Day Highlights</CardTitle>
