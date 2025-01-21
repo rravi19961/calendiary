@@ -37,6 +37,11 @@ export const MainContent: React.FC<MainContentProps> = ({
   onDateChange,
   isLoading = false,
 }) => {
+  const handleDateSelect = () => {
+    console.log("Date selected in MainContent, refreshing all components");
+    onDateChange(selectedDate);
+  };
+
   return (
     <main className="max-w-7xl mx-auto px-4 py-6 space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -44,7 +49,7 @@ export const MainContent: React.FC<MainContentProps> = ({
           <CalendarSection 
             selectedDate={selectedDate}
             setSelectedDate={onDateChange}
-            onDateSelect={() => onDateChange(selectedDate)}
+            onDateSelect={handleDateSelect}
           />
         </div>
 

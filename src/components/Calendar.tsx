@@ -20,7 +20,7 @@ const Calendar: React.FC<CalendarProps> = ({ date, setDate, onDateSelect }) => {
       setMonth(startOfMonth(selectedDate));
       
       if (onDateSelect && !isFuture(selectedDate)) {
-        console.log(`Date selected: ${selectedDate}`);
+        console.log(`Selected date in Calendar: ${selectedDate}`);
         onDateSelect();
       }
     }
@@ -32,7 +32,7 @@ const Calendar: React.FC<CalendarProps> = ({ date, setDate, onDateSelect }) => {
     setMonth(startOfMonth(today));
     
     if (onDateSelect && !isFuture(today)) {
-      console.log("Going to today's date");
+      console.log("Going to today's date in Calendar");
       onDateSelect();
     }
   };

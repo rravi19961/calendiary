@@ -47,9 +47,16 @@ const Index = () => {
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    if (user) {
+      console.log("Loading entries for date:", selectedDate);
+      loadEntries(selectedDate);
+    }
+  }, [selectedDate, user]);
+
   const handleDateChange = (newDate: Date) => {
+    console.log("Date changed to:", newDate);
     setSelectedDate(newDate);
-    loadEntries(newDate);
   };
 
   return (
