@@ -62,7 +62,13 @@ const Calendar: React.FC<CalendarProps> = ({ date, setDate, onDateSelect }) => {
           month={month}
           onMonthChange={setMonth}
           disabled={(date) => isFuture(date)}
-          className="rounded-md border shadow-sm w-full max-w-[320px]"
+          className="rounded-md border shadow-sm w-full max-w-[320px] transition-all hover:shadow-md"
+          classNames={{
+            day: "transition-colors hover:bg-muted/50 focus:bg-muted cursor-pointer",
+            day_selected: "bg-primary text-primary-foreground hover:bg-primary/90 focus:bg-primary/90",
+            day_today: "bg-accent text-accent-foreground",
+            day_disabled: "text-muted-foreground opacity-50 cursor-not-allowed",
+          }}
         />
       </div>
     </div>
