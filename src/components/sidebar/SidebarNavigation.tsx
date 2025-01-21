@@ -27,6 +27,11 @@ export function SidebarNavigation() {
   const location = useLocation();
   const { state } = useSidebar();
 
+  const handleNavigation = (path: string) => {
+    console.log("Navigating to:", path);
+    navigate(path);
+  };
+
   return (
     <SidebarMenu className="space-y-2">
       {navigationItems.map((item) => (
@@ -36,7 +41,7 @@ export function SidebarNavigation() {
               <TooltipTrigger asChild>
                 <SidebarMenuButton
                   isActive={location.pathname === item.path}
-                  onClick={() => navigate(item.path)}
+                  onClick={() => handleNavigation(item.path)}
                   className={cn(
                     "w-full py-3 text-base transition-colors text-calendiary-primary group",
                     location.pathname === item.path 
