@@ -33,8 +33,10 @@ const Index = () => {
   useEffect(() => {
     if (!user) {
       navigate("/login");
+      return;
     }
-  }, [user, navigate]);
+    loadEntries(selectedDate);
+  }, [user, selectedDate]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -50,6 +52,7 @@ const Index = () => {
     if (!user) return;
     
     try {
+      console.log("Loading entries for date:", format(date, "yyyy-MM-dd"));
       const { data, error } = await supabase
         .from("diary_entries")
         .select("*")
@@ -57,8 +60,12 @@ const Index = () => {
         .eq("date", format(date, "yyyy-MM-dd"))
         .order("created_at", { ascending: true });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error loading entries:", error);
+        throw error;
+      }
 
+      console.log("Loaded entries:", data);
       setEntries(data || []);
       setCurrentEntryIndex(0);
       
