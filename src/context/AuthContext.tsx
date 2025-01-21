@@ -90,13 +90,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             setUser(null);
             if (event === 'SIGNED_OUT') {
               navigate("/login");
-            } else if (event === 'TOKEN_REFRESHED') {
               toast({
-                title: "Session Expired",
-                description: "Please log in again.",
-                variant: "destructive",
+                title: "Signed out",
+                description: "You have been signed out successfully.",
               });
+            } else if (event === 'TOKEN_REFRESHED') {
+              console.log("Token refreshed successfully");
+            } else if (event === 'USER_DELETED' || event === 'USER_UPDATED') {
               navigate("/login");
+              toast({
+                title: "Account Updated",
+                description: "Please sign in again with your updated credentials.",
+              });
             }
           }
         });
