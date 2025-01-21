@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { useSidebar } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface Profile {
   username: string | null;
@@ -14,10 +15,31 @@ interface SidebarProfileProps {
   profile: Profile;
   userEmail?: string | null;
   onNewEntry: () => void;
+  isLoading?: boolean;
 }
 
-export function SidebarProfile({ profile, userEmail, onNewEntry }: SidebarProfileProps) {
+export function SidebarProfile({ profile, userEmail, onNewEntry, isLoading = false }: SidebarProfileProps) {
   const { state } = useSidebar();
+  
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center space-y-6">
+        <div className="flex flex-col items-center space-y-3">
+          <Skeleton className={cn(
+            "rounded-full",
+            state === "collapsed" ? "h-10 w-10" : "h-20 w-20"
+          )} />
+          {state !== "collapsed" && (
+            <Skeleton className="h-4 w-24" />
+          )}
+        </div>
+        <Skeleton className={cn(
+          "aspect-square",
+          state === "collapsed" ? "w-10 h-10" : "w-full h-12"
+        )} />
+      </div>
+    );
+  }
   
   return (
     <div className="flex flex-col items-center space-y-6">

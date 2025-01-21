@@ -39,44 +39,53 @@ export function AppSidebar({ onNewEntry }: AppSidebarProps) {
   const { toast } = useToast();
   const { state } = useSidebar();
   const [profile, setProfile] = useState<Profile>({ username: null, avatar_url: null });
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (user) {
+    if (user?.id) {
       fetchProfile();
     }
-  }, [user]);
+  }, [user?.id]);
 
   const fetchProfile = async () => {
     try {
-      const { data: existingProfile, error: checkError } = await supabase
+      setIsLoading(true);
+      console.log("Fetching profile for user:", user?.id);
+      
+      const { data, error } = await supabase
         .from("profiles")
         .select("username, avatar_url")
         .eq("id", user?.id)
-        .single();
+        .maybeSingle();
 
-      if (checkError) {
-        if (checkError.code === 'PGRST116') {
-          const { data: newProfile, error: insertError } = await supabase
-            .from("profiles")
-            .insert([{ id: user?.id }])
-            .select("username, avatar_url")
-            .single();
+      if (error) {
+        console.error("Error fetching profile:", error);
+        throw error;
+      }
 
-          if (insertError) throw insertError;
-          if (newProfile) setProfile(newProfile);
-        } else {
-          throw checkError;
-        }
-      } else if (existingProfile) {
-        setProfile(existingProfile);
+      if (data) {
+        console.log("Profile data fetched:", data);
+        setProfile(data);
+      } else {
+        console.log("No profile found, creating new profile");
+        const { data: newProfile, error: createError } = await supabase
+          .from("profiles")
+          .insert([{ id: user?.id }])
+          .select("username, avatar_url")
+          .single();
+
+        if (createError) throw createError;
+        if (newProfile) setProfile(newProfile);
       }
     } catch (error) {
-      console.error("Error fetching/creating profile:", error);
+      console.error("Profile fetch/create error:", error);
       toast({
         title: "Error loading profile",
         description: "Please try refreshing the page",
         variant: "destructive",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -89,6 +98,7 @@ export function AppSidebar({ onNewEntry }: AppSidebarProps) {
         description: "See you next time!",
       });
     } catch (error) {
+      console.error("Logout error:", error);
       toast({
         title: "Error logging out",
         description: "Please try again",
@@ -102,7 +112,12 @@ export function AppSidebar({ onNewEntry }: AppSidebarProps) {
       <SidebarHeader />
       <SidebarContent className="px-2">
         <SidebarGroup>
-          <SidebarProfile profile={profile} userEmail={user?.email} onNewEntry={onNewEntry} />
+          <SidebarProfile 
+            profile={profile} 
+            userEmail={user?.email} 
+            onNewEntry={onNewEntry}
+            isLoading={isLoading}
+          />
           <SidebarGroupContent className="mt-6">
             <SidebarNavigation />
           </SidebarGroupContent>
