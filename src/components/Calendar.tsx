@@ -25,6 +25,8 @@ const Calendar: React.FC<CalendarProps> = ({ date, setDate, onDateSelect }) => {
           console.log("Calendar: Triggering onDateSelect");
           onDateSelect();
         }
+      } else {
+        console.log("Calendar: Cannot select future date");
       }
     }
   };
