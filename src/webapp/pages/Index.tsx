@@ -1,34 +1,35 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { format } from "date-fns";
 import { useTheme } from "@/hooks/useTheme";
-import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/context/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
-import { EntryDisplay } from "@/components/diary/EntryDisplay";
 import { HeaderSection } from "@/components/diary/HeaderSection";
 import EntryModal from "@/components/EntryModal";
-import { CalendarSection } from "@/components/home/CalendarSection";
-import { ChatSection } from "@/components/home/ChatSection";
-import { DayHighlightsSection } from "@/components/home/DayHighlightsSection";
-import { MoodTrendsSection } from "@/components/home/MoodTrendsSection";
-import { PhotoGallerySection } from "@/components/diary/PhotoGallerySection";
+import { MainContent } from "@/components/home/MainContent";
+import { useEntryState } from "@/components/home/EntryState";
 import { QUOTES } from "@/components/diary/constants";
 
 const Index = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const { theme } = useTheme();
   const [currentQuoteIndex, setCurrentQuoteIndex] = useState(0);
-  const [currentEntryIndex, setCurrentEntryIndex] = useState(0);
-  const { toast } = useToast();
-  const [entries, setEntries] = useState<any[]>([]);
-  const [currentEntry, setCurrentEntry] = useState("");
-  const [currentTitle, setCurrentTitle] = useState("");
-  const [currentRating, setCurrentRating] = useState(3);
   const { user } = useAuth();
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalKey, setModalKey] = useState(0);
+
+  const {
+    entries,
+    currentEntryIndex,
+    setCurrentEntryIndex,
+    currentEntry,
+    setCurrentEntry,
+    currentTitle,
+    setCurrentTitle,
+    currentRating,
+    setCurrentRating,
+    loadEntries,
+    handleSaveEntry,
+  } = useEntryState(user);
 
   useEffect(() => {
     if (!user) {
@@ -46,101 +47,6 @@ const Index = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const loadEntries = async (date: Date) => {
-    if (!user) return;
-    
-    try {
-      const { data, error } = await supabase
-        .from("diary_entries")
-        .select("*")
-        .eq("user_id", user.id)
-        .eq("date", format(date, "yyyy-MM-dd"))
-        .order("created_at", { ascending: true });
-
-      if (error) throw error;
-
-      setEntries(data || []);
-      setCurrentEntryIndex(0);
-      
-      if (data && data.length > 0) {
-        const latestEntry = data[data.length - 1];
-        setCurrentEntry(latestEntry.content || "");
-        setCurrentTitle(latestEntry.title || "");
-        setCurrentRating(latestEntry.rating || 3);
-      } else {
-        setCurrentEntry("");
-        setCurrentTitle("");
-        setCurrentRating(3);
-      }
-    } catch (error) {
-      console.error("Error loading entries:", error);
-      toast({
-        title: "Error",
-        description: "Failed to load your entries",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleSaveEntry = async () => {
-    if (!user) {
-      toast({
-        title: "Error",
-        description: "You must be logged in to save entries",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    try {
-      const entryData = {
-        user_id: user.id,
-        content: currentEntry,
-        title: currentTitle,
-        rating: currentRating,
-        date: format(selectedDate, "yyyy-MM-dd"),
-      };
-
-      let operation;
-      if (entries.length > 0) {
-        operation = supabase
-          .from("diary_entries")
-          .update(entryData)
-          .eq("id", entries[currentEntryIndex].id);
-      } else {
-        operation = supabase
-          .from("diary_entries")
-          .insert([entryData]);
-      }
-
-      const { error } = await operation;
-      if (error) throw error;
-
-      toast({
-        title: "Success",
-        description: "Your entry has been saved successfully.",
-      });
-
-      const { data: updatedEntries, error: fetchError } = await supabase
-        .from("diary_entries")
-        .select("*")
-        .eq("user_id", user.id)
-        .eq("date", format(selectedDate, "yyyy-MM-dd"))
-        .order("created_at", { ascending: true });
-
-      if (fetchError) throw fetchError;
-      setEntries(updatedEntries || []);
-
-    } catch (error) {
-      console.error("Error saving entry:", error);
-      toast({
-        title: "Error",
-        description: "Failed to save your entry. Please try again.",
-        variant: "destructive",
-      });
-    }
-  };
-
   const handleDateChange = (newDate: Date) => {
     setSelectedDate(newDate);
     loadEntries(newDate);
@@ -156,58 +62,27 @@ const Index = () => {
         }}
       />
 
-      <main className="max-w-7xl mx-auto px-4 py-6 space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="h-[600px]">
-            <CalendarSection 
-              selectedDate={selectedDate}
-              setSelectedDate={handleDateChange}
-              onDateSelect={() => loadEntries(selectedDate)}
-            />
-          </div>
+      <MainContent
+        selectedDate={selectedDate}
+        entries={entries}
+        currentEntryIndex={currentEntryIndex}
+        setCurrentEntryIndex={setCurrentEntryIndex}
+        currentEntry={currentEntry}
+        setCurrentEntry={setCurrentEntry}
+        currentTitle={currentTitle}
+        setCurrentTitle={setCurrentTitle}
+        currentRating={currentRating}
+        setCurrentRating={setCurrentRating}
+        onSave={() => handleSaveEntry(selectedDate)}
+        onDateChange={handleDateChange}
+      />
 
-          <div className="h-[600px]">
-            <EntryDisplay
-              entries={entries}
-              currentEntryIndex={currentEntryIndex}
-              setCurrentEntryIndex={setCurrentEntryIndex}
-              currentEntry={currentEntry}
-              setCurrentEntry={setCurrentEntry}
-              currentTitle={currentTitle}
-              setCurrentTitle={setCurrentTitle}
-              currentRating={currentRating}
-              setCurrentRating={setCurrentRating}
-              selectedDate={selectedDate}
-              onSave={handleSaveEntry}
-              onDateChange={handleDateChange}
-            />
-          </div>
-
-          <div className="h-[600px]">
-            <ChatSection selectedDate={selectedDate} />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="h-[400px]">
-            <MoodTrendsSection />
-          </div>
-          <div className="h-[400px]">
-            <PhotoGallerySection selectedDate={selectedDate} />
-          </div>
-        </div>
-
-        <div className="w-full">
-          <DayHighlightsSection selectedDate={selectedDate} />
-        </div>
-
-        <EntryModal
-          key={modalKey}
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          date={selectedDate}
-        />
-      </main>
+      <EntryModal
+        key={modalKey}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        date={selectedDate}
+      />
     </div>
   );
 };
