@@ -1,5 +1,4 @@
 import React from "react";
-import { Smile, Meh, Frown } from "lucide-react";
 
 interface MoodSelectorProps {
   rating: number;
@@ -13,28 +12,28 @@ export const MoodSelector: React.FC<MoodSelectorProps> = ({
   disabled,
 }) => {
   const moods = [
-    { icon: Frown, value: 1, label: "Very Sad" },
-    { icon: Frown, value: 2, label: "Sad" },
-    { icon: Meh, value: 3, label: "Neutral" },
-    { icon: Smile, value: 4, label: "Happy" },
-    { icon: Smile, value: 5, label: "Very Happy" },
+    { emoji: "😭", value: 1, label: "Very Sad" },
+    { emoji: "😟", value: 2, label: "Sad" },
+    { emoji: "😐", value: 3, label: "Neutral" },
+    { emoji: "😊", value: 4, label: "Happy" },
+    { emoji: "😍", value: 5, label: "Very Happy" },
   ];
 
   return (
     <div className="flex justify-center gap-2">
-      {moods.map(({ icon: Icon, value, label }) => (
+      {moods.map(({ emoji, value, label }) => (
         <button
           key={value}
           onClick={() => !disabled && onChange(value)}
           disabled={disabled}
-          className={`p-2 rounded-lg transition-all ${
+          className={`p-2 rounded-lg transition-all text-2xl ${
             rating === value
               ? "bg-primary text-primary-foreground scale-110"
               : "hover:bg-secondary"
           } ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
           title={label}
         >
-          <Icon className="h-5 w-5" />
+          {emoji}
         </button>
       ))}
     </div>
