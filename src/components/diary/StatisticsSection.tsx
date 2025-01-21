@@ -38,7 +38,7 @@ export const StatisticsSection = ({ stats, onLastCheerfulDayClick }: StatisticsS
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className={cardClass}>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className={titleClass}>Pinned Days</CardTitle>
           <Pin className={iconClass} />
