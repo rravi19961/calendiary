@@ -14,7 +14,14 @@ import { AuthProvider, useAuth } from "./context/AuthContext";
 import { AppSidebar } from "./components/AppSidebar";
 import EntryModal from "./components/EntryModal";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 0,
+      retry: false,
+    },
+  },
+});
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated } = useAuth();
