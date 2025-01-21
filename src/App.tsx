@@ -17,7 +17,7 @@ import EntryModal from "./components/EntryModal";
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 0,
+      staleTime: Infinity, // Prevent automatic refetching
       retry: false,
     },
   },
