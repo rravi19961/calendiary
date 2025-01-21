@@ -11,7 +11,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { getMoodEmoji } from "@/utils/moodEmoji";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-const DaysReview = () => {
+const DailyReflections = () => {
   const [timeRange, setTimeRange] = useState("7");
   const [sortBy, setSortBy] = useState("date-desc");
   const [activeTab, setActiveTab] = useState("all");
@@ -28,7 +28,6 @@ const DaysReview = () => {
 
       if (timeRange !== "all") {
         const daysAgo = parseInt(timeRange);
-        // Adjust the date range to include exactly N days
         const startDate = startOfDay(subDays(new Date(), daysAgo - 1));
         const endDate = endOfDay(new Date());
         query = query
@@ -51,10 +50,8 @@ const DaysReview = () => {
     },
   });
 
-  // Calculate total summaries for the time range (independent of tab selection)
   const totalSummariesInRange = useMemo(() => allSummaries.length, [allSummaries]);
 
-  // Filter summaries based on active tab
   const filteredSummaries = useMemo(() => {
     return allSummaries.filter(summary => {
       if (activeTab === "pinned") return summary.is_pinned;
@@ -63,7 +60,6 @@ const DaysReview = () => {
     });
   }, [allSummaries, activeTab]);
 
-  // Calculate stats using all summaries in range, not filtered ones
   const stats = useMemo(() => ({
     summarizedDays: totalSummariesInRange,
     lastCheerfulDay: allSummaries.reduce(
@@ -75,7 +71,6 @@ const DaysReview = () => {
     bestDaysCount: allSummaries.filter(summary => summary.is_best_day).length,
   }), [allSummaries, totalSummariesInRange]);
 
-  // Sort summaries
   const sortedSummaries = useMemo(() => {
     return [...filteredSummaries].sort((a, b) => {
       switch (sortBy) {
@@ -217,5 +212,4 @@ const DaysReview = () => {
   );
 };
 
-export default DaysReview;
-
+export default DailyReflections;
