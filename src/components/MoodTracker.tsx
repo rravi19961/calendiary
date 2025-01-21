@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { getMoodEmoji } from "@/utils/moodEmoji";
+import { Loader2 } from "lucide-react";
 
 interface MoodData {
   date: string;
@@ -19,18 +20,29 @@ interface MoodTrackerProps {
 const MoodTracker: React.FC<MoodTrackerProps> = ({ onDateSelect, onMoodCalculated }) => {
   const [moodData, setMoodData] = useState<MoodData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const { user } = useAuth();
   const { toast } = useToast();
 
   useEffect(() => {
     const fetchMoodData = async () => {
-      if (!user) return;
+      if (!user) {
+        setIsLoading(false);
+        return;
+      }
 
       try {
+        setError(null);
         const endDate = new Date();
         const startDate = subDays(endDate, 6);
+        
+        console.log("Fetching mood data for date range:", {
+          startDate: format(startDate, "yyyy-MM-dd"),
+          endDate: format(endDate, "yyyy-MM-dd"),
+          userId: user.id
+        });
 
-        const { data: entries, error } = await supabase
+        const { data: entries, error: fetchError } = await supabase
           .from("diary_entries")
           .select("date, rating")
           .eq("user_id", user.id)
@@ -38,15 +50,21 @@ const MoodTracker: React.FC<MoodTrackerProps> = ({ onDateSelect, onMoodCalculate
           .lte("date", format(endDate, "yyyy-MM-dd"))
           .order("date", { ascending: true });
 
-        if (error) throw error;
+        if (fetchError) {
+          console.error("Error fetching mood data:", fetchError);
+          throw fetchError;
+        }
 
+        console.log("Fetched entries:", entries);
+
+        // Initialize mood data for all days
         const moodsByDay = new Map<string, number[]>();
-
         for (let i = 0; i <= 6; i++) {
           const date = format(subDays(endDate, i), "yyyy-MM-dd");
           moodsByDay.set(date, []);
         }
 
+        // Populate with actual entries
         entries?.forEach((entry) => {
           if (entry.rating) {
             const ratings = moodsByDay.get(entry.date) || [];
@@ -55,6 +73,7 @@ const MoodTracker: React.FC<MoodTrackerProps> = ({ onDateSelect, onMoodCalculate
           }
         });
 
+        // Calculate averages and format data
         const averagedData: MoodData[] = Array.from(moodsByDay.entries())
           .map(([date, ratings]) => ({
             date: format(new Date(date), "EEE"),
@@ -64,13 +83,16 @@ const MoodTracker: React.FC<MoodTrackerProps> = ({ onDateSelect, onMoodCalculate
           }))
           .reverse();
 
+        console.log("Processed mood data:", averagedData);
         setMoodData(averagedData);
         
         // Calculate today's mood and pass it up
         const todayMood = averagedData[averagedData.length - 1]?.rating || 3;
         onMoodCalculated?.(todayMood);
-      } catch (error) {
-        console.error("Error fetching mood data:", error);
+
+      } catch (err) {
+        console.error("Error in fetchMoodData:", err);
+        setError("Failed to load mood data");
         toast({
           title: "Error",
           description: "Failed to load mood trends. Please try again later.",
@@ -94,7 +116,19 @@ const MoodTracker: React.FC<MoodTrackerProps> = ({ onDateSelect, onMoodCalculate
   };
 
   if (isLoading) {
-    return <div className="h-48 flex items-center justify-center">Loading...</div>;
+    return (
+      <div className="h-48 flex items-center justify-center">
+        <Loader2 className="h-6 w-6 animate-spin" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="h-48 flex items-center justify-center text-destructive">
+        {error}
+      </div>
+    );
   }
 
   return (
@@ -105,24 +139,29 @@ const MoodTracker: React.FC<MoodTrackerProps> = ({ onDateSelect, onMoodCalculate
             <CartesianGrid 
               horizontal={true} 
               vertical={false}
+              stroke="currentColor"
+              opacity={0.1}
             />
             <XAxis 
               dataKey="date"
               stroke="currentColor"
               fontSize={12}
+              tickLine={false}
             />
             <YAxis
               domain={[1, 5]}
               ticks={[1, 2, 3, 4, 5]}
               tick={<CustomYAxisTick />}
               stroke="currentColor"
+              tickLine={false}
             />
             <Line
               type="monotone"
               dataKey="rating"
+              stroke="currentColor"
               strokeWidth={2}
-              dot={{ r: 4 }}
-              activeDot={false}
+              dot={{ r: 4, fill: "currentColor" }}
+              activeDot={{ r: 6, fill: "currentColor" }}
               isAnimationActive={false}
             />
           </LineChart>
