@@ -8,7 +8,7 @@ import { useState } from "react";
 import Index from "@/webapp/pages/Index";
 import Login from "@/webapp/pages/Login";
 import Profile from "@/webapp/pages/Profile";
-import DaysReview from "@/webapp/pages/DaysReview";
+import DailyReflections from "@/webapp/pages/DailyReflections";
 import Preferences from "@/webapp/pages/Preferences";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { AppSidebar } from "./components/AppSidebar";
@@ -71,10 +71,10 @@ const App = () => (
                 }
               />
               <Route
-                path="/days-review"
+                path="/daily-reflections"
                 element={
                   <ProtectedRoute>
-                    <DaysReview />
+                    <DailyReflections />
                   </ProtectedRoute>
                 }
               />

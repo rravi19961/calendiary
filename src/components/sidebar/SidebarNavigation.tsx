@@ -17,7 +17,7 @@ import {
 
 const navigationItems = [
   { title: "Home", icon: Home, path: "/" },
-  { title: "Daily Reflections", icon: Award, path: "/days-review" },
+  { title: "Daily Reflections", icon: Award, path: "/daily-reflections" },
   { title: "Profile", icon: User, path: "/profile" },
   { title: "Settings", icon: Settings, path: "/preferences" },
 ];
