@@ -28,7 +28,6 @@ export function SidebarNavigation() {
   const { state } = useSidebar();
 
   const handleNavigation = (path: string) => {
-    console.log("Navigating to:", path);
     navigate(path);
   };
 
