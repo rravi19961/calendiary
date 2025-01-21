@@ -13,14 +13,56 @@ export const supabase = createClient<Database>(
       autoRefreshToken: true,
       detectSessionInUrl: true,
       storage: typeof window !== 'undefined' ? window.localStorage : undefined,
-      flowType: 'pkce'
+      flowType: 'pkce',
+      debug: process.env.NODE_ENV === 'development',
+      // Add a default session handling
+      onAuthStateChange: (event, session) => {
+        if (event === 'SIGNED_OUT') {
+          // Clear any cached data when user signs out
+          localStorage.removeItem('supabase.auth.token');
+        }
+      }
     },
     global: {
       headers: {
         'Content-Type': 'application/json',
         'apikey': SUPABASE_ANON_KEY,
-        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+      },
+      // Add request handling
+      fetch: (url, options = {}) => {
+        // Get the current session token
+        const session = supabase.auth.session();
+        if (session?.access_token) {
+          options.headers = {
+            ...options.headers,
+            'Authorization': `Bearer ${session.access_token}`
+          };
+        }
+        return fetch(url, options);
+      }
+    },
+    // Add better error handling
+    shouldThrowOnError: true,
+    // Add request retries
+    db: {
+      schema: 'public'
+    },
+    realtime: {
+      params: {
+        eventsPerSecond: 10
       }
     }
   }
 );
+
+// Add a helper to check if user is authenticated
+export const isAuthenticated = () => {
+  const session = supabase.auth.session();
+  return !!session?.user?.id;
+};
+
+// Add a helper to get current user
+export const getCurrentUser = () => {
+  const session = supabase.auth.session();
+  return session?.user || null;
+};
