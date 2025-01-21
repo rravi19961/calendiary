@@ -51,54 +51,60 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
+const AppRoutes = () => {
+  return (
+    <Routes>
+      <Route path="/login" element={<Login />} />
+      <Route
+        path="/"
+        element={
+          <ProtectedRoute>
+            <Index />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <Profile />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/daily-reflections"
+        element={
+          <ProtectedRoute>
+            <DailyReflections />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/preferences"
+        element={
+          <ProtectedRoute>
+            <Preferences />
+          </ProtectedRoute>
+        }
+      />
+    </Routes>
+  );
+};
+
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <BrowserRouter>
+  <BrowserRouter>
+    <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <TooltipProvider>
           <SidebarProvider>
             <Toaster />
             <Sonner />
-            <Routes>
-              <Route path="/login" element={<Login />} />
-              <Route
-                path="/"
-                element={
-                  <ProtectedRoute>
-                    <Index />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/profile"
-                element={
-                  <ProtectedRoute>
-                    <Profile />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/daily-reflections"
-                element={
-                  <ProtectedRoute>
-                    <DailyReflections />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/preferences"
-                element={
-                  <ProtectedRoute>
-                    <Preferences />
-                  </ProtectedRoute>
-                }
-              />
-            </Routes>
+            <AppRoutes />
           </SidebarProvider>
         </TooltipProvider>
       </AuthProvider>
-    </BrowserRouter>
-  </QueryClientProvider>
+    </QueryClientProvider>
+  </BrowserRouter>
 );
 
 export default App;
