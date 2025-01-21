@@ -17,7 +17,7 @@ import EntryModal from "./components/EntryModal";
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: Infinity, // Prevent automatic refetching
+      staleTime: Infinity,
       retry: false,
     },
   },
@@ -52,10 +52,10 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 };
 
 const App = () => (
-  <BrowserRouter>
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <AuthProvider>
+  <QueryClientProvider client={queryClient}>
+    <AuthProvider>
+      <BrowserRouter>
+        <TooltipProvider>
           <SidebarProvider>
             <Toaster />
             <Sonner />
@@ -95,10 +95,10 @@ const App = () => (
               />
             </Routes>
           </SidebarProvider>
-        </AuthProvider>
-      </TooltipProvider>
-    </QueryClientProvider>
-  </BrowserRouter>
+        </TooltipProvider>
+      </BrowserRouter>
+    </AuthProvider>
+  </QueryClientProvider>
 );
 
 export default App;
