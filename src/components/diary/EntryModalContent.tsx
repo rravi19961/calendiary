@@ -33,12 +33,13 @@ export const EntryModalContent: React.FC<EntryModalContentProps> = ({
   const { handleEntryChange } = useEntryActions(entries, setEntries);
 
   const addNewEntry = () => {
-    const newEntry = {
+    const newEntry: Entry = {
       id: "",
       title: "",
       content: "",
       rating: 3,
-      createdAt: new Date(),
+      created_at: new Date().toISOString(),
+      image_url: null
     };
     setEntries([...entries, newEntry]);
     setCurrentIndex(entries.length);
@@ -68,7 +69,7 @@ export const EntryModalContent: React.FC<EntryModalContentProps> = ({
                 }
               />
               <p className="text-sm text-muted-foreground mt-1">
-                {format(new Date(entries[currentIndex]?.createdAt), 'h:mm a')}
+                {format(new Date(entries[currentIndex]?.created_at), 'h:mm a')}
               </p>
             </div>
             {!isReadOnly && (
