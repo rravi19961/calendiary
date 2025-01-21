@@ -5,6 +5,7 @@ import { DateNavigation } from "./DateNavigation";
 import { EntryPagination } from "./EntryPagination";
 import { EntryContent } from "./EntryContent";
 import { EntryMaximizeModal } from "./EntryMaximizeModal";
+import { Loader2 } from "lucide-react";
 
 interface Entry {
   id: string;
@@ -27,6 +28,7 @@ interface EntryDisplayProps {
   selectedDate: Date;
   onSave: () => void;
   onDateChange: (date: Date) => void;
+  isLoading?: boolean;
 }
 
 export const EntryDisplay: React.FC<EntryDisplayProps> = ({
@@ -42,6 +44,7 @@ export const EntryDisplay: React.FC<EntryDisplayProps> = ({
   selectedDate,
   onSave,
   onDateChange,
+  isLoading = false,
 }) => {
   const isCurrentDay = isToday(selectedDate);
   const currentDisplayEntry = entries[currentEntryIndex];
@@ -52,10 +55,27 @@ export const EntryDisplay: React.FC<EntryDisplayProps> = ({
       setCurrentEntry(currentDisplayEntry.content || "");
       setCurrentTitle(currentDisplayEntry.title || "");
       setCurrentRating(currentDisplayEntry.rating || 3);
+    } else if (!isCurrentDay) {
+      setCurrentEntry("");
+      setCurrentTitle("");
+      setCurrentRating(3);
     }
-  }, [currentEntryIndex, currentDisplayEntry, setCurrentEntry, setCurrentTitle, setCurrentRating]);
+  }, [currentEntryIndex, currentDisplayEntry, setCurrentEntry, setCurrentTitle, setCurrentRating, isCurrentDay]);
 
-  if (!hasEntries) {
+  if (isLoading) {
+    return (
+      <Card className="h-full">
+        <CardHeader>
+          <DateNavigation date={selectedDate} onDateChange={onDateChange} />
+        </CardHeader>
+        <CardContent className="flex justify-center items-center h-full py-8">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!hasEntries && !isCurrentDay) {
     return (
       <Card className="h-full">
         <CardHeader>
@@ -75,21 +95,23 @@ export const EntryDisplay: React.FC<EntryDisplayProps> = ({
       </CardHeader>
       <CardContent className="flex-grow flex flex-col">
         <EntryContent
-          title={isCurrentDay ? currentTitle : currentDisplayEntry.title || ""}
-          content={isCurrentDay ? currentEntry : currentDisplayEntry.content || ""}
-          rating={isCurrentDay ? currentRating : currentDisplayEntry.rating || 3}
+          title={isCurrentDay ? currentTitle : currentDisplayEntry?.title || ""}
+          content={isCurrentDay ? currentEntry : currentDisplayEntry?.content || ""}
+          rating={isCurrentDay ? currentRating : currentDisplayEntry?.rating || 3}
           isCurrentDay={isCurrentDay}
           onTitleChange={setCurrentTitle}
           onContentChange={setCurrentEntry}
           onRatingChange={setCurrentRating}
           onSave={onSave}
         />
-        <EntryPagination
-          currentIndex={currentEntryIndex}
-          totalEntries={entries.length}
-          onNavigate={setCurrentEntryIndex}
-          className="mt-4"
-        />
+        {hasEntries && (
+          <EntryPagination
+            currentIndex={currentEntryIndex}
+            totalEntries={entries.length}
+            onNavigate={setCurrentEntryIndex}
+            className="mt-4"
+          />
+        )}
       </CardContent>
       <EntryMaximizeModal
         entries={entries}

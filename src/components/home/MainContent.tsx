@@ -19,6 +19,7 @@ interface MainContentProps {
   setCurrentRating: (rating: number) => void;
   onSave: () => void;
   onDateChange: (date: Date) => void;
+  isLoading?: boolean;
 }
 
 export const MainContent: React.FC<MainContentProps> = ({
@@ -34,6 +35,7 @@ export const MainContent: React.FC<MainContentProps> = ({
   setCurrentRating,
   onSave,
   onDateChange,
+  isLoading = false,
 }) => {
   return (
     <main className="max-w-7xl mx-auto px-4 py-6 space-y-6">
@@ -60,6 +62,7 @@ export const MainContent: React.FC<MainContentProps> = ({
             selectedDate={selectedDate}
             onSave={onSave}
             onDateChange={onDateChange}
+            isLoading={isLoading}
           />
         </div>
 

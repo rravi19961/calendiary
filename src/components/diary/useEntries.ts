@@ -9,7 +9,7 @@ export interface Entry {
   title: string;
   content: string;
   rating: number;
-  createdAt: Date;
+  created_at: string;
   image_url?: string | null;
 }
 
@@ -24,13 +24,21 @@ export const useEntries = (date: Date) => {
       if (!user) return;
 
       try {
+        console.log("Fetching entries for date:", format(date, "yyyy-MM-dd"));
+        
         const { data, error } = await supabase
           .from("diary_entries")
           .select("*")
           .eq("user_id", user.id)
-          .eq("date", format(date, "yyyy-MM-dd"));
+          .eq("date", format(date, "yyyy-MM-dd"))
+          .order("created_at", { ascending: true });
 
-        if (error) throw error;
+        if (error) {
+          console.error("Error fetching entries:", error);
+          throw error;
+        }
+
+        console.log("Fetched entries:", data);
 
         setEntries(
           data.map((entry) => ({
@@ -38,7 +46,7 @@ export const useEntries = (date: Date) => {
             title: entry.title || "",
             content: entry.content || "",
             rating: entry.rating || 3,
-            createdAt: new Date(entry.created_at),
+            created_at: entry.created_at,
             image_url: entry.image_url,
           }))
         );
