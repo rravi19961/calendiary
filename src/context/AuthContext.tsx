@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { User, AuthError, AuthApiError } from "@supabase/supabase-js";
+import { User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
@@ -11,7 +11,7 @@ interface AuthContextType {
   updateUser: (data: Partial<User>) => void;
 }
 
-const AuthContext = createContext<AuthContextType | null>(null);
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
@@ -21,136 +21,73 @@ export const useAuth = () => {
   return context;
 };
 
-const getErrorMessage = (error: AuthError) => {
-  if (error instanceof AuthApiError) {
-    switch (error.status) {
-      case 400:
-        if (error.message.includes("Invalid login credentials")) {
-          return "Invalid email or password. Please check your credentials and try again.";
-        }
-        return "Login failed. Please check your credentials and try again.";
-      case 422:
-        return "Invalid email format. Please enter a valid email address.";
-      case 429:
-        return "Too many login attempts. Please try again later.";
-      default:
-        return error.message;
-    }
-  }
-  return "An unexpected error occurred. Please try again.";
-};
-
-export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
   const navigate = useNavigate();
 
   useEffect(() => {
-    const initializeAuth = async () => {
+    const initAuth = async () => {
       try {
-        // Get initial session
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        const { data: { session } } = await supabase.auth.getSession();
+        setUser(session?.user ?? null);
         
-        if (sessionError) {
-          console.error("Session error:", sessionError);
-          toast({
-            title: "Authentication Error",
-            description: getErrorMessage(sessionError),
-            variant: "destructive",
-          });
-          setUser(null);
-          navigate("/login");
-          return;
-        }
-
-        // Set initial user state
-        if (session?.user) {
-          setUser(session.user);
-          console.log("Initial session user:", session.user);
-        } else {
-          navigate("/login");
-        }
-
-        // Set up auth state change listener
-        const {
-          data: { subscription },
-        } = supabase.auth.onAuthStateChange(async (event, session) => {
-          console.log("Auth event:", event);
-          
-          if (session?.user) {
-            setUser(session.user);
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(
+          async (event, session) => {
+            setUser(session?.user ?? null);
             if (event === 'SIGNED_IN') {
               navigate("/");
-              toast({
-                title: "Welcome back!",
-                description: "You have successfully logged in.",
-              });
-            }
-          } else {
-            setUser(null);
-            if (event === 'SIGNED_OUT') {
-              navigate("/login");
-            } else if (event === 'TOKEN_REFRESHED') {
-              toast({
-                title: "Session Expired",
-                description: "Please log in again.",
-                variant: "destructive",
-              });
+            } else if (event === 'SIGNED_OUT') {
               navigate("/login");
             }
           }
-        });
+        );
 
         return () => {
           subscription.unsubscribe();
         };
-
       } catch (error) {
-        console.error("Auth initialization error:", error);
-        if (error instanceof AuthError) {
-          toast({
-            title: "Authentication Error",
-            description: getErrorMessage(error),
-            variant: "destructive",
-          });
-        }
-        setUser(null);
-        navigate("/login");
+        console.error('Auth error:', error);
+        toast({
+          title: "Authentication Error",
+          description: "Please try logging in again",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
       }
     };
 
-    initializeAuth();
-  }, [toast, navigate]);
+    initAuth();
+  }, [navigate, toast]);
 
   const logout = async () => {
     try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-
+      await supabase.auth.signOut();
       setUser(null);
       navigate("/login");
       toast({
-        title: "Logged out",
-        description: "You have been successfully logged out.",
+        title: "Logged out successfully",
+        description: "See you next time!",
       });
     } catch (error) {
-      console.error("Logout error:", error);
-      if (error instanceof AuthError) {
-        toast({
-          title: "Error",
-          description: getErrorMessage(error),
-          variant: "destructive",
-        });
-      }
-      // Still clear local state and redirect even if there's an error
-      setUser(null);
-      navigate("/login");
+      console.error('Logout error:', error);
+      toast({
+        title: "Error logging out",
+        description: "Please try again",
+        variant: "destructive",
+      });
     }
   };
 
   const updateUser = (data: Partial<User>) => {
-    setUser((prev) => (prev ? { ...prev, ...data } : null));
+    setUser(prev => (prev ? { ...prev, ...data } : null));
   };
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <AuthContext.Provider
