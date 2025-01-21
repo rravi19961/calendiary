@@ -21,7 +21,10 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalKey, setModalKey] = useState(0);
 
-  if (!isAuthenticated) return <Navigate to="/login" />;
+  if (!isAuthenticated) {
+    console.log("User not authenticated, redirecting to login");
+    return <Navigate to="/login" />;
+  }
   
   return (
     <div className="flex min-h-screen w-full">
@@ -44,54 +47,59 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-const App = () => (
-  <BrowserRouter>
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <AuthProvider>
-          <SidebarProvider>
-            <Toaster />
-            <Sonner />
-            <Routes>
-              <Route path="/login" element={<Login />} />
-              <Route
-                path="/"
-                element={
-                  <ProtectedRoute>
-                    <Index />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/profile"
-                element={
-                  <ProtectedRoute>
-                    <Profile />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/days-review"
-                element={
-                  <ProtectedRoute>
-                    <DaysReview />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/preferences"
-                element={
-                  <ProtectedRoute>
-                    <Preferences />
-                  </ProtectedRoute>
-                }
-              />
-            </Routes>
-          </SidebarProvider>
-        </AuthProvider>
-      </TooltipProvider>
-    </QueryClientProvider>
-  </BrowserRouter>
-);
+const App = () => {
+  console.log("App component rendering");
+  
+  return (
+    <BrowserRouter>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <AuthProvider>
+            <SidebarProvider>
+              <Toaster />
+              <Sonner />
+              <Routes>
+                <Route path="/login" element={<Login />} />
+                <Route
+                  path="/"
+                  element={
+                    <ProtectedRoute>
+                      <Index />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/profile"
+                  element={
+                    <ProtectedRoute>
+                      <Profile />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/days-review"
+                  element={
+                    <ProtectedRoute>
+                      <DaysReview />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/preferences"
+                  element={
+                    <ProtectedRoute>
+                      <Preferences />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </SidebarProvider>
+          </AuthProvider>
+        </TooltipProvider>
+      </QueryClientProvider>
+    </BrowserRouter>
+  );
+};
 
 export default App;
