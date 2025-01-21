@@ -16,23 +16,27 @@ import EntryModal from "./components/EntryModal";
 
 const queryClient = new QueryClient();
 
-const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+interface ProtectedRouteProps {
+  children: React.ReactNode;
+}
+
+const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const { isAuthenticated } = useAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalKey, setModalKey] = useState(0);
 
   if (!isAuthenticated) {
     console.log("User not authenticated, redirecting to login");
-    return <Navigate to="/login" />;
+    return <Navigate to="/login" replace />;
   }
-  
+
   return (
     <div className="flex min-h-screen w-full">
       <AppSidebar 
         onNewEntry={() => {
           setModalKey(prev => prev + 1);
           setIsModalOpen(true);
-        }} 
+        }}
       />
       <main className="flex-1 p-6">
         {children}
@@ -49,7 +53,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
 const App = () => {
   console.log("App component rendering");
-  
+
   return (
     <BrowserRouter>
       <QueryClientProvider client={queryClient}>
@@ -59,7 +63,10 @@ const App = () => {
               <Toaster />
               <Sonner />
               <Routes>
+                {/* Public route */}
                 <Route path="/login" element={<Login />} />
+                
+                {/* Protected routes */}
                 <Route
                   path="/"
                   element={
@@ -92,6 +99,8 @@ const App = () => {
                     </ProtectedRoute>
                   }
                 />
+
+                {/* Catch-all route - redirect to home */}
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
             </SidebarProvider>
