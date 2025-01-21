@@ -59,6 +59,13 @@ const Index = () => {
     setSelectedDate(newDate);
   };
 
+  const handleDateSelect = () => {
+    console.log("Date selected, refreshing data");
+    if (user) {
+      loadEntries(selectedDate);
+    }
+  };
+
   return (
     <div className={`min-h-screen bg-gradient-to-b from-[#E6F2FA] to-white dark:from-gray-900 dark:to-gray-800 ${theme}`}>
       <HeaderSection 
@@ -82,6 +89,7 @@ const Index = () => {
         setCurrentRating={setCurrentRating}
         onSave={() => handleSaveEntry(selectedDate)}
         onDateChange={handleDateChange}
+        isLoading={false}
       />
 
       <EntryModal
