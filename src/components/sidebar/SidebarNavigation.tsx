@@ -45,9 +45,9 @@ export function SidebarNavigation() {
                   )}
                 >
                   <item.icon className="h-5 w-5" />
-                  <span className="transition-opacity duration-200 ml-2">
-                    {item.title}
-                  </span>
+                  {state !== "collapsed" && (
+                    <span className="ml-2">{item.title}</span>
+                  )}
                 </SidebarMenuButton>
               </TooltipTrigger>
               {state === "collapsed" && (
