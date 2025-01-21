@@ -16,14 +16,15 @@ const Calendar: React.FC<CalendarProps> = ({ date, setDate, onDateSelect }) => {
   const handleSelect = (newDate: Date | undefined) => {
     if (newDate) {
       const selectedDate = startOfDay(newDate);
-      console.log("Calendar: Selected date:", selectedDate);
-      setDate(selectedDate);
-      setMonth(startOfMonth(selectedDate));
-      
-      // Always trigger onDateSelect when a date is selected
-      if (onDateSelect) {
-        console.log("Calendar: Triggering onDateSelect");
-        onDateSelect();
+      if (!isFuture(selectedDate)) {
+        console.log("Calendar: Selected date:", selectedDate);
+        setDate(selectedDate);
+        setMonth(startOfMonth(selectedDate));
+        
+        if (onDateSelect) {
+          console.log("Calendar: Triggering onDateSelect");
+          onDateSelect();
+        }
       }
     }
   };

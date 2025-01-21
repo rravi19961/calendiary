@@ -13,6 +13,12 @@ export const CalendarSection: React.FC<CalendarSectionProps> = ({
   setSelectedDate,
   onDateSelect,
 }) => {
+  const handleDateSelect = () => {
+    if (onDateSelect) {
+      onDateSelect();
+    }
+  };
+
   return (
     <Card className="h-full flex flex-col">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -22,7 +28,7 @@ export const CalendarSection: React.FC<CalendarSectionProps> = ({
         <Calendar 
           date={selectedDate} 
           setDate={setSelectedDate} 
-          onDateSelect={onDateSelect}
+          onDateSelect={handleDateSelect}
         />
       </CardContent>
     </Card>
