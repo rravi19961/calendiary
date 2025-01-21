@@ -38,7 +38,7 @@ export const MainContent: React.FC<MainContentProps> = ({
   isLoading = false,
 }) => {
   const handleDateSelect = () => {
-    console.log("Date selected in MainContent, refreshing all components");
+    console.log("MainContent: Date selected, refreshing components");
     onDateChange(selectedDate);
   };
 

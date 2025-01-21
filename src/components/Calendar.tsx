@@ -16,11 +16,13 @@ const Calendar: React.FC<CalendarProps> = ({ date, setDate, onDateSelect }) => {
   const handleSelect = (newDate: Date | undefined) => {
     if (newDate) {
       const selectedDate = startOfDay(newDate);
+      console.log("Calendar: Selected date:", selectedDate);
       setDate(selectedDate);
       setMonth(startOfMonth(selectedDate));
       
-      if (onDateSelect && !isFuture(selectedDate)) {
-        console.log(`Selected date in Calendar: ${selectedDate}`);
+      // Always trigger onDateSelect when a date is selected
+      if (onDateSelect) {
+        console.log("Calendar: Triggering onDateSelect");
         onDateSelect();
       }
     }
@@ -28,11 +30,12 @@ const Calendar: React.FC<CalendarProps> = ({ date, setDate, onDateSelect }) => {
 
   const goToToday = () => {
     const today = startOfDay(new Date());
+    console.log("Calendar: Going to today:", today);
     setDate(today);
     setMonth(startOfMonth(today));
     
-    if (onDateSelect && !isFuture(today)) {
-      console.log("Going to today's date in Calendar");
+    if (onDateSelect) {
+      console.log("Calendar: Triggering onDateSelect for today");
       onDateSelect();
     }
   };
