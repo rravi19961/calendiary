@@ -48,6 +48,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const initializeAuth = async () => {
       try {
+        // Get initial session
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
         if (sessionError) {
@@ -62,6 +63,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           return;
         }
 
+        // Set initial user state
         if (session?.user) {
           setUser(session.user);
           console.log("Initial session user:", session.user);
@@ -69,6 +71,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           navigate("/login");
         }
 
+        // Set up auth state change listener
         const {
           data: { subscription },
         } = supabase.auth.onAuthStateChange(async (event, session) => {
@@ -87,18 +90,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             setUser(null);
             if (event === 'SIGNED_OUT') {
               navigate("/login");
-              toast({
-                title: "Signed out",
-                description: "You have been signed out successfully.",
-              });
             } else if (event === 'TOKEN_REFRESHED') {
-              console.log("Token refreshed successfully");
-            } else if (event === 'USER_UPDATED') {
-              navigate("/login");
               toast({
-                title: "Account Updated",
-                description: "Please sign in again with your updated credentials.",
+                title: "Session Expired",
+                description: "Please log in again.",
+                variant: "destructive",
               });
+              navigate("/login");
             }
           }
         });

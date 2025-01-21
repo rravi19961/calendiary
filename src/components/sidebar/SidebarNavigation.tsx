@@ -27,48 +27,38 @@ export function SidebarNavigation() {
   const location = useLocation();
   const { state } = useSidebar();
 
-  const handleNavigation = (path: string) => {
-    console.log("Navigating to:", path);
-    navigate(path);
-  };
-
   return (
     <SidebarMenu className="space-y-2">
-      {navigationItems.map((item) => {
-        const isActive = location.pathname === item.path;
-        console.log(`Path ${item.path} active: ${isActive}`);
-        
-        return (
-          <SidebarMenuItem key={item.title}>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <SidebarMenuButton
-                    isActive={isActive}
-                    onClick={() => handleNavigation(item.path)}
-                    className={cn(
-                      "w-full py-3 text-base transition-colors text-calendiary-primary group",
-                      isActive 
-                        ? "bg-calendiary-primary text-white hover:bg-calendiary-hover"
-                        : "hover:bg-muted"
-                    )}
-                  >
-                    <item.icon className="h-5 w-5" />
-                    {state !== "collapsed" && (
-                      <span className="ml-2">{item.title}</span>
-                    )}
-                  </SidebarMenuButton>
-                </TooltipTrigger>
-                {state === "collapsed" && (
-                  <TooltipContent side="right">
-                    <p>{item.title}</p>
-                  </TooltipContent>
-                )}
-              </Tooltip>
-            </TooltipProvider>
-          </SidebarMenuItem>
-        );
-      })}
+      {navigationItems.map((item) => (
+        <SidebarMenuItem key={item.title}>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <SidebarMenuButton
+                  isActive={location.pathname === item.path}
+                  onClick={() => navigate(item.path)}
+                  className={cn(
+                    "w-full py-3 text-base transition-colors text-calendiary-primary group",
+                    location.pathname === item.path 
+                      ? "bg-calendiary-primary text-white hover:bg-calendiary-hover"
+                      : "hover:bg-muted"
+                  )}
+                >
+                  <item.icon className="h-5 w-5" />
+                  <span className="transition-opacity duration-200 ml-2">
+                    {item.title}
+                  </span>
+                </SidebarMenuButton>
+              </TooltipTrigger>
+              {state === "collapsed" && (
+                <TooltipContent side="right">
+                  <p>{item.title}</p>
+                </TooltipContent>
+              )}
+            </Tooltip>
+          </TooltipProvider>
+        </SidebarMenuItem>
+      ))}
     </SidebarMenu>
   );
 }
