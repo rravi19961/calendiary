@@ -14,36 +14,14 @@ export const supabase = createClient<Database>(
       detectSessionInUrl: true,
       storage: typeof window !== 'undefined' ? window.localStorage : undefined,
       flowType: 'pkce',
-      debug: process.env.NODE_ENV === 'development',
-      // Add a default session handling
-      onAuthStateChange: (event, session) => {
-        if (event === 'SIGNED_OUT') {
-          // Clear any cached data when user signs out
-          localStorage.removeItem('supabase.auth.token');
-        }
-      }
+      debug: process.env.NODE_ENV === 'development'
     },
     global: {
       headers: {
         'Content-Type': 'application/json',
-        'apikey': SUPABASE_ANON_KEY,
-      },
-      // Add request handling
-      fetch: (url, options = {}) => {
-        // Get the current session token
-        const session = supabase.auth.session();
-        if (session?.access_token) {
-          options.headers = {
-            ...options.headers,
-            'Authorization': `Bearer ${session.access_token}`
-          };
-        }
-        return fetch(url, options);
+        'apikey': SUPABASE_ANON_KEY
       }
     },
-    // Add better error handling
-    shouldThrowOnError: true,
-    // Add request retries
     db: {
       schema: 'public'
     },
@@ -55,14 +33,29 @@ export const supabase = createClient<Database>(
   }
 );
 
-// Add a helper to check if user is authenticated
-export const isAuthenticated = () => {
-  const session = supabase.auth.session();
-  return !!session?.user?.id;
+// Helper to get current session
+export const getSession = async () => {
+  const { data: { session }, error } = await supabase.auth.getSession();
+  if (error) throw error;
+  return session;
 };
 
-// Add a helper to get current user
-export const getCurrentUser = () => {
-  const session = supabase.auth.session();
+// Helper to check if user is authenticated
+export const isAuthenticated = async () => {
+  const session = await getSession();
+  return !!session?.user;
+};
+
+// Helper to get current user
+export const getCurrentUser = async () => {
+  const session = await getSession();
   return session?.user || null;
+};
+
+// Helper to get auth header
+export const getAuthHeaders = async () => {
+  const session = await getSession();
+  return session ? {
+    Authorization: `Bearer ${session.access_token}`
+  } : {};
 };
