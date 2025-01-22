@@ -1,17 +1,11 @@
 import React, { useEffect } from "react";
 import { motion } from "framer-motion";
 import { useAuth } from "@/context/AuthContext";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Upload, Calendar } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { format } from "date-fns";
-import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";
+import { ProfileAvatar } from "@/components/profile/ProfileAvatar";
+import { ProfileForm } from "@/components/profile/ProfileForm";
 
 interface Profile {
   username: string | null;
@@ -31,7 +25,6 @@ const Profile = () => {
     date_of_birth: null,
     bio: null,
   });
-  const [isUploading, setIsUploading] = React.useState(false);
 
   useEffect(() => {
     if (user) {
@@ -85,49 +78,31 @@ const Profile = () => {
     }
   };
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !user) return;
-
+  const handleAvatarUpdate = async (publicUrl: string) => {
     try {
-      setIsUploading(true);
-      const fileExt = file.name.split(".").pop();
-      const filePath = `${user.id}/${Math.random()}.${fileExt}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from("avatars")
-        .upload(filePath, file);
-
-      if (uploadError) throw uploadError;
-
-      const { data: { publicUrl } } = supabase.storage
-        .from("avatars")
-        .getPublicUrl(filePath);
-
       const { error: updateError } = await supabase
         .from("profiles")
         .update({ avatar_url: publicUrl })
-        .eq("id", user.id);
+        .eq("id", user?.id);
 
       if (updateError) throw updateError;
 
       setProfile(prev => ({ ...prev, avatar_url: publicUrl }));
-
-      toast({
-        title: "Success",
-        description: "Profile picture updated successfully",
-      });
     } catch (error) {
-      console.error("Error uploading image:", error);
+      console.error("Error updating avatar URL:", error);
       toast({
         title: "Error",
-        description: "Failed to upload profile picture",
+        description: "Failed to update profile picture",
         variant: "destructive",
       });
-    } finally {
-      setIsUploading(false);
     }
   };
+
+  const handleProfileChange = (field: string, value: string) => {
+    setProfile(prev => ({ ...prev, [field]: value }));
+  };
+
+  if (!user) return null;
 
   return (
     <div className="container max-w-4xl py-8">
@@ -141,89 +116,19 @@ const Profile = () => {
             <CardTitle>My Profile</CardTitle>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleUpdateProfile} className="space-y-6">
-              <div className="flex items-center space-x-4">
-                <Avatar className="h-20 w-20">
-                  <AvatarImage src={profile.avatar_url || undefined} />
-                  <AvatarFallback>
-                    {profile.username?.[0]?.toUpperCase() || "?"}
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <Input
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    id="avatar-upload"
-                    onChange={handleImageUpload}
-                    disabled={isUploading}
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => document.getElementById("avatar-upload")?.click()}
-                    disabled={isUploading}
-                  >
-                    <Upload className="h-4 w-4 mr-2" />
-                    {isUploading ? "Uploading..." : "Upload New Picture"}
-                  </Button>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="full_name" className={cn("text-sm font-medium", !profile.full_name && "text-destructive")}>
-                  Full Name *
-                </Label>
-                <Input
-                  id="full_name"
-                  value={profile.full_name || ""}
-                  onChange={(e) => setProfile(prev => ({ ...prev, full_name: e.target.value }))}
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="username" className="text-sm font-medium">
-                  Username
-                </Label>
-                <Input
-                  id="username"
-                  value={profile.username || ""}
-                  onChange={(e) => setProfile(prev => ({ ...prev, username: e.target.value }))}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="date_of_birth" className={cn("text-sm font-medium", !profile.date_of_birth && "text-destructive")}>
-                  Date of Birth *
-                </Label>
-                <div className="relative">
-                  <Input
-                    id="date_of_birth"
-                    type="date"
-                    value={profile.date_of_birth || ""}
-                    onChange={(e) => setProfile(prev => ({ ...prev, date_of_birth: e.target.value }))}
-                    required
-                  />
-                  <Calendar className="absolute right-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="bio" className="text-sm font-medium">
-                  Bio
-                </Label>
-                <Textarea
-                  id="bio"
-                  value={profile.bio || ""}
-                  onChange={(e) => setProfile(prev => ({ ...prev, bio: e.target.value }))}
-                  placeholder="Tell us about yourself..."
-                  rows={4}
-                />
-              </div>
-
-              <Button type="submit">Save Changes</Button>
-            </form>
+            <ProfileAvatar
+              userId={user.id}
+              avatarUrl={profile.avatar_url}
+              username={profile.username}
+              onAvatarUpdate={handleAvatarUpdate}
+            />
+            <div className="mt-6">
+              <ProfileForm
+                profile={profile}
+                onProfileChange={handleProfileChange}
+                onSubmit={handleUpdateProfile}
+              />
+            </div>
           </CardContent>
         </Card>
       </motion.div>
