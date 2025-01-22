@@ -52,7 +52,7 @@ const Index = () => {
       console.log("Loading entries for date:", selectedDate);
       loadEntries(selectedDate);
     }
-  }, [selectedDate, user, loadEntries]);
+  }, [selectedDate, user]);
 
   const handleDateChange = (newDate: Date) => {
     console.log("Date changed to:", newDate);

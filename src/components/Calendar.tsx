@@ -62,20 +62,12 @@ const Calendar: React.FC<CalendarProps> = ({ date, setDate, onDateSelect }) => {
           month={month}
           onMonthChange={setMonth}
           disabled={(date) => isFuture(date)}
-          className="rounded-md border shadow-sm w-full max-w-[320px] min-h-[380px] transition-all hover:shadow-md"
+          className="rounded-md border shadow-sm w-full max-w-[320px] transition-all hover:shadow-md"
           classNames={{
-            day: "h-9 w-9 p-0 font-normal text-[0.9rem] transition-colors hover:bg-muted/50 focus:bg-muted cursor-pointer",
+            day: "transition-colors hover:bg-muted/50 focus:bg-muted cursor-pointer",
             day_selected: "bg-primary text-primary-foreground hover:bg-primary/90 focus:bg-primary/90",
             day_today: "bg-accent text-accent-foreground",
             day_disabled: "text-muted-foreground opacity-50 cursor-not-allowed",
-            head_cell: "text-muted-foreground rounded-md w-9 font-medium text-[0.9rem] text-center",
-            cell: "h-9 w-9 text-center text-sm p-0 relative [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
-            nav_button: "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100 cursor-pointer",
-            table: "w-full border-collapse space-y-1",
-            months: "space-y-4",
-            caption: "flex justify-center pt-1 relative items-center",
-            caption_label: "text-sm font-medium",
-            nav: "space-x-1 flex items-center",
           }}
         />
       </div>
