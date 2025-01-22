@@ -31,6 +31,7 @@ const Profile = () => {
     date_of_birth: null,
     bio: null,
   });
+  const [isUploading, setIsUploading] = React.useState(false);
 
   useEffect(() => {
     if (user) {
@@ -86,38 +87,45 @@ const Profile = () => {
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      try {
-        const fileExt = file.name.split(".").pop();
-        const filePath = `${user?.id}/${Math.random()}.${fileExt}`;
+    if (!file || !user) return;
 
-        const { error: uploadError } = await supabase.storage
-          .from("avatars")
-          .upload(filePath, file);
+    try {
+      setIsUploading(true);
+      const fileExt = file.name.split(".").pop();
+      const filePath = `${user.id}/${Math.random()}.${fileExt}`;
 
-        if (uploadError) throw uploadError;
+      const { error: uploadError } = await supabase.storage
+        .from("avatars")
+        .upload(filePath, file);
 
-        const { error: updateError } = await supabase
-          .from("profiles")
-          .update({ avatar_url: filePath })
-          .eq("id", user?.id);
+      if (uploadError) throw uploadError;
 
-        if (updateError) throw updateError;
+      const { data: { publicUrl } } = supabase.storage
+        .from("avatars")
+        .getPublicUrl(filePath);
 
-        setProfile(prev => ({ ...prev, avatar_url: filePath }));
+      const { error: updateError } = await supabase
+        .from("profiles")
+        .update({ avatar_url: publicUrl })
+        .eq("id", user.id);
 
-        toast({
-          title: "Image uploaded",
-          description: "Your profile picture has been updated.",
-        });
-      } catch (error) {
-        console.error("Error uploading image:", error);
-        toast({
-          title: "Error",
-          description: "Failed to upload image",
-          variant: "destructive",
-        });
-      }
+      if (updateError) throw updateError;
+
+      setProfile(prev => ({ ...prev, avatar_url: publicUrl }));
+
+      toast({
+        title: "Success",
+        description: "Profile picture updated successfully",
+      });
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      toast({
+        title: "Error",
+        description: "Failed to upload profile picture",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -148,14 +156,16 @@ const Profile = () => {
                     className="hidden"
                     id="avatar-upload"
                     onChange={handleImageUpload}
+                    disabled={isUploading}
                   />
                   <Button
                     type="button"
                     variant="outline"
                     onClick={() => document.getElementById("avatar-upload")?.click()}
+                    disabled={isUploading}
                   >
                     <Upload className="h-4 w-4 mr-2" />
-                    Upload New Picture
+                    {isUploading ? "Uploading..." : "Upload New Picture"}
                   </Button>
                 </div>
               </div>
