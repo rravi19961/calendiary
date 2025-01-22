@@ -13,23 +13,12 @@ export const supabase = createClient<Database>(
       persistSession: true,
       detectSessionInUrl: true,
       storage: typeof window !== 'undefined' ? window.localStorage : undefined,
-      flowType: 'pkce',
-      debug: process.env.NODE_ENV === 'development'
     },
     global: {
       headers: {
         'Content-Type': 'application/json',
-        'apikey': SUPABASE_ANON_KEY
-      }
+      },
     },
-    db: {
-      schema: 'public'
-    },
-    realtime: {
-      params: {
-        eventsPerSecond: 10
-      }
-    }
   }
 );
 
@@ -50,12 +39,4 @@ export const isAuthenticated = async () => {
 export const getCurrentUser = async () => {
   const session = await getSession();
   return session?.user || null;
-};
-
-// Helper to get auth header
-export const getAuthHeaders = async () => {
-  const session = await getSession();
-  return session ? {
-    Authorization: `Bearer ${session.access_token}`
-  } : {};
 };

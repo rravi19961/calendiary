@@ -30,15 +30,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     const initAuth = async () => {
       try {
+        // Get initial session
         const { data: { session } } = await supabase.auth.getSession();
         setUser(session?.user ?? null);
         
+        // Set up real-time subscription to auth changes
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
-          async (event, session) => {
+          async (_event, session) => {
+            console.log("Auth state changed:", _event, session?.user);
             setUser(session?.user ?? null);
-            if (event === 'SIGNED_IN') {
+            
+            if (session?.user) {
+              // Successful authentication
               navigate("/");
-            } else if (event === 'SIGNED_OUT') {
+              toast({
+                title: "Welcome back!",
+                description: "You've been successfully logged in.",
+              });
+            } else {
+              // User is logged out
               navigate("/login");
             }
           }
