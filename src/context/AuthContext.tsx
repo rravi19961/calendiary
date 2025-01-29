@@ -30,7 +30,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     const initAuth = async () => {
       try {
-        // Get initial session
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
         if (sessionError) {
@@ -40,7 +39,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         setUser(session?.user ?? null);
         
-        // Set up real-time subscription to auth changes
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
           async (event, session) => {
             console.log("Auth state changed:", event, session?.user);
@@ -55,18 +53,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               return;
             }
 
-            setUser(session?.user ?? null);
-            
-            if (session?.user) {
-              // Successful authentication
-              navigate("/");
+            if (event === 'SIGNED_IN') {
+              setUser(session?.user ?? null);
               toast({
                 title: "Welcome back!",
                 description: "You've been successfully logged in.",
               });
-            } else if (event === 'SIGNED_OUT') {
-              // User is logged out
-              navigate("/login");
+              navigate("/");
+            } else {
+              setUser(session?.user ?? null);
             }
           }
         );
@@ -76,7 +71,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         };
       } catch (error) {
         console.error('Auth error:', error);
-        // Clear the user state and redirect to login on auth error
         setUser(null);
         navigate('/login');
         toast({
