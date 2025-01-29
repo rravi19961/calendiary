@@ -24,9 +24,14 @@ export const supabase = createClient<Database>(
 
 // Helper to get current session
 export const getSession = async () => {
-  const { data: { session }, error } = await supabase.auth.getSession();
-  if (error) throw error;
-  return session;
+  try {
+    const { data: { session }, error } = await supabase.auth.getSession();
+    if (error) throw error;
+    return session;
+  } catch (error) {
+    console.error('Error getting session:', error);
+    return null;
+  }
 };
 
 // Helper to check if user is authenticated

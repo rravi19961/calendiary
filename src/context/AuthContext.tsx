@@ -31,13 +31,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const initAuth = async () => {
       try {
         // Get initial session
-        const { data: { session } } = await supabase.auth.getSession();
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError) {
+          console.error('Session error:', sessionError);
+          throw sessionError;
+        }
+
         setUser(session?.user ?? null);
         
         // Set up real-time subscription to auth changes
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
-          async (_event, session) => {
-            console.log("Auth state changed:", _event, session?.user);
+          async (event, session) => {
+            console.log("Auth state changed:", event, session?.user);
+            
+            if (event === 'TOKEN_REFRESHED') {
+              console.log('Token refreshed successfully');
+            }
+
+            if (event === 'SIGNED_OUT') {
+              setUser(null);
+              navigate('/login');
+              return;
+            }
+
             setUser(session?.user ?? null);
             
             if (session?.user) {
@@ -47,7 +64,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 title: "Welcome back!",
                 description: "You've been successfully logged in.",
               });
-            } else {
+            } else if (event === 'SIGNED_OUT') {
               // User is logged out
               navigate("/login");
             }
@@ -59,6 +76,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         };
       } catch (error) {
         console.error('Auth error:', error);
+        // Clear the user state and redirect to login on auth error
+        setUser(null);
+        navigate('/login');
         toast({
           title: "Authentication Error",
           description: "Please try logging in again",
