@@ -22,7 +22,7 @@ const Calendar: React.FC<CalendarProps> = ({ date, setDate, onDateSelect }) => {
         setMonth(startOfMonth(selectedDate));
         
         if (onDateSelect) {
-          console.log("Calendar: Triggering onDateSelect");
+          console.log("Calendar: Triggering onDateSelect callback");
           onDateSelect();
         }
       } else {

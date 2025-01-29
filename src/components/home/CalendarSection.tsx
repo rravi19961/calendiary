@@ -14,7 +14,7 @@ export const CalendarSection: React.FC<CalendarSectionProps> = ({
   onDateSelect,
 }) => {
   const handleDateSelect = () => {
-    console.log("CalendarSection: Date selected, refreshing data");
+    console.log("CalendarSection: Date selected, triggering data refresh");
     if (onDateSelect) {
       onDateSelect();
     }
