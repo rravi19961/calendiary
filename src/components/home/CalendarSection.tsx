@@ -22,7 +22,7 @@ export const CalendarSection: React.FC<CalendarSectionProps> = ({
 
   return (
     <Card className="h-full flex flex-col">
-      <CardContent className="flex-grow flex items-start justify-center p-4">
+      <CardContent className="flex-grow flex items-center justify-center p-4">
         <Calendar 
           date={selectedDate} 
           setDate={setSelectedDate} 
