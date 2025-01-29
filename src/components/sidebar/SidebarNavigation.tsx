@@ -28,6 +28,7 @@ export function SidebarNavigation() {
   const { state } = useSidebar();
 
   const handleNavigation = (path: string) => {
+    console.log("Navigating to:", path);
     navigate(path);
   };
 
@@ -42,14 +43,16 @@ export function SidebarNavigation() {
                   isActive={location.pathname === item.path}
                   onClick={() => handleNavigation(item.path)}
                   className={cn(
-                    "w-full py-3 text-base transition-colors text-calendiary-primary group",
-                    location.pathname === item.path 
-                      ? "bg-calendiary-primary text-white hover:bg-calendiary-hover"
-                      : "hover:bg-muted"
+                    "w-full py-3 text-base transition-colors hover:bg-muted",
+                    location.pathname === item.path && "bg-muted"
                   )}
                 >
                   <item.icon className="h-5 w-5" />
-                  <span className="transition-opacity duration-200 ml-2">
+                  <span className={cn(
+                    "ml-2",
+                    state === "collapsed" ? "opacity-0" : "opacity-100",
+                    "transition-opacity duration-200"
+                  )}>
                     {item.title}
                   </span>
                 </SidebarMenuButton>
