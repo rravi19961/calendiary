@@ -44,15 +44,18 @@ const Calendar: React.FC<CalendarProps> = ({ date, setDate, onDateSelect }) => {
   };
 
   return (
-    <div className="flex flex-col items-center space-y-4 w-full">
-      <Button 
-        variant="default"
-        onClick={goToToday}
-        className="w-[240px] rounded-md h-10 transition-all hover:scale-105 bg-calendiary-primary hover:bg-calendiary-hover"
-      >
-        <CalendarIcon className="h-4 w-4 mr-2" />
-        Today
-      </Button>
+    <div className="flex flex-col w-full">
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="text-lg font-semibold">Calendar</h3>
+        <Button 
+          variant="default"
+          onClick={goToToday}
+          className="rounded-md h-9 transition-all hover:scale-105 bg-calendiary-primary hover:bg-calendiary-hover"
+        >
+          <CalendarIcon className="h-4 w-4 mr-2" />
+          Today
+        </Button>
+      </div>
       
       <div className="flex justify-center w-full">
         <CalendarComponent
