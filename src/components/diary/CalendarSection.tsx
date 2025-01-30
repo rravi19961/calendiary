@@ -23,7 +23,7 @@ export const CalendarSection: React.FC<CalendarSectionProps> = ({
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-xl font-bold">Calendar</CardTitle>
       </CardHeader>
-      <CardContent className="flex flex-col gap-4">
+      <CardContent className="flex flex-col gap-4 pt-6">
         <Button
           variant="default"
           className="w-full bg-[#1E2A4A] hover:bg-[#2A3B66] text-white"
