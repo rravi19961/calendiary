@@ -65,22 +65,24 @@ export const MainContent: React.FC<MainContentProps> = ({
         </div>
       </div>
 
+      {/* First Row - Chat Assistant */}
+      <div className="h-[400px]">
+        <ChatSection selectedDate={selectedDate} />
+      </div>
+
+      {/* Second Row - Mood Trends and Photo Gallery */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="h-[400px]">
-          <ChatSection selectedDate={selectedDate} />
+          <MoodTrendsSection />
         </div>
         <div className="h-[400px]">
           <PhotoGallerySection selectedDate={selectedDate} />
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="h-[400px]">
-          <MoodTrendsSection />
-        </div>
-        <div className="h-[400px]">
-          <DayHighlightsSection selectedDate={selectedDate} />
-        </div>
+      {/* Third Row - Day Highlights (Full Width) */}
+      <div className="h-[400px]">
+        <DayHighlightsSection selectedDate={selectedDate} />
       </div>
     </main>
   );
