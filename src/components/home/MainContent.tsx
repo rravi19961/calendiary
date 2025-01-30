@@ -67,15 +67,20 @@ export const MainContent: React.FC<MainContentProps> = ({
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="h-[400px]">
-          <MoodTrendsSection />
+          <ChatSection selectedDate={selectedDate} />
         </div>
         <div className="h-[400px]">
           <PhotoGallerySection selectedDate={selectedDate} />
         </div>
       </div>
 
-      <div className="w-full">
-        <DayHighlightsSection selectedDate={selectedDate} />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="h-[400px]">
+          <MoodTrendsSection />
+        </div>
+        <div className="h-[400px]">
+          <DayHighlightsSection selectedDate={selectedDate} />
+        </div>
       </div>
     </main>
   );
