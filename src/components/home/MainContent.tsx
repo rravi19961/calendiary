@@ -4,6 +4,7 @@ import { DayHighlightsSection } from "./DayHighlightsSection";
 import { MoodTrendsSection } from "./MoodTrendsSection";
 import { PhotoGallerySection } from "@/components/diary/PhotoGallerySection";
 import { EntryDisplay } from "@/components/diary/EntryDisplay";
+import { CalendarSection } from "@/components/diary/CalendarSection";
 
 interface MainContentProps {
   selectedDate: Date;
@@ -38,8 +39,14 @@ export const MainContent: React.FC<MainContentProps> = ({
 }) => {
   return (
     <main className="max-w-7xl mx-auto px-4 py-6 space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="h-[600px]">
+          <CalendarSection 
+            selectedDate={selectedDate}
+            onDateChange={onDateChange}
+          />
+        </div>
+        <div className="h-[600px] md:col-span-2">
           <EntryDisplay
             entries={entries}
             currentEntryIndex={currentEntryIndex}
@@ -55,10 +62,6 @@ export const MainContent: React.FC<MainContentProps> = ({
             onDateChange={onDateChange}
             isLoading={isLoading}
           />
-        </div>
-
-        <div className="h-[600px]">
-          <ChatSection selectedDate={selectedDate} />
         </div>
       </div>
 
